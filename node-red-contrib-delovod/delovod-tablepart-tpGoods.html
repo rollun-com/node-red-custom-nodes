@@ -1,0 +1,85 @@
+<script type="text/javascript">
+  "use strict";
+  /*global RED*/
+  RED.nodes.registerType('delovod-tablepart-tpGoods', {
+    category: 'Delovod',
+    inputs: 1,
+    outputs: 2,
+    color: "#85C1E9",
+    icon: "icons/node-red/white-globe.svg",
+    paletteLabel: "delovod-tablepart-tpGoods",
+    defaults: {
+      config: {
+        value: "", type: "delovod-config",
+        required: true
+      },
+      partNumber: {
+        value: 'msg|payload.partNumber', type: '',
+      },
+      qty: {
+        value: 'msg|payload.qty',
+      },
+      price: {
+        value: 'msg|payload.price',
+      },
+      subTotal: {
+        value: 'msg|payload.subTotal',
+      },
+      name: {
+        value: ""
+      }
+      // 'select': {
+      //   value: ""
+      // }
+    },
+    label: function () {
+      return this.name || 'Delovod format tpGoods';
+    },
+    oneditprepare: function () {
+      const node = this;
+      console.log('node', node);
+      const types = [{
+        value: "msg",
+        label: "msg."
+      }, {
+        value: "const",
+        label: "constant"
+      }];
+      window.delovod.util.makeTypedInput('partNumber', types);
+      window.delovod.util.makeTypedInput('qty', types);
+      window.delovod.util.makeTypedInput('price', types);
+      window.delovod.util.makeTypedInput('subTotal', types);
+    }
+  });
+</script>
+
+<script type="text/html" data-template-name="delovod-tablepart-tpGoods">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-server"></i> Name</label>
+        <input type="text" id="node-input-name">
+    </div>
+    <div class="form-row">
+        <label for="node-input-config"><i class="fa fa-server"></i> Delovod Config</label>
+        <input type="text" id="node-input-config">
+    </div>
+    <div class="form-row">
+        <label for="node-input-partNumber-view"><i class="fa fa-server"></i> Part number</label>
+        <input type="hidden" id="node-input-partNumber">
+        <input type="text" id="node-input-partNumber-view">
+    </div>
+    <div class="form-row">
+        <label for="node-input-price-view"><i class="fa fa-server"></i> price</label>
+        <input type="hidden" id="node-input-price">
+        <input type="text" id="node-input-price-view">
+    </div>
+    <div class="form-row">
+        <label for="node-input-qty-view"><i class="fa fa-server"></i> qty</label>
+        <input type="hidden" id="node-input-qty">
+        <input type="text" id="node-input-qty-view">
+    </div>
+    <div class="form-row">
+        <label for="node-input-qty-view"><i class="fa fa-server"></i> subTotal</label>
+        <input type="hidden" id="node-input-subTotal">
+        <input type="text" id="node-input-subTotal-view">
+    </div>
+</script>
