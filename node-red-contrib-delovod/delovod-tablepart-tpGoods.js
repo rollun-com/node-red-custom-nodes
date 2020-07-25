@@ -30,7 +30,7 @@ module.exports = function (RED) {
             let newVal;
             if (type === 'msg') {
               const path = val.replace(/\.?([a-z_\-0-9]+)$/i, `[${idx}].$1`);
-              newVal = global.delovod.util.resolvePath(msg, path);
+              newVal = global.utils.resolvePath(msg, path);
               if (!newVal) throw new Error(`msg.${path} cannot be empty!`);
             } else {
               newVal = val;

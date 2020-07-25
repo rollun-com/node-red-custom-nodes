@@ -17,8 +17,8 @@ module.exports = function (RED) {
       const [amountCurType, amountCurVal] = config.amountCur.split('|');
       const [analytics2Type, analytics2Val] = config.analytics2.split('|');
 
-      const amountCur = amountCurType === 'msg' ? global.delovod.util.resolvePath(msg, amountCurVal) : amountCurVal;
-      const analytics2 = analytics2Type === 'msg' ? global.delovod.util.resolvePath(msg, analytics2Val) : analytics2Val;
+      const amountCur = amountCurType === 'msg' ? global.utils.resolvePath(msg, amountCurVal) : amountCurVal;
+      const analytics2 = analytics2Type === 'msg' ? global.utils.resolvePath(msg, analytics2Val) : analytics2Val;
 
       if (!amountCur) return makeError(`amountCur is required!`);
       if (!analytics2) return makeError(`analytics2 is required!`);

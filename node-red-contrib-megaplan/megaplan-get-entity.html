@@ -1,0 +1,60 @@
+<script type="text/javascript">
+  "use strict";
+
+  const megaplanEntities = [
+    'deal', 'contractorHuman', 'offer'
+  ]
+
+  RED.nodes.registerType('megaplan-get-entity', {
+    category: 'Megaplan',
+    inputs: 1,
+    outputs: 2,
+    color: "#85C1E9",
+    icon: "icons/node-red/white-globe.svg",
+    paletteLabel: "megaplan-get-entity",
+    defaults: {
+      config: {
+        value: "", type: "megaplan-config",
+        required: true
+      },
+      entity: {
+        value: megaplanEntities[0]
+      },
+      name: {
+        value: ""
+      },
+      id: {
+        value: 'msg.payload.id'
+      }
+    },
+    label: function () {
+      return this.name || 'Megaplan get item';
+    },
+    oneditprepare: function () {
+      $('#node-input-entity')
+      .html($.parseHTML(megaplanEntities.map(entity => `<option value="${entity}" ${this.entity === entity ? 'selected' : ''}>${entity}</option>`)))
+    }
+  });
+</script>
+
+<script type="text/html" data-template-name="megaplan-get-entity">
+    <div class="form-row">
+        <label for="node-input-config"><i class="fa fa-server"></i> Megaplan config</label>
+        <input type="text" id="node-input-config">
+    </div>
+    <div class="form-row">
+        <label for="node-input-entity"><i class="fa fa-server"></i> Entity</label>
+        <select id="node-input-entity">
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-server"></i> Name</label>
+        <input type="text" id="node-input-name">
+    </div>
+</script>
+
+<script type="text/html" data-help-name="megaplan-get-entity">
+    <h4>A simple node, performes request to megaplan</h4>
+    <h5>1 output - in case of error, data from <code>meta</code> will be here</h5>
+    <h5>2 output - in case of success, data from <code>data</code> will be here</h5>
+</script>

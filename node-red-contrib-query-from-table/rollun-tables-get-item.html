@@ -28,17 +28,17 @@
     },
     oneditprepare() {
       $('#node-input-tableURL')
-        .on('change', window.delovod.util.debounce((e) => {
+        .on('change', window.utils.debounce((e) => {
           (async value => {
             if (value.length === 0) return;
             try {
               const errorMSgField = $('#error-msg');
               errorMSgField.text('');
-              const dataStore = new window.delovod.util.datastore('https://rollun.net');
+              const dataStore = new window.utils.datastore('https://rollun.net');
 
               const [pathname = ''] = value.split('?');
 
-              const pagePath = window.delovod.util.last(pathname.split('/'));
+              const pagePath = window.utils.last(pathname.split('/'));
               if (!pagePath) throw new Error('pagePath is empty!');
 
               // const pages = [
@@ -2207,7 +2207,7 @@
               const pageDatastore = pageConfig.config?.appParams?.gridParams?.datastoreUrl;
               if (!pageDatastore) throw new Error('pageDatastore is empty');
 
-              const datastoreName = window.delovod.util.last(pageDatastore.split('/'));
+              const datastoreName = window.utils.last(pageDatastore.split('/'));
               if (!datastoreName) throw new Error('datastoreName is empty');
 
               // const datastores = [

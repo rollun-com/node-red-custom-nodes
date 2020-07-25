@@ -31,7 +31,7 @@ module.exports = function (RED) {
           }
           if (!val) return acc;
           const [type, value] = val.split('|');
-          acc[key] = type === 'msg' ? global.delovod.util.resolvePath(msg, value) : value
+          acc[key] = type === 'msg' ? global.utils.resolvePath(msg, value) : value
           return acc;
         }, {});
       const documentTableParts = msg.tableParts || {};

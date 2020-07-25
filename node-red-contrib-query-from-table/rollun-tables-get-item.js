@@ -21,7 +21,7 @@ module.exports = function (RED) {
         // resolve path
         .replace(/msg\.[a-zA-Z.]+/g, match => {
           const path = match.replace(/^msg\./, '');
-          return global.delovod.util.resolvePath(msg, path)
+          return global.utils.resolvePath(msg, path)
         })
 
       const uri = `${url}?${processedRql}`;
