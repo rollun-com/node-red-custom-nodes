@@ -6,16 +6,40 @@ module.exports = function (RED) {
     console.log('create node', config, this.config);
 
     node.on('input', function (msg) {
-      const axios = require('axios');
-
-      const makeError = (node, text) => {
-        msg.error = {error: text};
-        msg.payload = undefined;
-        node.send(msg)
+      const makeError = text => {
+        msg.payload = {error: text};
+        node.send([msg, null]);
       };
 
-      console.log('incoming input', msg.payload);
-      node.send([null, msg]);
+      if (!config.entityId) return makeError(`Entity ID field is required`);
+      if (!config.entity) return makeError(`Entity field is required`);
+
+      const [type, entityIdValue] = global.utils.parseTypedInput(config.entityId);
+
+      const entityId = type === 'msg'
+          ? global.utils.resolvePath(msg, entityIdValue.replace('/^msg.', ''))
+          : entityIdValue;
+
+      if (!entityId) return makeError('Field Entity ID cannot be empty!');
+
+      const client = new global.megaplan.apiv3({host: node.config.host, email: node.config.email, password: node.config.password});
+
+      client
+          .getEntity(config.entity, entityId)
+          .then(res => {
+            msg.payload = res.data.data;
+            node.send([null, msg]);
+          })
+          .catch(err => {
+            if (err.response) {
+              // cannot serialise response with request property due to circular properties
+              err.response.request = null;
+            }
+            msg.payload = err.response.data.meta;
+            node.send([msg, null])
+          });
+
+      // node.send([null, msg]);
     });
   }
 

@@ -20,8 +20,18 @@ module.exports = (function () {
         }
       }
       return o;
-    }
-  }
+    },
+    /**
+     *
+     * @param val - input like str|12313, where str is type and 12313 is value.
+     * @returns {string[]} - where first is type and second is value.
+     */
+    parseTypedInput: (val) => {
+      const [type = '', value = ''] = val.split('|');
+      return [type, value];
+    },
+
+  };
 
   global.delovod = {
     util: {
@@ -38,7 +48,7 @@ module.exports = (function () {
       SET_DEL_MARK: 'setDelMark',
       REQUEST: 'request'
     }
-  }
+  };
 
   console.log('common');
-})()
+})();
