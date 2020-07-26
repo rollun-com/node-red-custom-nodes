@@ -74,11 +74,11 @@ ${val}`).join('\n');
                         'content-type': 'multipart/form-data; boundary=12345'
                     }
                 });
-                console.log('auth response', result.data);
                 fs.writeFileSync('/data/.megaplan-auth-token.json', JSON.stringify({
                     ...result.data,
                     created_at: Math.floor(Date.now() / 1000)
                 }))
+                return result.data.access_token;
             }
 
             async getEntity(name, id) {
