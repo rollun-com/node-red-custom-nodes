@@ -1,0 +1,54 @@
+<script type="text/javascript">
+  "use strict";
+
+  RED.nodes.registerType('gsheets-get-cells', {
+    category: 'Rollun GSheet',
+    inputs: 1,
+    outputs: 2,
+    color: "#bce4d0",
+    icon: "icons/node-red/white-globe.svg",
+    paletteLabel: "gsheet-get-cells",
+    defaults: {
+      config: {
+        value: "", type: "gsheets-config",
+        required: true
+      },
+      sheetId: {
+        value: ''
+      },
+      cells: {
+        value: 'A1:B3',
+      },
+      name: {
+        value: ""
+      }
+    },
+    label: function () {
+      return this.name || 'Gsheet get cells';
+    },
+    oneditprepare: function () {
+
+    }
+  });
+</script>
+
+<script type="text/html" data-template-name="gsheets-get-cells">
+    <div class="form-row">
+        <label for="node-input-config"><i class="fa fa-server"></i> GSheet config</label>
+        <input type="text" id="node-input-config">
+    </div>
+    <div class="form-row">
+        <label for="node-input-sheetId"><i class="fa fa-server"></i> Sheet ID</label>
+        <input type="text" id="node-input-sheetId">
+    </div>
+    <div class="form-row">
+        <label for="node-input-cells"><i class="fa fa-server"></i> Cells</label>
+        <input type="hidden" id="node-input-cells">
+        <input type="text" id="node-input-cells-view">
+    </div>
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-server"></i> Name</label>
+        <input type="text" id="node-input-name">
+    </div>
+</script>
+

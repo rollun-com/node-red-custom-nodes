@@ -84,6 +84,10 @@ ${val}`).join('\n');
             async getEntity(name, id) {
                 return this.axios.get(`api/v3/${name}/${id}`);
             }
+
+            async updateEntity(name, id, body = {}) {
+                return this.axios.post(`api/v3/${name}/${id}`, body);
+            }
         }
     }
 })();
