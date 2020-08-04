@@ -3,7 +3,6 @@ module.exports = function (RED) {
     RED.nodes.createNode(this, config);
     const node = this;
     this.config = RED.nodes.getNode(config.config);
-    console.log('create node', node.send);
 
     let result = [];
     let timeouted = false;

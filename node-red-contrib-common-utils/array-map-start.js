@@ -3,8 +3,6 @@ module.exports = function (RED) {
     RED.nodes.createNode(this, config);
     const node = this;
     this.config = RED.nodes.getNode(config.config);
-    console.log('create node', node.send);
-
 
     node.on('input', function (msg) {
       const _ = require('lodash');
