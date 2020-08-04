@@ -80,12 +80,12 @@ module.exports = function (RED) {
 
       async log(log_level, message, context, lifecycle_token) {
         console.log('About to log!', log_level, message);
-        return this._logProduction(log_level, message, context);
+        return this._logProduction(log_level, message, context, lifecycle_token);
       }
     }
 
     const logger = new ElasticLogger({
-      index_name: config.indexName,
+      index_name: node.config.indexName,
       host: node.config.logstashHost,
       port: node.config.logstashPort
     });
@@ -108,6 +108,7 @@ module.exports = function (RED) {
 
         if (value >= minLogLevelValue) {
           try {
+            if (typeof message !== 'string') throw new Error(`message must be of type string - ${typeof message} given!`);
             await logger.log(config.level, message || 'default message', context, msg._msgid);
             node.warn({
               topic: `Message logged to elasticsearch.`,
