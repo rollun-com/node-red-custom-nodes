@@ -17,22 +17,30 @@ module.exports = function (RED) {
       if (!node.config) return makeError(`node.config is required!`);
       if (!config.sheetId) return makeError(`sheetId is required!`);
 
-      const cells = config.cells || 'A1:B10';
+      const [type, value] = global.utils.parseTypedInput(config.cells);
+      const cells = (type === 'msg'
+        ? global.utils.resolvePath(msg, value)
+        : value) || 'A1:B10';
+
+      const [tableIdType, tableIdValue] = global.utils.parseTypedInput(config.tableId);
+      const tableId = (tableIdType === 'msg'
+        ? global.utils.resolvePath(msg, tableIdValue)
+        : tableIdValue) || '0';
 
       const {GoogleSpreadsheet} = require('google-spreadsheet');
 
       (async () => {
-        console.log('sheet id', config.sheetId)
+        console.log('sheet id', config.sheetId, tableId, cells)
         const doc = new GoogleSpreadsheet(config.sheetId);
 
-        console.log('creds', node.config.creds);
         await doc.useServiceAccountAuth(node.config.creds);
 
-        await doc.loadInfo(true);
-        console.log(doc.title);
+        console.log('before load');
+        await doc.loadInfo();
+        await doc.loadCells(cells);
+        console.log('title', doc.title);
 
-        const sheet = doc.sheetsByIndex[0];
-        console.log(sheet);
+        const sheet = doc.sheetsById[tableId];
         msg.payload = sheet;
         node.send([null, msg]);
       })()

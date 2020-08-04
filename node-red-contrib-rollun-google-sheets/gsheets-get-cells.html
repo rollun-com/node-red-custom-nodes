@@ -19,6 +19,9 @@
       cells: {
         value: 'A1:B3',
       },
+      tableId: {
+        value: '',
+      },
       name: {
         value: ""
       }
@@ -27,28 +30,34 @@
       return this.name || 'Gsheet get cells';
     },
     oneditprepare: function () {
-
+      window.utils.makeTypedInput('cells')
+      window.utils.makeTypedInput('tableId')
     }
   });
 </script>
 
 <script type="text/html" data-template-name="gsheets-get-cells">
-    <div class="form-row">
-        <label for="node-input-config"><i class="fa fa-server"></i> GSheet config</label>
-        <input type="text" id="node-input-config">
-    </div>
-    <div class="form-row">
-        <label for="node-input-sheetId"><i class="fa fa-server"></i> Sheet ID</label>
-        <input type="text" id="node-input-sheetId">
-    </div>
-    <div class="form-row">
-        <label for="node-input-cells"><i class="fa fa-server"></i> Cells</label>
-        <input type="hidden" id="node-input-cells">
-        <input type="text" id="node-input-cells-view">
-    </div>
-    <div class="form-row">
-        <label for="node-input-name"><i class="fa fa-server"></i> Name</label>
-        <input type="text" id="node-input-name">
-    </div>
+  <div class="form-row">
+    <label for="node-input-config"><i class="fa fa-server"></i> GSheet config</label>
+    <input type="text" id="node-input-config">
+  </div>
+  <div class="form-row">
+    <label for="node-input-sheetId"><i class="fa fa-server"></i> Sheet ID</label>
+    <input type="text" id="node-input-sheetId">
+  </div>
+  <div class="form-row">
+    <label for="node-input-cells"><i class="fa fa-server"></i> Cells</label>
+    <input type="hidden" id="node-input-cells">
+    <input type="text" id="node-input-cells-view">
+  </div>
+  <div class="form-row">
+    <label for="node-input-cells"><i class="fa fa-server"></i> Table Id</label>
+    <input type="hidden" id="node-input-tableId">
+    <input type="text" id="node-input-tableId-view">
+  </div>
+  <div class="form-row">
+    <label for="node-input-name"><i class="fa fa-server"></i> Name</label>
+    <input type="text" id="node-input-name">
+  </div>
 </script>
 

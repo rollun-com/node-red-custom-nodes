@@ -14,7 +14,7 @@ module.exports = (function () {
       for (var i = 0, n = a.length; i < n; ++i) {
         var k = a[i];
         if (typeof o === 'object' && k in o) {
-          o = o[k];``
+          o = o[k];
         } else {
           return;
         }
@@ -33,22 +33,6 @@ module.exports = (function () {
 
   };
 
-  global.delovod = {
-    util: {
-      formatDelovodRequest: (params, action, {key, version}) => `packet=${JSON.stringify({
-        version,
-        key,
-        action,
-        params
-      })}`,
-    },
-    actions: {
-      GET_OBJECT: 'getObject',
-      SAVE_OBJECT: 'saveObject',
-      SET_DEL_MARK: 'setDelMark',
-      REQUEST: 'request'
-    }
-  };
 
   console.log('common');
 })();

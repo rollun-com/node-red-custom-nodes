@@ -1,0 +1,70 @@
+<script type="text/javascript">
+  "use strict";
+  /*global RED*/
+  RED.nodes.registerType('array-map-start', {
+    category: 'function',
+    inputs: 1,
+    outputs: 1,
+    color: "#85C1E9",
+    icon: "icons/node-red/white-globe.svg",
+    paletteLabel: "array-map-start",
+    defaults: {
+      name: {
+        value: ""
+      },
+      arrayField: {
+        value: 'msg|payload'
+      },
+      interval: {
+        value: 0
+      }
+    },
+    label: function () {
+      return this.name || 'Array map start';
+    },
+    oneditprepare: function () {
+      const node = this;
+      const [initType = '', initValue = ''] = (node.arrayField || '').split('|');
+      $(`#node-input-arrayField-view`)
+        .typedInput({types: [{
+            value: "msg",
+            label: "msg."
+          }, {
+            value: "json",
+            label: "json"
+          }]})
+        .typedInput('value', initValue)
+        .typedInput('type', initType)
+        .on('change', (e, type) => {
+          if (type === true) return;
+          $('#node-input-arrayField').val(`${type}|${e.target.value}`)
+        });
+    }
+  });
+</script>
+
+<script type="text/html" data-template-name="array-map-start">
+  <div class="form-row">
+    <label for="node-input-name">Name</label>
+    <input type="number" id="node-input-name">
+  </div>
+  <div class="form-row">
+    <label for="node-input-arrayField">Array field</label>
+    <input type="hidden" id="node-input-arrayField">
+    <input type="text" id="node-input-arrayField-view">
+  </div>
+  <div class="form-row">
+    <label for="node-input-interval">Interval ms</label>
+    <input type="number" id="node-input-interval">
+  </div>
+</script>
+
+<script type="text/html" data-help-name="array-map-start">
+  Expects array in <code>Array field</code>, emits event for every element in array,
+  Must be enclosed with array-map-end node
+  For every element 2 output will be triggered with:
+  <code>msg.value</code> - current element of an array
+  <code>msg.index</code> - index (number) of element in array
+  <code>msg.array</code> - copy of full array.
+  <code>msg.topic</code> - description
+ </script>
