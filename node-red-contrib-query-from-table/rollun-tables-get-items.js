@@ -2,7 +2,7 @@ module.exports = function (RED) {
   function Test(config) {
     RED.nodes.createNode(this, config);
     const node = this;
-    console.log('create node', config);
+
     node.on('input', function (msg) {
       const axios = require('axios');
       const makeError = (node, text) => {

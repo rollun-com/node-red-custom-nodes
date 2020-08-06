@@ -51,50 +51,51 @@
 
       const buildDocumentForm = (docType, initData = {}) => {
         const document = window.delovod.documents.find(doc => doc.value === docType);
-        const inputs = document.fields.header.map(({name, value, type}) => {
-          const typePopUp = `field: [${value}] of type [${type.isPrimitive ? type.name : type.name.join(', ')}]`;
-          const isCatalogType = !type.isPrimitive && !!type.name.find(name => name.includes('catalog'));
-          let input
-          if (type.isPrimitive || !isCatalogType) {
-            input = $('<input>')
-              .attr('type', 'text')
-              .attr('id', 'input-' + value)
-          } else {
-            const options = window.delovod.catalog.filter(item => type.name.includes(item.value));
-            if (options.length === 0 || options[0].options.length === 0) {
+        const inputs = document.fields.header
+          .filter(({value}) => !(value === 'id' || value === 'number'))
+          .map(({name, value, type}) => {
+            const typePopUp = `field: [${value}] of type [${type.isPrimitive ? type.name : type.name.join(', ')}]`;
+            const isCatalogType = !type.isPrimitive && !!type.name.find(name => name.includes('catalog'));
+            let input
+            if (type.isPrimitive || !isCatalogType) {
               input = $('<input>')
                 .attr('type', 'text')
-                .attr('disabled', true)
-                .attr('value', 'No options found')
+                .attr('id', 'input-' + value)
             } else {
-              const defaultValue = options[0].options[0].value;
-              const [,initValue = '' ] = (initData[value] || '').split('|')
+              const options = window.delovod.catalog.filter(item => type.name.includes(item.value));
+              if (options.length === 0 || options[0].options.length === 0) {
+                input = $('<input>')
+                  .attr('type', 'text')
+                  .attr('id', 'input-' + value)
+              } else {
+                const defaultValue = options[0].options[0].value;
+                const [, initValue = ''] = (initData[value] || '').split('|')
 
-              console.log('select', initData[value] || `const|${defaultValue}`, initData[value] , `const|${defaultValue}`, initValue);
-              input = $('<select>')
-                .css('min-width', '300px')
-                .attr('id', 'select-' + value)
-                .html($.parseHTML(options.map((option) =>
-                  [`<option value="">Empty</option>`]
-                    .concat(option.options.map(({name, value}) => `<option ${value === initValue ? 'selected' : ''} value="${value}">${option.name} ${name} - (${value})</option>`))
-                    .join('\n')
-                ).join('\n')))
-                .attr('value', initValue)
-                .change(e => {
-                  if (!e.target.value) {
-                    setPropertyValue(value);
-                  } else {
-                    setPropertyValue(value, `const|${e.target.value}`)
-                  }
-                });
+                console.log('select', initData[value] || `const|${defaultValue}`, initData[value], `const|${defaultValue}`, initValue);
+                input = $('<select>')
+                  .css('min-width', '300px')
+                  .attr('id', 'select-' + value)
+                  .html($.parseHTML(options.map((option) =>
+                    [`<option value="">Empty</option>`]
+                      .concat(option.options.map(({name, value}) => `<option ${value === initValue ? 'selected' : ''} value="${value}">${option.name} ${name} - (${value})</option>`))
+                      .join('\n')
+                  ).join('\n')))
+                  .attr('value', initValue)
+                  .change(e => {
+                    if (!e.target.value) {
+                      setPropertyValue(value);
+                    } else {
+                      setPropertyValue(value, `const|${e.target.value}`)
+                    }
+                  });
+              }
             }
-          }
 
-          return $('<div>')
-            .css('margin-bottom', '10px')
-            .append($.parseHTML(`<label style="min-width: 200px" title="${typePopUp}" for="${value}">${name} (${value})</label>`))
-            .append(input);
-        });
+            return $('<div>')
+              .css('margin-bottom', '10px')
+              .append($.parseHTML(`<label style="min-width: 200px" title="${typePopUp}" for="${value}">${name} (${value})</label>`))
+              .append(input);
+          });
         $('#document-create-form')
           .html(`
             <h3>Простая нода для создания документов в delovod</h3>
@@ -146,24 +147,24 @@
 </script>
 
 <script type="text/html" data-template-name="delovod-create-item">
-    <div class="form-row">
-        <label for="node-input-name"><i class="fa fa-server"></i> Name</label>
-        <input type="text" id="node-input-name">
-    </div>
-    <div class="form-row">
-        <label for="node-input-config"><i class="fa fa-server"></i> Delovod Config</label>
-        <input type="text" id="node-input-config">
-    </div>
-    <div class="form-row">
-        <label for="node-input-docType"><i class="fa fa-server"></i> Document type</label>
-        <select id="node-input-docType">
+  <div class="form-row">
+    <label for="node-input-name"><i class="fa fa-server"></i> Name</label>
+    <input type="text" id="node-input-name">
+  </div>
+  <div class="form-row">
+    <label for="node-input-config"><i class="fa fa-server"></i> Delovod Config</label>
+    <input type="text" id="node-input-config">
+  </div>
+  <div class="form-row">
+    <label for="node-input-docType"><i class="fa fa-server"></i> Document type</label>
+    <select id="node-input-docType">
 
-        </select>
-    </div>
-    <div class="form-row" id="document-create-form">
+    </select>
+  </div>
+  <div class="form-row" id="document-create-form">
 
-    </div>
-    <textarea id="node-input-docData" style="display:none;"></textarea>
+  </div>
+  <textarea id="node-input-docData" style="display:none;"></textarea>
 </script>
 
 <script type="text/html" data-help-name="delovod-create-item">

@@ -1,0 +1,61 @@
+<script type="text/javascript">
+  "use strict";
+  /*global RED*/
+  RED.nodes.registerType('delovod-catalog-item', {
+    category: 'Delovod',
+    inputs: 1,
+    outputs: 2,
+    color: "#85C1E9",
+    icon: "icons/node-red/white-globe.svg",
+    paletteLabel: "delovod-catalog-item",
+    defaults: {
+      config: {
+        value: "",
+        type: "delovod-config",
+        required: true
+      },
+      itemName: {
+        value: "payload"
+      },
+      name: {
+        value: ""
+      }
+    },
+    label: function () {
+      return this.name || 'Delovod item';
+    },
+    oneditprepare: function () {
+      window.utils.makeTypedInput('itemName');
+    }
+  });
+</script>
+
+<script type="text/html" data-template-name="delovod-catalog-item">
+  <div class="form-row">
+    <label for="node-input-config"><i class="fa fa-server"></i> Delovod Config</label>
+    <input type="text" id="node-input-config">
+  </div>
+  <div class="form-row">
+    <label for="node-input-itemName"><i class="fa fa-server"></i> Item name</label>
+    <input type="hidden" id="node-input-itemName">
+    <input type="text" id="node-input-itemName-view">
+
+  </div>
+  <div class="form-row">
+    <label for="node-input-name"><i class="fa fa-server"></i> Name</label>
+    <input type="text" id="node-input-name">
+  </div>
+</script>
+
+<script type="text/html" data-help-name="delovod-catalog-item">
+  <h5>A simple node, to work with delovod goods</h5>
+<!--  <dl class="message-properties">-->
+<!--    <dt class="optional">msg.payload<span class="property-type">string </span> - Will be used as params field in request-->
+<!--    </dt>-->
+<!--    <dt class="optional">Action <span class="property-type">string</span> - action of request <a-->
+<!--        href="https://help.delovod.ua/ru/API_015">doc</a>-->
+<!--    </dt>-->
+<!--  </dl>-->
+<!--  <h5>Returns Object in case of read operation, array, in case of filter, <code>{"error": "message"}</code> in case of-->
+<!--    error</h5>-->
+</script>

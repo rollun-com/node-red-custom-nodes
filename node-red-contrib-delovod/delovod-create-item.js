@@ -8,6 +8,7 @@ module.exports = function (RED) {
     node.on('input', function (msg) {
       console.log('got request', config, node.config);
       const axios = require('axios');
+      const crypto = require('crypto');
       const docType = config.docType;
       const docData = JSON.parse(config.docData);
 
@@ -36,7 +37,11 @@ module.exports = function (RED) {
         }, {});
       const documentTableParts = msg.tableParts || {};
       const document = {
-        header: header,
+        header: {
+          ...header,
+          id: docType,
+          number: crypto.randomBytes(7).toString('base64').slice(0, 7),
+        },
         tableParts: documentTableParts
       }
       msg.payload = document;

@@ -3,7 +3,7 @@ module.exports = function (RED) {
     RED.nodes.createNode(this, config);
     this.config = RED.nodes.getNode(config.config);
     const node = this;
-    console.log('create node', config, node);
+
     node.on('input', function (msg) {
       const axios = require('axios');
 
@@ -13,29 +13,15 @@ module.exports = function (RED) {
         node.send(msg)
       };
 
-      function resolvePath(o, s) {
-        s = s.replace(/\[(\w+)\]/g, '.$1'); // convert indexes to properties
-        s = s.replace(/^\./, '');           // strip a leading dot
-        var a = s.split('.');
-        for (var i = 0, n = a.length; i < n; ++i) {
-          var k = a[i];
-          if (k in o) {
-            o = o[k];
-          } else {
-            return;
-          }
-        }
-        return o;
-      }
-
-      console.log('incoming input', msg.payload, config);
+      console.log('incoming input', config);
 
       if (!node.config) return makeError(node, `node.config is required!`);
+      if (!config.docType) return makeError(node, `config.docType is required!`);
 
       const conditions = JSON.parse(config.conditions).map(cond => {
         let value = cond.value;
         if (value.indexOf('msg') === 0) {
-          value = resolvePath(msg, value.replace(/^msg\./, ''));
+          value = global.utils.resolvePath(msg, value.replace(/^msg\./, ''));
         }
         return {...cond, value};
       });
@@ -49,16 +35,26 @@ module.exports = function (RED) {
         fields.id = 'id'
       }
 
+      const {GET_OBJECT, REQUEST} = global.delovod.actions;
+
+      const actionType = conditions.length === 1 && conditions[0].alias === 'id'
+        ? GET_OBJECT
+        : REQUEST;
+
       const url = node.config.host;
       const packet = `packet=${JSON.stringify({
         version: node.config.version,
         key: node.config.key,
-        action: 'request',
-        params: {
-          from: config.docType,
-          fields: fields,
-          filters: conditions
-        }
+        action: actionType,
+        params: actionType === REQUEST
+          ? {
+            from: config.docType,
+            fields: fields,
+            filters: conditions
+          }
+          : {
+            id: conditions[0].value
+          }
       })}`;
       const errorField = config['errorField'] || 'error';
       console.log('send request to ', url, packet);
@@ -70,14 +66,14 @@ module.exports = function (RED) {
         })
         .then(({data}) => {
           console.log('got result', data);
-          if (data.error || data.length !== 1) {
+          if (data.error || (Array.isArray(data) && data.length !== 1)) {
             const errMsg = data.error
               || (data.length > 1 && `Found more than one document by filter: ${data.map(({id__pr}) => id__pr).join(', ')}`)
               || (data.length === 0 && `Not found any documents by filter!`)
             msg.payload = {[errorField]: `[node: ${config.name}] ` + errMsg}
             node.send([msg, null]);
           } else {
-            msg.payload = data[0];
+            msg.payload = Array.isArray(data) ? data[0] : data;
             node.send([null, msg]);
           }
         })

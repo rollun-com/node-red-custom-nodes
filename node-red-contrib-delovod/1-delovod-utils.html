@@ -11295,114 +11295,116 @@
         }
       }, {
         "name": "Деловые контакты", "value": "documents.crmEvent", "fields": {
-          "header": [{
-            "name": "Идентификатор записи",
-            "value": "id",
-            "type": {"isPrimitive": false, "name": ["documents.crmEvent"]}
-          }, {"name": "Начало", "value": "date", "type": {"isPrimitive": true, "name": "Дата и время"}}, {
-            "name": "Номер",
-            "value": "number",
-            "type": {"isPrimitive": true, "name": "Строка (6)"}
-          }, {
-            "name": "Пометка на удаление",
-            "value": "delMark",
-            "type": {"isPrimitive": true, "name": "Булево (0 - false, 1 - true)"}
-          }, {
-            "name": "Проведен",
-            "value": "posted",
-            "type": {"isPrimitive": true, "name": "Булево (0 - false, 1 - true)"}
-          }, {
-            "name": "Примечание",
-            "value": "remark",
-            "type": {"isPrimitive": true, "name": "Строка (100)"}
-          }, {
-            "name": "Введен на основании",
-            "value": "baseDoc",
-            "type": {
-              "isPrimitive": false,
-              "name": ["catalogs.persons", "documents.cashIn", "documents.cashOut", "documents.contract", "documents.crmEvent", "documents.lead", "documents.priceSetting", "documents.purchase", "documents.purchaseInvoice", "documents.purchaseReturn", "documents.sale", "documents.saleInvoice", "documents.saleOrder", "documents.saleReturn", "documents.task"]
-            }
-          }, {
-            "name": "Версия",
-            "value": "version",
-            "type": {"isPrimitive": true, "name": "Число целое (30)"}
-          }, {
-            "name": "Предприниматель",
-            "value": "firm",
-            "type": {"isPrimitive": false, "name": ["catalogs.firms"]}
-          }, {
-            "name": "Ответственный",
-            "value": "executor",
-            "type": {"isPrimitive": false, "name": ["catalogs.users"]}
-          }, {
-            "name": "Подразделение",
-            "value": "department",
-            "type": {"isPrimitive": false, "name": ["catalogs.departments"]}
-          }, {
-            "name": "Контрагент",
-            "value": "person",
-            "type": {"isPrimitive": false, "name": ["catalogs.persons"]}
-          }, {
-            "name": "Сделка",
-            "value": "contract",
-            "type": {
-              "isPrimitive": false,
-              "name": ["documents.contract", "documents.prodOrder", "documents.purchaseInvoice", "documents.purchaseOrder", "documents.saleInvoice", "documents.saleOrder"]
-            }
-          }, {
-            "name": "Контактное лицо",
-            "value": "contact",
-            "type": {"isPrimitive": false, "name": ["catalogs.personContacts"]}
-          }, {
-            "name": "Автор",
-            "value": "author",
-            "type": {"isPrimitive": false, "name": ["catalogs.users"]}
-          }, {
-            "name": "Содержание",
-            "value": "content",
-            "type": {"isPrimitive": true, "name": "Текст"}
-          }, {
-            "name": "Завершение (не используется)",
-            "value": "dateTo_forDel",
-            "type": {"isPrimitive": true, "name": "Дата и время"}
-          }, {
-            "name": "Тема",
-            "value": "subject",
-            "type": {"isPrimitive": true, "name": "Строка (100)"}
-          }, {
-            "name": "Состояние",
-            "value": "state",
-            "type": {"isPrimitive": false, "name": ["catalogs.states"]}
-          }, {
-            "name": "Бизнес",
-            "value": "business",
-            "type": {"isPrimitive": false, "name": ["catalogs.businesses"]}
-          }, {
-            "name": "Продолжительность, минут",
-            "value": "duration",
-            "type": {"isPrimitive": true, "name": "Число целое (неотрицательное)  (4)"}
-          }, {
-            "name": "Тип контакта",
-            "value": "docMode",
-            "type": {"isPrimitive": true, "name": "enumerates.docModeCrmEvent"}
-          }],
-          "tpMembers": [{
-            "name": "Номер строки",
-            "value": "rowNum",
-            "type": {"isPrimitive": true, "name": "Число целое (4)"}
-          }, {
-            "name": "Документ",
-            "value": "owner",
-            "type": {"isPrimitive": true, "name": "Неопределенная ссылка"}
-          }, {
-            "name": "Организация",
-            "value": "person",
-            "type": {"isPrimitive": false, "name": ["catalogs.persons"]}
-          }, {
-            "name": "Учасник",
-            "value": "contact",
-            "type": {"isPrimitive": false, "name": ["catalogs.personContacts"]}
-          }]
+          "header": [
+            {
+              "name": "Идентификатор записи",
+              "value": "id",
+              "type": {"isPrimitive": false, "name": ["documents.crmEvent"]}
+            }, {"name": "Начало", "value": "date", "type": {"isPrimitive": true, "name": "Дата и время"}}, {
+              "name": "Номер",
+              "value": "number",
+              "type": {"isPrimitive": true, "name": "Строка (6)"}
+            }, {
+              "name": "Пометка на удаление",
+              "value": "delMark",
+              "type": {"isPrimitive": true, "name": "Булево (0 - false, 1 - true)"}
+            }, {
+              "name": "Проведен",
+              "value": "posted",
+              "type": {"isPrimitive": true, "name": "Булево (0 - false, 1 - true)"}
+            }, {
+              "name": "Примечание",
+              "value": "remark",
+              "type": {"isPrimitive": true, "name": "Строка (100)"}
+            }, {
+              "name": "Введен на основании",
+              "value": "baseDoc",
+              "type": {
+                "isPrimitive": false,
+                "name": ["catalogs.persons", "documents.cashIn", "documents.cashOut", "documents.contract", "documents.crmEvent", "documents.lead", "documents.priceSetting", "documents.purchase", "documents.purchaseInvoice", "documents.purchaseReturn", "documents.sale", "documents.saleInvoice", "documents.saleOrder", "documents.saleReturn", "documents.task"]
+              }
+            }, {
+              "name": "Версия",
+              "value": "version",
+              "type": {"isPrimitive": true, "name": "Число целое (30)"}
+            }, {
+              "name": "Предприниматель",
+              "value": "firm",
+              "type": {"isPrimitive": false, "name": ["catalogs.firms"]}
+            }, {
+              "name": "Ответственный",
+              "value": "executor",
+              "type": {"isPrimitive": false, "name": ["catalogs.users"]}
+            }, {
+              "name": "Подразделение",
+              "value": "department",
+              "type": {"isPrimitive": false, "name": ["catalogs.departments"]}
+            }, {
+              "name": "Контрагент",
+              "value": "person",
+              "type": {"isPrimitive": false, "name": ["catalogs.persons"]}
+            }, {
+              "name": "Сделка",
+              "value": "contract",
+              "type": {
+                "isPrimitive": false,
+                "name": ["documents.contract", "documents.prodOrder", "documents.purchaseInvoice", "documents.purchaseOrder", "documents.saleInvoice", "documents.saleOrder"]
+              }
+            }, {
+              "name": "Контактное лицо",
+              "value": "contact",
+              "type": {"isPrimitive": false, "name": ["catalogs.personContacts"]}
+            }, {
+              "name": "Автор",
+              "value": "author",
+              "type": {"isPrimitive": false, "name": ["catalogs.users"]}
+            }, {
+              "name": "Содержание",
+              "value": "content",
+              "type": {"isPrimitive": true, "name": "Текст"}
+            }, {
+              "name": "Завершение (не используется)",
+              "value": "dateTo_forDel",
+              "type": {"isPrimitive": true, "name": "Дата и время"}
+            }, {
+              "name": "Тема",
+              "value": "subject",
+              "type": {"isPrimitive": true, "name": "Строка (100)"}
+            }, {
+              "name": "Состояние",
+              "value": "state",
+              "type": {"isPrimitive": false, "name": ["catalogs.states"]}
+            }, {
+              "name": "Бизнес",
+              "value": "business",
+              "type": {"isPrimitive": false, "name": ["catalogs.businesses"]}
+            }, {
+              "name": "Продолжительность, минут",
+              "value": "duration",
+              "type": {"isPrimitive": true, "name": "Число целое (неотрицательное)  (4)"}
+            }, {
+              "name": "Тип контакта",
+              "value": "docMode",
+              "type": {"isPrimitive": true, "name": "enumerates.docModeCrmEvent"}
+            }],
+          "tpMembers": [
+            {
+              "name": "Номер строки",
+              "value": "rowNum",
+              "type": {"isPrimitive": true, "name": "Число целое (4)"}
+            }, {
+              "name": "Документ",
+              "value": "owner",
+              "type": {"isPrimitive": true, "name": "Неопределенная ссылка"}
+            }, {
+              "name": "Организация",
+              "value": "person",
+              "type": {"isPrimitive": false, "name": ["catalogs.persons"]}
+            }, {
+              "name": "Учасник",
+              "value": "contact",
+              "type": {"isPrimitive": false, "name": ["catalogs.personContacts"]}
+            }]
         }
       }, {
         "name": "Доставка власною службою", "value": "documents.deliveryList", "fields": {
@@ -20167,7 +20169,71 @@
             "type": {"isPrimitive": true, "name": "Дата и время"}
           }, {"name": "Дней", "value": "days", "type": {"isPrimitive": true, "name": "Число целое (3)"}}]
         }
-      }]
+      }],
+    utils: {
+      createTypedField: ({
+                           name, type, value, defaultValue = '', onChange, containerId, customIdSuffix,
+                           typedFieldTypes = [{
+                             value: "msg",
+                             label: "msg."
+                           }, {
+                             value: "const",
+                             label: "constant"
+                           }]
+                         }) => {
+        const typePopUp = `field: [${value}] of type [${type.isPrimitive ? type.name : type.name.join(', ')}]`;
+        const isCatalogType = !type.isPrimitive && !!type.name.find(name => name.includes('catalog'));
+        let input
+        if (type.isPrimitive || !isCatalogType) {
+          input = $('<input>')
+            .attr('type', 'text')
+            .attr('id', 'input-' + value + (customIdSuffix ? `-${customIdSuffix}` : ''))
+        } else {
+          const options = window.delovod.catalog.filter(item => type.name.includes(item.value));
+          if (options.length === 0 || options[0].options.length === 0) {
+            input = $('<input>')
+              .attr('type', 'text')
+              .attr('id', 'input-' + value + (customIdSuffix ? `-${customIdSuffix}` : ''))
+          } else {
+            const defaultValue = options[0].options[0].value;
+            const [, initValue = ''] = defaultValue.split('|')
+
+            input = $('<select>')
+              .css('min-width', '300px')
+              .attr('id', 'select-' + value + (customIdSuffix ? `-${customIdSuffix}` : ''))
+              .html($.parseHTML(options.map((option) =>
+                [`<option value="">Empty</option>`]
+                  .concat(option.options.map(({name, value}) => `<option ${value === initValue ? 'selected' : ''} value="${value}">${option.name} ${name} - (${value})</option>`))
+                  .join('\n')
+              ).join('\n')))
+              .attr('value', initValue)
+              .change(e => {
+                if (!e.target.value) {
+                  onChange && onChange(value);
+                } else {
+                  onChange && onChange(value, `const|${e.target.value}`)
+                }
+              });
+          }
+        }
+
+        $('#' + containerId)
+          .append($('<div>')
+            .css('margin-bottom', '10px')
+            .append($.parseHTML(`<label style="min-width: 200px" title="${typePopUp}" for="${value}">${name} (${value})</label>`))
+            .append(input))
+        const [initType = '', initValue = ''] = defaultValue.split('|');
+
+        $(`#input-${value}${(customIdSuffix ? `-${customIdSuffix}` : '')}`)
+          .typedInput({types: typedFieldTypes})
+          .typedInput('value', initValue)
+          .typedInput('type', initType)
+          .on('change', (e, type) => {
+            if (type === true) return;
+            onChange && onChange(value, `${type}|${e.target.value}`);
+          });
+      }
+    }
   };
 
 </script>

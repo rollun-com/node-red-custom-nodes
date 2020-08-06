@@ -3,7 +3,7 @@ module.exports = function (RED) {
     RED.nodes.createNode(this, config);
     this.config = RED.nodes.getNode(config.config);
     const node = this;
-    console.log('create node', config, node);
+
     node.on('input', function (msg) {
       const axios = require('axios');
 
@@ -31,6 +31,7 @@ module.exports = function (RED) {
       console.log('incoming input', msg.payload, config);
 
       if (!node.config) return makeError(node, `node.config is required!`);
+      if (!config.entityType) return makeError(node, `config.entityType is required!`);
 
       const conditions = JSON.parse(config.conditions).map(cond => {
         let value = cond.value;
@@ -55,7 +56,7 @@ module.exports = function (RED) {
         key: node.config.key,
         action: 'request',
         params: {
-          from: config.docType,
+          from: config.entityType,
           fields: fields,
           filters: conditions
         }

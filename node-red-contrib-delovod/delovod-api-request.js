@@ -3,7 +3,6 @@ module.exports = function (RED) {
     RED.nodes.createNode(this, config);
     const node = this;
     this.config = RED.nodes.getNode(config.config);
-    console.log('create node', config, this.config);
 
     node.on('input', function (msg) {
       const axios = require('axios');

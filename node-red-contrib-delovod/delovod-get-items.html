@@ -14,7 +14,7 @@
         value: "", type: "delovod-config",
         required: true
       },
-      docType: {
+        entityType: {
         value: "",
         required: true
       },
@@ -38,9 +38,9 @@
 
       // setup doc type select
       const {documents} = window.delovod;
-      const select = document.querySelector('#node-input-docType')
+      const select = document.querySelector('#node-input-entityType')
       select.innerHTML = documents.map(doc => `<option value="${doc.value}">${doc.name} (${doc.value})</option>`).join('\n');
-      select.value = node.docType || documents[0].value;
+      select.value = node.entityType || documents[0].value;
       select.onchange = e => {
         const currentDocument = documents.find(doc => doc.value === e.target.value);
         node._def.currentDocument = currentDocument;
@@ -193,8 +193,8 @@
         <input type="text" id="node-input-config">
     </div>
     <div class="form-row">
-        <label for="node-input-docType"><i class="fa fa-server"></i> Document Type</label>
-        <select id="node-input-docType">
+        <label for="node-input-entityType"><i class="fa fa-server"></i> Entity</label>
+        <select id="node-input-entityType">
         </select>
     </div>
     <div class="form-row">
