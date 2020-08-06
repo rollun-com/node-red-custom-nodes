@@ -1,4 +1,12 @@
-module.exports = (function () {
+module.exports = function (RED) {
+  // s
+  // const originalEmit = RED.events.emit
+  // RED.events.emit = function (...args) {
+  //   console.log('event', ...args);
+  //   originalEmit.call(RED.events.emit, ...args);
+  // }
+
+  RED.events.on('nodes-started', e => console.log('EVENT', e))
 
   global.utils = {
     /**
@@ -29,10 +37,9 @@ module.exports = (function () {
     parseTypedInput: (val) => {
       const [type = '', value = ''] = val.split('|');
       return [type, value];
-    },
-
+    }
   };
 
 
   console.log('common');
-})();
+};
