@@ -129,10 +129,13 @@ module.exports = (function (RED) {
         const rql = _rql.replace(/^\?/, '');
         return global.tables.Datastore._withResponseFormatter(this.axios
             .get(`${this.pathname}${tables.Datastore._getUri(_uri)}?${rql}`)
-            .then(({data}) => {
-              console.log('raw result', data);
-              if (data.length === 1) return data[0];
-              return null;
+            .then(result => {
+              if (result && result.data && typeof result.data === 'object' && result.data.length === 1) {
+                result.data = result.data[0];
+              } else {
+                result.data = null
+              }
+              return result;
             }),
           fullResponse
         );
