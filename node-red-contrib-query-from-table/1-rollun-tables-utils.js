@@ -2,7 +2,7 @@ module.exports = (function (RED) {
   const url = require('url');
 
   global.tables = {
-    datastore: class Datastore {
+    Datastore: class Datastore {
 
       /**
        *
@@ -111,7 +111,7 @@ module.exports = (function (RED) {
 
       async get(_uri, _rql = '', fullResponse = false) {
         const rql = _rql.replace(/^\?/, '');
-        return global.tables.datastore._withResponseFormatter(this.axios
+        return global.tables.Datastore._withResponseFormatter(this.axios
             .get(`${this.pathname}${tables.Datastore._getUri(_uri)}?${rql}`),
           fullResponse
         );
@@ -127,7 +127,7 @@ module.exports = (function (RED) {
 
       async getOne(_uri, _rql = '', fullResponse = false) {
         const rql = _rql.replace(/^\?/, '');
-        return global.tables.datastore._withResponseFormatter(this.axios
+        return global.tables.Datastore._withResponseFormatter(this.axios
             .get(`${this.pathname}${tables.Datastore._getUri(_uri)}?${rql}`)
             .then(({data}) => {
               switch (data.length) {
@@ -152,7 +152,7 @@ module.exports = (function (RED) {
        */
 
       async post(_uri, body, fullResponse = false) {
-        return global.tables.datastore._withResponseFormatter(this.axios
+        return global.tables.Datastore._withResponseFormatter(this.axios
             .post(`${this.pathname}${tables.Datastore._getUri(_uri)}`, body),
           fullResponse
         );
@@ -168,7 +168,7 @@ module.exports = (function (RED) {
        */
 
       async put(_uri, body, id, fullResponse = false) {
-        return global.tables.datastore._withResponseFormatter(this.axios
+        return global.tables.Datastore._withResponseFormatter(this.axios
             .put(`${this.pathname}${tables.Datastore._getUri(_uri)}/${id}`, body),
           fullResponse
         );
@@ -183,7 +183,7 @@ module.exports = (function (RED) {
        */
 
       async delete(_uri, id, fullResponse = false) {
-        return global.tables.datastore._withResponseFormatter(this.axios
+        return global.tables.Datastore._withResponseFormatter(this.axios
             .delete(`${this.pathname}${tables.Datastore._getUri(_uri)}/${id}`),
           fullResponse
         );
