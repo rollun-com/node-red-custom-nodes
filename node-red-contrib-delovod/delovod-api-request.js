@@ -20,27 +20,20 @@ module.exports = function (RED) {
       const action = config['action'];
       // clear payload to prevent side effects
       const payload = msg.payload;
-      msg.payload = undefined;
 
       const url = node.config.host;
       console.log('send request to ', url);
-      axios
-        .post(url, `packet=${JSON.stringify({
-          version: node.config.version,
-          key: node.config.key,
-          action: action,
-          params: payload
-        })}`, {
-          timeout: 10000,
-          headers: {'Content-Type': 'application/x-www-form-urlencoded'}
-        })
-        .then(({data}) => {
-          console.log('got result', data);
-          msg.payload = data
+      const delovodAPI = new global.delovod.DelovodAPIClient(node.config);
+
+      delovodAPI
+        .request(action, payload)
+        .then(res => {
+          console.log('got result', res);
+          msg.payload = res
           node.send(msg);
         })
         .catch(err => {
-          console.log('got error', err);
+          console.log(err.message);
           msg.payload = {error: err.message}
           if (err.response) {
             // cannot serialise response with request property due to circular properties
@@ -49,6 +42,33 @@ module.exports = function (RED) {
           msg.response = err.response;
           node.send(msg);
         })
+
+      node.send(msg);
+      // axios
+      //   .post(url, `packet=${JSON.stringify({
+      //     version: node.config.version,
+      //     key: node.config.key,
+      //     action: action,
+      //     params: payload
+      //   })}`, {
+      //     timeout: 10000,
+      //     headers: {'Content-Type': 'application/x-www-form-urlencoded'}
+      //   })
+      //   .then(({data}) => {
+      //     console.log('got result', data);
+      //     msg.payload = data
+      //     node.send(msg);
+      //   })
+      //   .catch(err => {
+      //     console.log('got error', err);
+      //     msg.payload = {error: err.message}
+      //     if (err.response) {
+      //       // cannot serialise response with request property due to circular properties
+      //       err.response.request = null;
+      //     }
+      //     msg.response = err.response;
+      //     node.send(msg);
+      //   })
     });
   }
 
