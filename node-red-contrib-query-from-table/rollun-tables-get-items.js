@@ -15,28 +15,20 @@ module.exports = function (RED) {
 
       const {rql = 'limit(20,0)', url} = config;
 
-      const processedRql = rql.trim()
-        // remove trailing ?
-        .replace(/^\?/, '')
-        // resolve path
-        .replace(/msg\.[a-zA-Z.]+/g, match => {
-          const path = match.replace(/^msg\./, '');
-          return global.utils.resolvePath(msg, path)
-        })
+      const datastore = new global.tables.Datastore({URL: url});
+      const processedRql = global.tables.Datastore.resolveRQLWithREDMsg(rql, msg);
 
-      const uri = `${url}?${processedRql}`;
 
-      console.log('send request to ', uri);
-      axios
-        .get(uri, {timeout: 10000})
-        .then(({data}) => {
-          console.log('got result', data);
-          msg.payload = data;
-          data.error
-            ? node.send([msg, null])
-            : node.send([null, msg]);
+      console.log('send request to ', url);
+
+      datastore
+        .get('', processedRql)
+        .then(result => {
+          msg.payload = result;
+          node.send([null, msg]);
         })
         .catch(err => {
+          console.log('got error', err.response);
           msg.payload = {
             error: err.message
           };
@@ -44,7 +36,6 @@ module.exports = function (RED) {
             // cannot serialise response with request property due to circular properties
             err.response.request = null;
           }
-          console.log('got error', err.response);
           msg.response = err.response;
           node.send([msg, null]);
         })

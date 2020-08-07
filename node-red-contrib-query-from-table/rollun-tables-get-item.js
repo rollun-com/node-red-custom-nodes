@@ -4,7 +4,6 @@ module.exports = function (RED) {
     const node = this;
 
     node.on('input', function (msg) {
-      const axios = require('axios');
       const makeError = (node, text) => {
         msg.error = text;
         msg.payload = undefined;
@@ -15,46 +14,27 @@ module.exports = function (RED) {
 
       const {rql = 'limit(20,0)', url} = config;
 
-      const processedRql = rql.trim()
-        // remove trailing ?
-        .replace(/^\?/, '')
-        // resolve path
-        .replace(/msg\.[a-zA-Z.]+/g, match => {
-          const path = match.replace(/^msg\./, '');
-          return global.utils.resolvePath(msg, path)
-        })
+      const datastore = new global.tables.Datastore({URL: url});
+      const processedRql = global.tables.Datastore.resolveRQLWithREDMsg(rql, msg);
 
-      const uri = `${url}?${processedRql}`;
+      console.log('send request to ', url);
 
-      console.log('send request to ', uri);
-      axios
-        .get(uri, {timeout: 10000})
-        .then(({data}) => {
-          console.log('got result', data);
-          if (data.length === 1) {
-            msg.payload = data[0];
-            return node.send([null, msg]);
-          }
-          if (data.length === 0) {
-            msg.payload = {error: 'No records found by this filter -' + uri};
-          }
-          if (data.length > 1) {
-            msg.payload = {error: 'found more than 1 record by this filter -' + uri};
-          }
-          if (data.error) {
-            msg.payload = data;
-          }
-          node.send([msg, null]);
+      datastore
+        .getOne('', processedRql)
+        .then(result => {
+          console.log('got result', result);
+          msg.payload = result === null
+            ? {error: 'No records found, or found to or more by this filter -' + processedRql}
+            : result;
+          node.send([null, msg]);
         })
         .catch(err => {
-          msg.payload = {
-            error: err.message
-          };
-          if (err.response) {
+          console.log('got error', err.response);
+          if (err.response && err.response.request) {
             // cannot serialise response with request property due to circular properties
             err.response.request = null;
           }
-          console.log('got error', err.response);
+          msg.payload = {error: err.message};
           msg.response = err.response;
           node.send([msg, null]);
         })
