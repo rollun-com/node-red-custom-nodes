@@ -9,37 +9,38 @@ module.exports = function (RED) {
     let timeout
     const timeoutTime = +config.timeout || 5000;
 
-    const cleanUp = msg => {
-      msg.value = undefined;
-      msg.key = undefined;
-      msg.array = undefined;
-      msg.topic = undefined;
-    }
-
     node.on('input', function (msg) {
       !timeout && (timeout = setTimeout(() => {
-        msg.payload = {error: `Did not receive all items from array-map-start after ${timeoutTime}ms`};
-        cleanUp(msg);
+        if (msg.originalMsgDoNotTouch) {
+          msg = msg.originalMsgDoNotTouch;
+        }        msg.payload = {error: `Did not receive all items from array-map-start after ${timeoutTime}ms`};
         node.send(msg);
         timeouted = true;
       }, timeoutTime));
 
       if (timeouted) return;
 
-      if (msg.totalItemsAmount === undefined) {
-        cleanUp(msg);
+      if (msg._isArrayMapError === true || msg.totalItemsAmount === undefined) {
+        if (msg.originalMsgDoNotTouch) {
+          msg = msg.originalMsgDoNotTouch;
+        }
         msg.topic = 'Error. more info in msg.payload.';
-        msg.payload = {error: 'It seems like, you accidentally deleted totalItemsAmount from message, do not do it please.'}
+        if (!msg._isArrayMapError) {
+          msg.payload = {
+            error: 'It seems like, you accidentally deleted totalItemsAmount from message, do not do it please.'
+          }
+        }
         node.send(msg);
       }
 
       result.push(msg.payload);
-      // console.log('got element', msg.payload, result.length, msg.totalItemsAmount);
       if (result.length === msg.totalItemsAmount) {
-        cleanUp(msg);
-        msg.topic = `Iteration over, result can be found in msg.payload.`;
-        msg.payload = result;
-        node.send(msg);
+        const finalMsg = {
+          ...(msg.originalMsgDoNotTouch || {}),
+          topic: `Iteration over, result can be found in msg.payload.`,
+          payload: result,
+        }
+        node.send(finalMsg);
         clearTimeout(timeout);
       }
     });

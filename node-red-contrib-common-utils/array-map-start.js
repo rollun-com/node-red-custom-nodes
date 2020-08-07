@@ -35,8 +35,7 @@ module.exports = function (RED) {
           throw new Error('data in arrayField is not of type Array!');
         }
 
-        const {req, res} = msg;
-
+        //
         for (let i = 0; i < array.length; i++) {
           const el = array[i];
 
@@ -46,7 +45,7 @@ module.exports = function (RED) {
             array: _.cloneDeep(array),
             totalItemsAmount: array.length,
             topic: `Element #${i} of array`,
-            req, res
+            originalMsgDoNotTouch: msg
           }
           node.send(msgCopy);
 
@@ -55,6 +54,8 @@ module.exports = function (RED) {
 
       })()
         .catch(err => {
+          console.log(err);
+          msg._isArrayMapError = true;
           msg.payload = {error: err.message};
           node.send(msg)
         })
