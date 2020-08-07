@@ -35,14 +35,21 @@ module.exports = function (RED) {
           throw new Error('data in arrayField is not of type Array!');
         }
 
+        const {req, res} = msg;
+
         for (let i = 0; i < array.length; i++) {
           const el = array[i];
-          msg.payload = _.cloneDeep(el);
-          msg.index = i;
-          msg.array = _.cloneDeep(array);
-          msg.totalItemsAmount = array.length;
-          msg.topic = `Element #${i} of array`;
-          node.send(msg);
+
+          const msgCopy = {
+            payload: _.cloneDeep(el),
+            index: i,
+            array: _.cloneDeep(array),
+            totalItemsAmount: array.length,
+            topic: `Element #${i} of array`,
+            req, res
+          }
+          node.send(msgCopy);
+
           await (new Promise(resolve => setTimeout(() => resolve(), +config.interval)));
         }
 
