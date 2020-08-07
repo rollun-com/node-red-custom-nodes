@@ -130,14 +130,9 @@ module.exports = (function (RED) {
         return global.tables.Datastore._withResponseFormatter(this.axios
             .get(`${this.pathname}${tables.Datastore._getUri(_uri)}?${rql}`)
             .then(({data}) => {
-              switch (data.length) {
-                case 0:
-                  return null;
-                case 1:
-                  return data[0];
-                default:
-                  return null;
-              }
+              console.log('raw result', data);
+              if (data.length === 1) return data[0];
+              return null;
             }),
           fullResponse
         );
