@@ -24,7 +24,7 @@ module.exports = function (RED) {
         .then(result => {
           console.log('got result', result);
           msg.payload = result === null
-            ? {error: 'No records found, or found to or more by this filter -' + processedRql}
+            ? {error: 'No records found, or found 2 or more by this filter -' + processedRql}
             : result;
           node.send([null, msg]);
         })
