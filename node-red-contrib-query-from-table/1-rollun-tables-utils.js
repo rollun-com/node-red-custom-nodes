@@ -1,27 +1,8 @@
-module.exports = function (RED) {
+module.exports = (function (RED) {
   const url = require('url');
 
   global.tables = {
     datastore: class Datastore {
-
-      /**
-       * http methods
-       * @type {{DELETE: string, POST: string, GET: string, PUT: string}}
-       */
-
-      METHODS = {
-        GET: 'get',
-        POST: 'post',
-        PUT: 'put',
-        DELETE: 'delete'
-      };
-
-      /**
-       *
-       * @type {string}
-       */
-
-      pathname = ''
 
       /**
        *
@@ -32,12 +13,23 @@ module.exports = function (RED) {
         if (!URL) throw new Error('Url is required.');
         const {protocol, host, pathname} = url.parse(URL);
         if (!host) throw new Error(`url is not in valid format! [${URL}]`);
-        this.pathname = pathname;
+
+        /**
+         * @type {string}
+         */
+
+        this.pathname = pathname || '';
+
+        /**
+         * @type {AxiosInstance}
+         */
+
         this.axios = require('axios').create({
           baseURL: `${protocol}://${host}`,
           timeout
         });
       }
+
 
       /**
        *
@@ -198,4 +190,5 @@ module.exports = function (RED) {
       }
     }
   }
-}
+
+})()
