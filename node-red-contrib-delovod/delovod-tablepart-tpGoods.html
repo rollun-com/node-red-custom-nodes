@@ -4,82 +4,72 @@
   RED.nodes.registerType('delovod-tablepart-tpGoods', {
     category: 'Delovod',
     inputs: 1,
-    outputs: 2,
+    outputs: 1,
     color: "#85C1E9",
     icon: "icons/node-red/white-globe.svg",
     paletteLabel: "delovod-tablepart-tpGoods",
     defaults: {
-      config: {
-        value: "", type: "delovod-config",
-        required: true
-      },
-      partNumber: {
-        value: 'msg|payload.partNumber', type: '',
-      },
-      qty: {
-        value: 'msg|payload.qty',
+      // config: {
+      //   value: "", type: "delovod-config",
+      //   required: true
+      // },
+      good: {
+        value: 'msg|payload.good', type: '',
       },
       price: {
         value: 'msg|payload.price',
       },
-      subTotal: {
-        value: 'msg|payload.subTotal',
+      qty: {
+        value: 'msg|payload.qty',
+      },
+      goodType: {
+        value: 'const|1004000000000014',
+      },
+      unit: {
+        value: 'const|1103600000000001',
       },
       name: {
         value: ""
       }
-      // 'select': {
-      //   value: ""
-      // }
     },
     label: function () {
       return this.name || 'Delovod format tpGoods';
     },
     oneditprepare: function () {
       const node = this;
-      console.log('node', node);
-      const types = [{
-        value: "msg",
-        label: "msg."
-      }, {
-        value: "const",
-        label: "constant"
-      }];
-      window.utils.makeTypedInput('partNumber', types);
-      window.utils.makeTypedInput('qty', types);
-      window.utils.makeTypedInput('price', types);
-      window.utils.makeTypedInput('subTotal', types);
+
+      const appendInput = (container, id, name, value = '') => {
+        container.append($.parseHTML(`
+          <div class="form-row">
+            <label for="node-input-${id}-view">${name}</label>
+            <input type="hidden" value="${value}" id="node-input-${id}">
+            <input type="text" id="node-input-${id}-view">
+        </div>
+        `))
+        window.utils.makeTypedInput(id);
+      }
+      const required = $('#required')
+      const appendToRequired = (...args) => appendInput(required, ...args);
+      appendToRequired('good', 'Good (delovod good id)', node.good);
+      appendToRequired('qty', 'Qty', node.qty);
+      appendToRequired('price', 'Price', node.price);
+      const requiredWithDefault = $('#required-with-default');
+      const appendToRequiredWithDef = (...args) => appendInput(requiredWithDefault, ...args);
+      appendToRequiredWithDef('goodType', 'Good type (default - Товар)', node.goodType);
+      appendToRequiredWithDef('unit', 'Unit (default - ШТ)', node.goodType);
     }
   });
 </script>
 
 <script type="text/html" data-template-name="delovod-tablepart-tpGoods">
-    <div class="form-row">
-        <label for="node-input-name"><i class="fa fa-server"></i> Name</label>
-        <input type="text" id="node-input-name">
-    </div>
-    <div class="form-row">
-        <label for="node-input-config"><i class="fa fa-server"></i> Delovod Config</label>
-        <input type="text" id="node-input-config">
-    </div>
-    <div class="form-row">
-        <label for="node-input-partNumber-view"><i class="fa fa-server"></i> Part number</label>
-        <input type="hidden" id="node-input-partNumber">
-        <input type="text" id="node-input-partNumber-view">
-    </div>
-    <div class="form-row">
-        <label for="node-input-price-view"><i class="fa fa-server"></i> price</label>
-        <input type="hidden" id="node-input-price">
-        <input type="text" id="node-input-price-view">
-    </div>
-    <div class="form-row">
-        <label for="node-input-qty-view"><i class="fa fa-server"></i> qty</label>
-        <input type="hidden" id="node-input-qty">
-        <input type="text" id="node-input-qty-view">
-    </div>
-    <div class="form-row">
-        <label for="node-input-qty-view"><i class="fa fa-server"></i> subTotal</label>
-        <input type="hidden" id="node-input-subTotal">
-        <input type="text" id="node-input-subTotal-view">
-    </div>
+  <div class="form-row">
+    <label for="node-input-name"><i class="fa fa-server"></i> Name</label>
+    <input type="text" id="node-input-name">
+  </div>
+  <h3>Required fields:</h3>
+  <div id="required">
+  </div>
+  <h3>Required fields with default values:</h3>
+  <div id="required-with-default">
+  </div>
 </script>

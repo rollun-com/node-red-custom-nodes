@@ -1,5 +1,5 @@
 module.exports = function (RED) {
-  RED.events.on('nodes-started', e => console.log('EVENT', e))
+  // RED.events.on('nodes-started', e => console.log('EVENT', e))
 
   global.utils = {
     /**
@@ -30,6 +30,14 @@ module.exports = function (RED) {
     parseTypedInput: (val) => {
       const [type = '', value = ''] = val.split('|');
       return [type, value];
+    },
+
+    getTypedFieldValue: (val, msg) => {
+      const [type, value] = global.utils.parseTypedInput(val);
+      if (type === 'msg') {
+        return global.utils.resolvePath(msg, value);
+      }
+      return value;
     }
   };
 };

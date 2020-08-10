@@ -49,7 +49,7 @@ module.exports = (function () {
         })
 
         this.axios.interceptors.request.use(config => {
-          console.log(config)
+          // console.log(config)
           const {data} = config;
           data.key = this.key;
           data.version = this.version;
@@ -60,12 +60,12 @@ module.exports = (function () {
 
       /**
        *
-       * @param action {action}
+       * @param action {"getObject" | "saveObject" | "setDelMark" | "request"}
        * @param params
        * @return {Promise<AxiosResponse<any>>}
        */
 
-      async request(action, params) {
+      async baseRequest(action, params) {
         if (!this.actions[action]) throw new Error(`Unknown action - ${action}, must be one of ${Object.keys(this.actions)}`);
         return this.axios.post('', {action, params})
           .then(({data}) => {
@@ -76,6 +76,47 @@ module.exports = (function () {
           })
       }
 
+      /**
+       *
+       * @param type {string}
+       * @param fields
+       * @param filters
+       * @return {Promise<AxiosResponse<any>>}
+       */
+
+      async request(type, filters, fields = {}) {
+        const _fields = filters
+          .map(filter => filter.alias)
+          .filter(name => !!name)
+          .reduce((fields, name) => {
+            fields[name] = name;
+            return fields;
+          }, {});
+
+        if (!("id" in _fields)) {
+          _fields.id = 'id';
+        }
+
+        return this.baseRequest(this.actions.request, {
+          from: type,
+          fields: _fields,
+          filters
+        })
+      }
+
+      /**
+       *
+       * @param header
+       * @param tablePart
+       * @return {Promise<AxiosResponse<*>>}
+       */
+
+      async saveObject(header, tablePart) {
+        return this.baseRequest(this.actions.saveObject, {
+          header,
+          ...(tablePart && {tablePart})
+        })
+      }
     }
   };
 })();

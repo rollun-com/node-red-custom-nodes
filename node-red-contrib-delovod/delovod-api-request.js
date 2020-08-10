@@ -26,7 +26,7 @@ module.exports = function (RED) {
       const delovodAPI = new global.delovod.DelovodAPIClient(node.config);
 
       delovodAPI
-        .request(action, payload)
+        .baseRequest(action, payload)
         .then(res => {
           console.log('got result', res);
           msg.payload = res
