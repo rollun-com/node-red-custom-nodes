@@ -1,5 +1,5 @@
 module.exports = function (RED) {
-  // RED.events.on('nodes-started', e => console.log('EVENT', e))
+  // RED.events.on('nodes-started', e => console.log('nodes started', e))
 
   global.utils = {
     /**
