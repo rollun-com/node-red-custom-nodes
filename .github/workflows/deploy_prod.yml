@@ -1,0 +1,18 @@
+name: CI
+
+on:
+  create:
+    tags: 
+      - *.*.*
+
+jobs:
+  deploy:
+
+    runs-on: ubuntu-latest
+    steps:
+    - name: Deploy megaplan prod node-red instance  
+      run: curl ${{secrets.MEGAPLAN_NR_HOOK}}
+    - name: Deploy accounting prod node-red instance  
+      run: curl ${{secrets.ACCOUNTING_NR_HOOK}}
+    - name: Deploy main node-red instance  
+      run: curl ${{secrets.MAIN_NR_HOOK}}
