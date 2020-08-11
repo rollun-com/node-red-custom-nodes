@@ -13,11 +13,20 @@
         value: ""
       },
       timeout: {
-        value: 5000
+        value: 15000
+      },
+      resultField: {
+        value: 'msg|payload'
+      },
+      filterEmpty: {
+        value: false
       }
     },
     label: function () {
       return this.name || 'Array map end';
+    },
+    oneditprepare: function () {
+      window.utils.makeTypedInput('resultField', [{value: "msg", label: "msg."}], 'Result field', this.resultField);
     }
   });
 </script>
@@ -28,8 +37,14 @@
     <input type="text" id="node-input-name">
   </div>
   <div class="form-row">
-    <label for="node-input-timeout">Timeout</label>
+    <label for="node-input-timeout">Timeout (0, if no timeout)</label>
     <input type="number" id="node-input-timeout">
+  </div>
+  <div class="form-row" id="resultField">
+  </div>
+  <div class="">
+    <span> Filter empty</span>
+    <input style="margin-left: 5px; margin-bottom: 6px" type="checkbox" id="node-input-filterEmpty">
   </div>
 </script>
 

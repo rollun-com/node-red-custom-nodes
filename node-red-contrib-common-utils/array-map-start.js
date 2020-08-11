@@ -56,7 +56,7 @@ module.exports = function (RED) {
         .catch(err => {
           console.log(err);
           msg._isArrayMapError = true;
-          msg.payload = {error: err.message};
+          msg.error = err.message;
           node.send(msg)
         })
     });

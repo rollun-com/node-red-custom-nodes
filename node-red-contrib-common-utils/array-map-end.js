@@ -8,12 +8,15 @@ module.exports = function (RED) {
     let timeouted = false;
     let timeout
     const timeoutTime = +config.timeout || 5000;
+    const filterEmpty = !!config.filterEmpty;
+    const [, resultField] = (config.resultField || 'msg|payload').split('|');
 
     node.on('input', function (msg) {
-      !timeout && (timeout = setTimeout(() => {
+      !timeout && timeoutTime > 0 && (timeout = setTimeout(() => {
         if (msg.originalMsgDoNotTouch) {
           msg = msg.originalMsgDoNotTouch;
-        }        msg.payload = {error: `Did not receive all items from array-map-start after ${timeoutTime}ms`};
+        }
+        msg.payload = {error: `Did not receive all items from array-map-start after ${timeoutTime}ms`};
         node.send(msg);
         timeouted = true;
       }, timeoutTime));
@@ -21,11 +24,16 @@ module.exports = function (RED) {
       if (timeouted) return;
 
       if (msg._isArrayMapError === true || msg.totalItemsAmount === undefined) {
+        const orgError = msg.error || 'Unknown error';
         if (msg.originalMsgDoNotTouch) {
           msg = msg.originalMsgDoNotTouch;
         }
         msg.topic = 'Error. more info in msg.payload.';
-        if (!msg._isArrayMapError) {
+        if (msg._isArrayMapError) {
+          msg.payload = {
+            error: orgError
+          }
+        } else {
           msg.payload = {
             error: 'It seems like, you accidentally deleted totalItemsAmount from message, do not do it please.'
           }
@@ -38,7 +46,9 @@ module.exports = function (RED) {
         const finalMsg = {
           ...(msg.originalMsgDoNotTouch || {}),
           topic: `Iteration over, result can be found in msg.payload.`,
-          payload: result,
+          [resultField]: filterEmpty
+            ? result.filter(item => item !== null && item !== undefined)
+            : result,
         }
         node.send(finalMsg);
         clearTimeout(timeout);
