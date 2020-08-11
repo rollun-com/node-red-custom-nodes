@@ -23,10 +23,13 @@ module.exports = function (RED) {
         .getOne('', processedRql)
         .then(result => {
           console.log('got result', result);
-          msg.payload = result === null
-            ? {error: 'No records found, or found 2 or more by this filter -' + processedRql}
-            : result;
-          node.send([null, msg]);
+          if (result === null) {
+            msg.payload = {error: 'No records found, or found 2 or more by this filter -' + processedRql};
+            node.send([msg, null]);
+          } else {
+            msg.payload = result;
+            node.send([null, msg])
+          }
         })
         .catch(err => {
           console.log('got error', err.response);
