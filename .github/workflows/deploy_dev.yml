@@ -20,10 +20,10 @@ jobs:
     steps:
     # Runs a single command using the runners shell
     - name: Deploy dev manager node-red instance
-      run: wget ${{secrets.DEV_MANAGER_NR_HOOK}}
+      run: curl ${{secrets.DEV_MANAGER_NR_HOOK}}
       
     - name: Deploy ceo node-red instance
-      run: wget ${{secrets.CEO_NR_HOOK}}
+      run: curl ${{secrets.CEO_NR_HOOK}}
       
     - name: Deploy cto node-red instance
-      run: wget ${{secrets.CTO_NR_HOOK}}
+      run: curl ${{secrets.CTO_NR_HOOK}}
