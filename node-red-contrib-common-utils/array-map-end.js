@@ -26,7 +26,11 @@ module.exports = function (RED) {
       if (msg._isArrayMapError === true || msg.totalItemsAmount === undefined) {
         const orgError = msg.error || 'Unknown error';
         if (msg.originalMsgDoNotTouch) {
+          const req = msg.req;
+          const res = msg.res;
           msg = msg.originalMsgDoNotTouch;
+          msg.req = req;
+          msg.res = res;
         }
         msg.topic = 'Error. more info in msg.payload.';
         if (msg._isArrayMapError) {

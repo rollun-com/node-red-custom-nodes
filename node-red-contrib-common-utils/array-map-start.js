@@ -53,7 +53,7 @@ module.exports = function (RED) {
             array: array,
             totalItemsAmount: array.length,
             topic: `Element #${i} of array`,
-            originalMsgDoNotTouch: _.cloneDeep(msg),
+            originalMsgDoNotTouch: msg,
             req: req,
             res: res
           };
