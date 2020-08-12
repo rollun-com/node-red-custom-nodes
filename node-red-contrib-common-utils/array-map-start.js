@@ -22,7 +22,7 @@ module.exports = function (RED) {
 
 
       (async () => {
-        let array
+        let array;
         try {
           array = type === 'json'
             ? JSON.parse(value)
@@ -35,11 +35,17 @@ module.exports = function (RED) {
           throw new Error('data in arrayField is not of type Array!');
         }
 
+        const {req, res} = msg;
+
+        if (req) {
+          delete msg.req;
+        }
+        if (res) {
+          delete msg.res;
+        }
+
         for (let i = 0; i < array.length; i++) {
           const el = array[i];
-
-          console.log('sending el', i,  el);
-          console.log('sending array', i, array);
 
           const msgCopy = {
             payload: el,
@@ -47,8 +53,11 @@ module.exports = function (RED) {
             array: array,
             totalItemsAmount: array.length,
             topic: `Element #${i} of array`,
-            originalMsgDoNotTouch: RED.util.cloneMessage(msg)
+            originalMsgDoNotTouch: _.cloneDeep(msg),
+            req: req,
+            res: res
           };
+
           node.send(msgCopy);
 
           await (new Promise(resolve => setTimeout(() => resolve(), +config.interval)));
