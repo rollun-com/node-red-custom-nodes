@@ -39,14 +39,16 @@ module.exports = function (RED) {
         for (let i = 0; i < array.length; i++) {
           const el = array[i];
 
+          console.log('sending el', el);
+          console.log('sending array', array);
           const msgCopy = {
-            payload: _.cloneDeep(el),
+            payload: el,
             index: i,
-            array: _.cloneDeep(array),
+            array: array,
             totalItemsAmount: array.length,
             topic: `Element #${i} of array`,
             originalMsgDoNotTouch: msg
-          }
+          };
           node.send(msgCopy);
 
           await (new Promise(resolve => setTimeout(() => resolve(), +config.interval)));

@@ -30,19 +30,15 @@ module.exports = (function () {
             _getCachedToken() {
                 const cacheTokenFile = '/data/.megaplan-auth-token.json';
                 try {
-                    console.log('get cache file');
                     if (fs.existsSync(cacheTokenFile)) {
                         const file = fs.readFileSync(cacheTokenFile, 'utf8');
                         const data = JSON.parse(file);
-                        console.log('validate file content');
                         if (!data.access_token || !data.expires_in || !data.created_at) {
                             throw new Error('invalid file format - ' + file);
                         }
-                        console.log('check token for validity');
                         if ((Date.now() / 1000 - data.created_at) > data.expires_in) {
                             throw new Error(`Token expired - now(${Date.now()}) - created at(${data.created_at}) = ${Date.now() / 1000 - data.created_at} > expires in(${data.expires_in})`)
                         }
-                        console.log('return token');
                         return data.access_token;
                     }
                 } catch (err) {
@@ -54,10 +50,8 @@ module.exports = (function () {
             async _getAuthToken() {
                 const cachedToken = this._getCachedToken();
                 if (cachedToken) {
-                    console.log('use cached token');
                     return cachedToken;
                 }
-                console.log('fetch new token');
                 const data = {
                     username: this.email,
                     password: this.password,
