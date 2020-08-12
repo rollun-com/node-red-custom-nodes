@@ -29,8 +29,7 @@ module.exports = function (RED) {
           const req = msg.req;
           const res = msg.res;
           msg = msg.originalMsgDoNotTouch;
-          msg.req = req;
-          msg.res = res;
+
         }
         msg.topic = 'Error. more info in msg.payload.';
         if (msg._isArrayMapError) {
@@ -53,6 +52,8 @@ module.exports = function (RED) {
           [resultField]: filterEmpty
             ? result.filter(item => item !== null && item !== undefined)
             : result,
+          req: msg.req,
+          res: msg.res
         }
         node.send(finalMsg);
         clearTimeout(timeout);
