@@ -31,7 +31,6 @@ module.exports = function (RED) {
 
 
       const client = new global.megaplan.apiv3({host: node.config.host, email: node.config.email, password: node.config.password});
-      console.log('body' , body);
       client
         .updateEntity(config.entity, entityId, body)
         .then(res => {

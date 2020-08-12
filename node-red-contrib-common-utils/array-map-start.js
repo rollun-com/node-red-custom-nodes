@@ -13,7 +13,7 @@ module.exports = function (RED) {
         node.send(msg)
       };
 
-      const interval = +config.interval
+      const interval = +config.interval;
 
       if (!config.arrayField) return makeError(node, `arrayField is required!`);
       if (isNaN(interval) || interval < 0) return makeError(node, `interval is required, and must be a number > 0!`);
@@ -39,8 +39,10 @@ module.exports = function (RED) {
         for (let i = 0; i < array.length; i++) {
           const el = array[i];
 
-          console.log('sending el', el);
-          console.log('sending array', array);
+          console.log('sending el', i,  el);
+          console.log('sending array', i, array);
+          console.log('original msg', i, msg);
+
           const msgCopy = {
             payload: el,
             index: i,
@@ -65,4 +67,4 @@ module.exports = function (RED) {
   }
 
   RED.nodes.registerType("array-map-start", ArrayMapStart);
-}
+};

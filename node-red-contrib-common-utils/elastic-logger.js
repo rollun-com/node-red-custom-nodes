@@ -90,7 +90,6 @@ module.exports = function (RED) {
       port: node.config.logstashPort
     });
     node.on('input', function (msg) {
-      console.log('input', config);
       const {value: minLogLevelValue} = Object.values(log_levels).find(({name}) => name === node.config.minLevel);
       const {value} = Object.values(log_levels).find(({name}) => name === config.level);
 
@@ -110,10 +109,10 @@ module.exports = function (RED) {
           try {
             if (typeof message !== 'string') throw new Error(`message must be of type string - ${typeof message} given!`);
             await logger.log(config.level, message || 'default message', context, msg._msgid);
-            node.warn({
-              topic: `Message logged to elasticsearch.`,
-              message, context
-            })
+            // node.warn({
+            //   topic: `Message logged to elasticsearch.`,
+            //   message, context
+            // })
           } catch (err) {
             console.log('err', err);
             node.error({
@@ -122,11 +121,11 @@ module.exports = function (RED) {
             })
           }
         } else {
-          console.log('not logged');
-          node.warn({
-            topic: `Message not logged, minimal log level from config is bigger than current log level.`,
-            message, context
-          })
+          console.log('Message not logged, minimal log level from config is bigger than current log level.');
+          // node.warn({
+          //   topic: `Message not logged, minimal log level from config is bigger than current log level.`,
+          //   message, context
+          // })
         }
       })()
     });
