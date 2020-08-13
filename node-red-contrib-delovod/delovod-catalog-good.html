@@ -15,20 +15,27 @@
         required: true
       },
       itemName: {
-        value: "payload"
+        value: "msg|payload.itemName"
+      },
+      goodChar: {
+        value: "msg|payload.goodChar"
       },
       name: {
         value: ""
       },
-      createIfNotFound: {
+      createGoodIfNotFound: {
+        value: false
+      },
+      createGoodCharIfNotFound: {
         value: false
       }
     },
     label: function () {
-      return this.name || 'Delovod item';
+      return this.name || 'Delovod good';
     },
     oneditprepare: function () {
-      window.utils.makeTypedInput('itemName');
+      window.utils.makeTypedInput('itemName', undefined, undefined, this.itemName);
+      window.utils.makeTypedInput('goodChar', undefined, `goodChar (Разновидность)`, this.goodChar);
     }
   });
 </script>
@@ -42,18 +49,17 @@
     <label for="node-input-config"><i class="fa fa-server"></i> Delovod Config</label>
     <input type="text" id="node-input-config">
   </div>
-  <div class="form-row">
-    <label for="node-input-itemName"><i class="fa fa-server"></i> Item name</label>
-    <input type="hidden" id="node-input-itemName">
-    <input type="text" id="node-input-itemName-view">
+  <div class="form-row" id="itemName"></div>
+  <div class="form-row" id="goodChar"></div>
+  <div class="">
+    <span>Create good if not found</span>
+    <input style="margin-left: 5px; margin-bottom: 6px" type="checkbox" id="node-input-createGoodIfNotFound">
   </div>
   <div class="">
-    <span><i class="fa fa-server"></i> Create good if not found</span>
-    <input style="margin-left: 5px; margin-bottom: 6px" type="checkbox" id="node-input-createIfNotFound">
+    <span>Create goodChar (Разновидность) if not found</span>
+    <input style="margin-left: 5px; margin-bottom: 6px" type="checkbox" id="node-input-createGoodCharIfNotFound">
   </div>
 </script>
 
 <script type="text/html" data-help-name="delovod-catalog-good">
-  <h5>A simple node, to work with delovod goods</h5>
-
 </script>

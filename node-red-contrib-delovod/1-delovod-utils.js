@@ -67,13 +67,9 @@ module.exports = (function () {
 
       async baseRequest(action, params) {
         if (!this.actions[action]) throw new Error(`Unknown action - ${action}, must be one of ${Object.keys(this.actions)}`);
-        return this.axios.post('', {action, params})
-          .then(({data}) => {
-            if (data.error) {
-              throw new Error(data.error);
-            }
-            return data
-          })
+        const {data} = await this.axios.post('', {action, params});
+        if (data.error) throw new Error(data.error);
+        return data;
       }
 
       /**
@@ -97,11 +93,12 @@ module.exports = (function () {
           _fields.id = 'id';
         }
 
-        return this.baseRequest(this.actions.request, {
+        const result = await this.baseRequest(this.actions.request, {
           from: type,
           fields: _fields,
           filters
         })
+        return result;
       }
 
       /**

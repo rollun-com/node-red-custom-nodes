@@ -29,7 +29,8 @@ module.exports = function (RED) {
           const req = msg.req;
           const res = msg.res;
           msg = msg.originalMsgDoNotTouch;
-
+          msg.res = res;
+          msg.req = req;
         }
         msg.topic = 'Error. more info in msg.payload.';
         if (msg._isArrayMapError) {
@@ -45,18 +46,23 @@ module.exports = function (RED) {
       }
 
       result.push(msg.payload);
+      console.log('got msg, checking for exit', result.length, msg.totalItemsAmount, result.length === msg.totalItemsAmount);
       if (result.length === msg.totalItemsAmount) {
-        const finalMsg = {
-          ...(msg.originalMsgDoNotTouch || {}),
-          topic: `Iteration over, result can be found in msg.payload.`,
-          [resultField]: filterEmpty
-            ? result.filter(item => item !== null && item !== undefined)
-            : result,
-          req: msg.req,
-          res: msg.res
+        try {
+          const finalMsg = {
+            ...(msg.originalMsgDoNotTouch || {}),
+            topic: `Iteration over, result can be found in msg.payload.`,
+            [resultField]: filterEmpty
+              ? result.filter(item => item !== null && item !== undefined)
+              : result,
+            req: msg.req,
+            res: msg.res
+          }
+          node.send(finalMsg);
+          clearTimeout(timeout);
+        } catch (e) {
+          console.log('cannot send result msg after map', e);
         }
-        node.send(finalMsg);
-        clearTimeout(timeout);
       }
     });
   }
