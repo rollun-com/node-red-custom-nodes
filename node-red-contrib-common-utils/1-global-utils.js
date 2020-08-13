@@ -32,7 +32,8 @@ module.exports = function (RED) {
       return [type, value];
     },
 
-    getTypedFieldValue: (val, msg) => {
+    getTypedFieldValue: (val = '', msg) => {
+      if (!val) return '';
       const [type, value] = global.utils.parseTypedInput(val);
       if (type === 'msg') {
         return global.utils.resolvePath(msg, value);
