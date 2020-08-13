@@ -11,6 +11,9 @@ module.exports = function (RED) {
         msg.payload = undefined;
         node.send([msg, null])
       };
+
+      console.log('config', config, node.config);
+
       if (!node.config) return makeError(node, `node.config is required!`);
       if (!config.itemName) return makeError(node, `itemName is required!`);
 
