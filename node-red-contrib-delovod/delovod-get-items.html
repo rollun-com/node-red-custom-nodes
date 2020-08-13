@@ -33,7 +33,7 @@
     },
     oneditprepare: function () {
       const node = this;
-      console.log('oneditprepare', node);
+
       $('#node-input-conditions').val(node.conditions);
 
       // setup doc type select
@@ -164,7 +164,7 @@
     return detailedInfo.map(({page, name, value}) => {
       const dom = parser.parseFromString(page, 'text/html');
       let tableStarted = false;
-      console.log(dom)
+
       // ignore table part
       return {
         name, value,

@@ -79,7 +79,6 @@ module.exports = function (RED) {
       }
 
       async log(log_level, message, context, lifecycle_token) {
-        console.log('About to log!', log_level, message);
         return this._logProduction(log_level, message, context, lifecycle_token);
       }
     }
@@ -114,14 +113,14 @@ module.exports = function (RED) {
             //   message, context
             // })
           } catch (err) {
-            console.log('err', err);
+
             node.error({
               topic: `Error: ${err.message}.`,
               message, context
             })
           }
         } else {
-          console.log('Message not logged, minimal log level from config is bigger than current log level.');
+
           // node.warn({
           //   topic: `Message not logged, minimal log level from config is bigger than current log level.`,
           //   message, context

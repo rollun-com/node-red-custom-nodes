@@ -4,18 +4,38 @@ module.exports = function (RED) {
     const node = this;
     this.config = RED.nodes.getNode(config.config);
 
-    let result = [];
+    // map _msgif -> array of results
+    let results = {};
     let timeouted = false;
     let timeout
     const timeoutTime = +config.timeout || 5000;
     const filterEmpty = !!config.filterEmpty;
     const [, resultField] = (config.resultField || 'msg|payload').split('|');
 
+    const addToResult = (value, msgid) => {
+      if (!results[msgid]) results[msgid] = [];
+      results[msgid].push(value);
+    }
+
+    const isFinished = (msgid, totalItemsCount) => {
+      return results[msgid].length === totalItemsCount;
+    }
+
+    const getResult = (msgid) => {
+      return results[msgid] || [];
+    }
+
+    const clearResult = (msgid) => {
+      delete results[msgid];
+    }
+
     node.on('input', function (msg) {
+
       !timeout && timeoutTime > 0 && (timeout = setTimeout(() => {
         if (msg.originalMsgDoNotTouch) {
           msg = msg.originalMsgDoNotTouch;
         }
+        clearResult(msg._msgid);
         msg.payload = {error: `Did not receive all items from array-map-start after ${timeoutTime}ms`};
         node.send(msg);
         timeouted = true;
@@ -25,6 +45,7 @@ module.exports = function (RED) {
 
       if (msg._isArrayMapError === true || msg.totalItemsAmount === undefined) {
         const orgError = msg.error || 'Unknown error';
+        clearResult(msg._msgid);
         if (msg.originalMsgDoNotTouch) {
           const req = msg.req;
           const res = msg.res;
@@ -45,19 +66,19 @@ module.exports = function (RED) {
         node.send(msg);
       }
 
-      result.push(msg.payload);
-      console.log('got msg, checking for exit', result.length, msg.totalItemsAmount, result.length === msg.totalItemsAmount);
-      if (result.length === msg.totalItemsAmount) {
+      addToResult(msg.payload, msg._msgid);
+      if (isFinished(msg._msgid, msg.totalItemsAmount)) {
         try {
           const finalMsg = {
             ...(msg.originalMsgDoNotTouch || {}),
             topic: `Iteration over, result can be found in msg.payload.`,
             [resultField]: filterEmpty
-              ? result.filter(item => item !== null && item !== undefined)
-              : result,
+              ? getResult(msg._msgid).filter(item => item !== null && item !== undefined)
+              : getResult(msg._msgid),
             req: msg.req,
             res: msg.res
           }
+          clearResult(msg._msgid);
           node.send(finalMsg);
           clearTimeout(timeout);
         } catch (e) {

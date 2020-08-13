@@ -49,7 +49,7 @@ module.exports = (function () {
         })
 
         this.axios.interceptors.request.use(config => {
-          // console.log(config)
+          //
           const {data} = config;
           data.key = this.key;
           data.version = this.version;

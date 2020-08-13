@@ -59,10 +59,10 @@
 
               // const fields = ['id', 'field_1', 'field_2'];
               const fields = await dataStore.get('/api/webhook/DataStoreFields', {name: datastoreName});
-              console.log('found!', fields, datastore);
+
               $('#node-input-url').val(datastore.url);
             } catch (e) {
-              console.log('error', e);
+
               errorMSgField.text('Error: ' + (e.message || 'Unknown error'));
             }
           })(e.target.value.trim())

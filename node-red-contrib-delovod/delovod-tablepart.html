@@ -28,7 +28,7 @@
     },
     oneditprepare: function () {
       const node = this;
-      console.log('node', node);
+
 
       const textarea = $('#node-input-tableParts');
       const setDataValue = newData =>
@@ -39,15 +39,15 @@
       const getDataValue = () => JSON.parse(textarea.val());
       const setPropertyValue = (prop, tablePart, val) => {
         const data = getDataValue();
-        console.log('set', prop, 'to', val);
-        console.log('before', data);
+
+
         if (!val && tablePart) {
           delete data[tablePart][prop]
         } else {
           !data[tablePart] && (data[tablePart] = {})
           data[tablePart][prop] = val;
         }
-        console.log('after', data);
+
         setDataValue(data);
       };
 

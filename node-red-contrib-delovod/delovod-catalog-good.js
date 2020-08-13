@@ -12,8 +12,6 @@ module.exports = function (RED) {
         node.send([msg, null])
       };
 
-      console.log('config', config, node.config);
-
       if (!node.config) return makeError(node, `node.config is required!`);
       if (!config.itemName) return makeError(node, `itemName is required!`);
 
@@ -22,9 +20,10 @@ module.exports = function (RED) {
 
       const client = new global.delovod.DelovodAPIClient(node.config);
       (async () => {
-        const items = await client.request('catalogs.goods', [{
-          alias: "name", operator: "=", value: itemName
-        }]);
+        const items = await client.request(
+          'catalogs.goods',
+          [{alias: "name", operator: "=", value: itemName}]
+        );
         if (items.length > 1) {
           msg.payload = {error: `Found 2 or more goods by name - ${itemName}.`};
           return node.send([msg, null]);
@@ -94,7 +93,7 @@ module.exports = function (RED) {
         }
       })()
         .catch(err => {
-          console.log(err);
+
           msg.payload = {
             error: err.message
           }

@@ -33,7 +33,7 @@
     },
     oneditprepare: function () {
       const node = this;
-      console.log('oneditprepare', node);
+
       $('#node-input-conditions').val(node.conditions);
 
       // setup doc type select
@@ -52,7 +52,7 @@
         addItem: (row, index, _data) => {
           const {currentDocument} = node._def;
           const {operators} = window.delovod
-          console.log(currentDocument);
+
           const defaultData = {
             alias: currentDocument.fields.header[0].value,
             operator: operators[0].value,
@@ -194,7 +194,7 @@
     return detailedInfo.map(({page, name, value}) => {
       const dom = parser.parseFromString(page, 'text/html');
       // ignore table part
-      console.log('doc', name, value);
+
       return {
         name, value,
         fields: getFields(dom)

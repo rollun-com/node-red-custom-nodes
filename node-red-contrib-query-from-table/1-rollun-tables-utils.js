@@ -23,7 +23,7 @@ module.exports = (function (RED) {
         /**
          * @type {AxiosInstance}
          */
-        console.log('base url', `${protocol}//${host}`);
+
         this.axios = require('axios').create({
           baseURL: `${protocol}//${host}`,
           timeout

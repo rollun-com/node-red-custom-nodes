@@ -7,12 +7,12 @@ module.exports = function (RED) {
     node.on('input', function (msg) {
 
       const makeError = (text) => {
-        console.log('ERROR', text);
+
         msg.payload = {error: text};
         node.send([msg, null]);
       };
 
-      console.log('incoming input', msg.payload);
+
       if (!node.config) return makeError(`node.config is required!`);
       const [amountCurType, amountCurVal] = config.amountCur.split('|');
       const [analytics2Type, analytics2Val] = config.analytics2.split('|');

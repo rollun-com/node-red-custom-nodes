@@ -19,7 +19,7 @@ module.exports = function (RED) {
       const processedRql = global.tables.Datastore.resolveRQLWithREDMsg(rql, msg);
 
 
-      console.log('send request to ', url);
+
 
       datastore
         .get('', processedRql)
@@ -28,7 +28,7 @@ module.exports = function (RED) {
           node.send([null, msg]);
         })
         .catch(err => {
-          console.log('got error', err.response);
+
           msg.payload = {
             error: err.message
           };

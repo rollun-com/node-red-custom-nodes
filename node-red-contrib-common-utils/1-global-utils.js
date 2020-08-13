@@ -1,5 +1,5 @@
 module.exports = function (RED) {
-  // RED.events.on('nodes-started', e => console.log('nodes started', e))
+  // RED.events.on('nodes-started', e =>
 
   global.utils = {
     /**
@@ -22,6 +22,7 @@ module.exports = function (RED) {
       }
       return o;
     },
+
     /**
      *
      * @param val - input like str|12313, where str is type and 12313 is value.
@@ -31,6 +32,13 @@ module.exports = function (RED) {
       const [type = '', value = ''] = val.split('|');
       return [type, value];
     },
+
+    /**
+     * get values from typed input
+     * @param val - msg|payload
+     * @param msg - msg
+     * @return {string|*}
+     */
 
     getTypedFieldValue: (val = '', msg) => {
       if (!val) return '';

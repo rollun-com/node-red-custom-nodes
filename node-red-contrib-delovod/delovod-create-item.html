@@ -29,7 +29,7 @@
     },
     oneditprepare: function () {
       const node = this;
-      console.log('oneditprepare', node);
+
 
       const textarea = $('#node-input-docData');
       const setDataValue = newData => typeof newData === 'string'
@@ -37,14 +37,14 @@
         : textarea.val(JSON.stringify(newData))
       const setPropertyValue = (prop, val) => {
         const data = getDataValue();
-        console.log('set', prop, 'to', val);
-        console.log('before', data);
+
+
         if (!val) {
           delete data[prop]
         } else {
           data[prop] = val;
         }
-        console.log('after', data);
+
         setDataValue(data);
       };
       const getDataValue = () => JSON.parse(textarea.val());
@@ -71,7 +71,7 @@
                 const defaultValue = options[0].options[0].value;
                 const [, initValue = ''] = (initData[value] || '').split('|')
 
-                console.log('select', initData[value] || `const|${defaultValue}`, initData[value], `const|${defaultValue}`, initValue);
+
                 input = $('<select>')
                   .css('min-width', '300px')
                   .attr('id', 'select-' + value)
@@ -107,7 +107,7 @@
           .append(...inputs)
         for (const {value} of document.fields.header) {
           const [initType = '', initValue = ''] = (initData[value] || '').split('|');
-          // console.log(value, initData[value], initType, initValue);
+          //
           const types = [{
             value: "msg",
             label: "msg."

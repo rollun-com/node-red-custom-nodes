@@ -17,12 +17,12 @@ module.exports = function (RED) {
       const datastore = new global.tables.Datastore({URL: url});
       const processedRql = global.tables.Datastore.resolveRQLWithREDMsg(rql, msg);
 
-      console.log('send request to ', url);
+
 
       datastore
         .getOne('', processedRql)
         .then(result => {
-          console.log('got result', result);
+
           if (result === null) {
             msg.payload = {error: 'No records found, or found 2 or more by this filter -' + processedRql};
             node.send([msg, null]);
@@ -32,7 +32,7 @@ module.exports = function (RED) {
           }
         })
         .catch(err => {
-          console.log('got error', err.response);
+
           if (err.response && err.response.request) {
             // cannot serialise response with request property due to circular properties
             err.response.request = null;

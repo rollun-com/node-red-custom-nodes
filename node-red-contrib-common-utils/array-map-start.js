@@ -48,15 +48,17 @@ module.exports = function (RED) {
           const el = array[i];
 
           const msgCopy = {
-            payload: el,
+            _msgid: msg._msgid,
+            payload: _.cloneDeep(el),
             index: i,
-            array: array,
+            array: _.cloneDeep(array),
             totalItemsAmount: array.length,
             topic: `Element #${i} of array`,
             originalMsgDoNotTouch: msg,
             req: req,
             res: res
           };
+          console.log('send message', i);
 
           node.send(msgCopy);
 

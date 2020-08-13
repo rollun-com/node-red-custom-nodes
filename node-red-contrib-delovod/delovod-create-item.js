@@ -6,14 +6,14 @@ module.exports = function (RED) {
     const node = this;
 
     node.on('input', function (msg) {
-      console.log('got request', config, node.config);
+
       const axios = require('axios');
       const crypto = require('crypto');
       const docType = config.docType;
       const docData = JSON.parse(config.docData);
 
       const makeError = (text) => {
-        console.log('ERROR', text);
+
         msg.payload = {error: text};
         node.send([msg, null]);
       };
@@ -58,7 +58,7 @@ module.exports = function (RED) {
           data.error ? node.send([msg, null]) : node.send([null, msg])
         })
         .catch(err => {
-          console.log(err);
+
           msg.payload = {error: err.message};
           node.send([null, msg])
         })

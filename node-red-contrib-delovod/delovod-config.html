@@ -27,7 +27,7 @@
       //         }
       //     })
       //     .filter(({value}) => value[0] === 'c');
-      // console.log('docsNames', docsNames);
+      //
       const result = await Promise.all(catalog.map(({value, name}) => {
           return (async () => {
               const {data} = await fetch('https://delovod.ua/api/').json(res => res.json());
@@ -37,7 +37,7 @@
               }
           })();
       }));
-      console.log(result);
+
   }
 
 

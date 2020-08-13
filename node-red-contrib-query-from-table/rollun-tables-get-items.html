@@ -58,10 +58,10 @@
               if (!datastore) throw new Error('datastore is not found');
 
               const fields = await dataStore.get('/api/webhook/DataStoreFields', {name: datastoreName});
-              console.log('found!', fields, datastore);
+
               $('#node-input-url').val(datastore.url);
             } catch (e) {
-              console.log('error', e);
+
               errorMSgField.text('Error: ' + (e.message || 'Unknown error'));
             }
           })(e.target.value.trim())

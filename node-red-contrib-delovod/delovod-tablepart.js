@@ -41,7 +41,7 @@ module.exports = function (RED) {
         msg.payload = {tableParts};
         node.send([null, msg]);
       } catch (e) {
-        console.log(e);
+
         msg.payload = {error: e.message};
         node.send([msg, null]);
       }

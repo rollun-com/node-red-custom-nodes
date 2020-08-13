@@ -13,7 +13,7 @@ module.exports = function (RED) {
         node.send(msg)
       };
 
-      console.log('incoming input', msg.payload);
+
       if (!node.config) return makeError(node, `node.config is required!`);
       if (!config['action']) return makeError(node, `action is required!`);
 
@@ -22,18 +22,18 @@ module.exports = function (RED) {
       const payload = msg.payload;
 
       const url = node.config.host;
-      console.log('send request to ', url);
+
       const delovodAPI = new global.delovod.DelovodAPIClient(node.config);
 
       delovodAPI
         .baseRequest(action, payload)
         .then(res => {
-          console.log('got result', res);
+
           msg.payload = res
           node.send(msg);
         })
         .catch(err => {
-          console.log(err.message);
+
           msg.payload = {error: err.message}
           if (err.response) {
             // cannot serialise response with request property due to circular properties
@@ -55,12 +55,12 @@ module.exports = function (RED) {
       //     headers: {'Content-Type': 'application/x-www-form-urlencoded'}
       //   })
       //   .then(({data}) => {
-      //     console.log('got result', data);
+      //
       //     msg.payload = data
       //     node.send(msg);
       //   })
       //   .catch(err => {
-      //     console.log('got error', err);
+      //
       //     msg.payload = {error: err.message}
       //     if (err.response) {
       //       // cannot serialise response with request property due to circular properties

@@ -13,7 +13,7 @@ module.exports = function (RED) {
         node.send(msg)
       };
 
-      console.log('incoming input', config);
+
 
       if (!node.config) return makeError(node, `node.config is required!`);
       if (!config.docType) return makeError(node, `config.docType is required!`);
@@ -57,7 +57,7 @@ module.exports = function (RED) {
           }
       })}`;
       const errorField = config['errorField'] || 'error';
-      console.log('send request to ', url, packet);
+
       msg.sentPacket = packet;
       axios
         .post(url, packet, {
@@ -65,7 +65,7 @@ module.exports = function (RED) {
           headers: {'Content-Type': 'application/x-www-form-urlencoded'}
         })
         .then(({data}) => {
-          console.log('got result', data);
+
           if (data.error || (Array.isArray(data) && data.length !== 1)) {
             const errMsg = data.error
               || (data.length > 1 && `Found more than one document by filter: ${data.map(({id__pr}) => id__pr).join(', ')}`)
@@ -78,7 +78,7 @@ module.exports = function (RED) {
           }
         })
         .catch(err => {
-          console.log('got error', err);
+
           msg.payload = {[errorField]: `[node: ${config.name}] ` + err.message}
           if (err.response) {
             // cannot serialise response with request property due to circular properties

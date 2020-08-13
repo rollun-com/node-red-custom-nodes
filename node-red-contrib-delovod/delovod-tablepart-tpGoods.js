@@ -6,7 +6,6 @@ module.exports = function (RED) {
 
 
     node.on('input', function (msg) {
-      console.log('config', config);
       const {getTypedFieldValue} = global.utils;
 
       const good = getTypedFieldValue(config.good, msg);

@@ -1,6 +1,6 @@
 <script type="application/javascript">
   "use strict";
-  console.log('global utils');
+
 
   window.utils = {
     // for this to work in form need to be
@@ -32,7 +32,7 @@
         .typedInput('type', type)
         .on('change', (e, type) => {
           if (type === true) return;
-          console.log(type, e.target.value)
+
           $(`#node-input-${name}`).val(`${type}|${e.target.value}`);
         });
     },
