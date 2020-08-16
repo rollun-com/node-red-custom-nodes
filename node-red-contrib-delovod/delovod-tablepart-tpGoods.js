@@ -9,16 +9,16 @@ module.exports = function (RED) {
       const {getTypedFieldValue} = global.utils;
 
       const good = getTypedFieldValue(config.good, msg);
-      const price = getTypedFieldValue(config.price, msg);
-      const qty = getTypedFieldValue(config.qty, msg);
+      const price = +getTypedFieldValue(config.price, msg);
+      const qty = +getTypedFieldValue(config.qty, msg);
       const goodType = getTypedFieldValue(config.goodType, msg);
       const unit = getTypedFieldValue(config.unit, msg);
       msg.payload = {
         good,
         goodType, // Товар
-        price: +price,
-        // amountCur: +item.subTotal,
-        qty: +qty,
+        price: price,
+        amountCur: price * qty,
+        qty: qty,
         // baseQty: +item.quantity,
         unit, // шт
       }
