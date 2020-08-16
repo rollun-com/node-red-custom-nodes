@@ -58,10 +58,8 @@ module.exports = function (RED) {
             req: req,
             res: res
           };
-          console.log('send message', i);
 
           node.send(msgCopy);
-
           await (new Promise(resolve => setTimeout(() => resolve(), +config.interval)));
         }
 

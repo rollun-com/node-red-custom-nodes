@@ -7,7 +7,6 @@ module.exports = function (RED) {
 
     node.on('input', function (msg) {
 
-      const axios = require('axios');
       const crypto = require('crypto');
       const docType = config.docType;
       const docData = JSON.parse(config.docData);
@@ -31,36 +30,30 @@ module.exports = function (RED) {
             return acc;
           }
           if (!val) return acc;
-          const [type, value] = val.split('|');
-          acc[key] = type === 'msg' ? global.utils.resolvePath(msg, value) : value
+          const resolvedValue = global.utils.getTypedFieldValue(val, msg);
+          if (resolvedValue) {
+            acc[key] = resolvedValue;
+          }
           return acc;
         }, {});
-      const documentTableParts = msg.tableParts || {};
-      const document = {
-        header: {
-          ...header,
-          id: docType,
-          number: crypto.randomBytes(7).toString('base64').slice(0, 7),
-        },
-        tableParts: documentTableParts
-      }
-      msg.payload = document;
-      axios.post(
-        node.config.host,
-        global.delovod.util.formatDelovodRequest(document, global.delovod.actions.SAVE_OBJECT, {...node.config}),
-        {
-          timeout: 10000,
-          headers: {'Content-Type': 'application/x-www-form-urlencoded'}
-        }
-      )
-        .then(({data}) => {
-          msg.payload = data
-          data.error ? node.send([msg, null]) : node.send([null, msg])
+      const documentTableParts = msg.tableParts || null;
+
+      const client = new global.delovod.DelovodAPIClient(node.config);
+      client
+        .saveObject({
+            ...header,
+            id: docType,
+            number: crypto.randomBytes(7).toString('base64').slice(0, 7),
+          },
+          documentTableParts
+        )
+        .then(result => {
+          msg.payload = result;
+          node.send([null, msg]);
         })
         .catch(err => {
-
           msg.payload = {error: err.message};
-          node.send([null, msg])
+          node.send([msg, null])
         })
     })
   }

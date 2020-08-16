@@ -39,6 +39,16 @@ module.exports = (function () {
         }
 
         /**
+         * @type {{SAVE: '0', REGISTER: '1', UNREGISTER: '2'}}
+         */
+
+        this.saveTypes = {
+          SAVE: '0',
+          REGISTER: '1',
+          UNREGISTER: '2'
+        }
+
+        /**
          *
          * @type {AxiosInstance}
          */
@@ -49,7 +59,6 @@ module.exports = (function () {
         })
 
         this.axios.interceptors.request.use(config => {
-          //
           const {data} = config;
           data.key = this.key;
           data.version = this.version;
@@ -105,11 +114,13 @@ module.exports = (function () {
        *
        * @param header
        * @param tablePart
+       * @param saveType {"SAVE" | "REGISTER" | "UNREGISTER"}
        * @return {Promise<AxiosResponse<*>>}
        */
 
-      async saveObject(header, tablePart) {
+      async saveObject(header, tablePart, saveType = 'SAVE') {
         return this.baseRequest(this.actions.saveObject, {
+          saveType: this.saveTypes[saveType],
           header,
           ...(tablePart && {tablePart})
         })

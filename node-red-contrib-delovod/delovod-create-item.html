@@ -52,7 +52,7 @@
       const buildDocumentForm = (docType, initData = {}) => {
         const document = window.delovod.documents.find(doc => doc.value === docType);
         const inputs = document.fields.header
-          .filter(({value}) => !(value === 'id' || value === 'number'))
+          .filter(({value}) => !(value === 'id' || value === 'number' || value === 'posted'))
           .map(({name, value, type}) => {
             const typePopUp = `field: [${value}] of type [${type.isPrimitive ? type.name : type.name.join(', ')}]`;
             const isCatalogType = !type.isPrimitive && !!type.name.find(name => name.includes('catalog'));
@@ -70,7 +70,6 @@
               } else {
                 const defaultValue = options[0].options[0].value;
                 const [, initValue = ''] = (initData[value] || '').split('|')
-
 
                 input = $('<select>')
                   .css('min-width', '300px')
