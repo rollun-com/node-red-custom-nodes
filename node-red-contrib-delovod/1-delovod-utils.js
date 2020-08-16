@@ -113,16 +113,16 @@ module.exports = (function () {
       /**
        *
        * @param header
-       * @param tablePart
+       * @param tableParts
        * @param saveType {"SAVE" | "REGISTER" | "UNREGISTER"}
        * @return {Promise<AxiosResponse<*>>}
        */
 
-      async saveObject(header, tablePart, saveType = 'SAVE') {
+      async saveObject(header, tableParts, saveType = 'SAVE') {
         return this.baseRequest(this.actions.saveObject, {
           saveType: this.saveTypes[saveType],
           header,
-          ...(tablePart && {tablePart})
+          ...(tableParts && {tableParts})
         })
       }
     }

@@ -38,6 +38,7 @@ module.exports = function (RED) {
         }, {});
       const documentTableParts = msg.tableParts || null;
 
+      console.log('table parts', documentTableParts);
       const client = new global.delovod.DelovodAPIClient(node.config);
       client
         .saveObject({
