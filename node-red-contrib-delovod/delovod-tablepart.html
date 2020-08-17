@@ -40,7 +40,6 @@
       const setPropertyValue = (prop, tablePart, val) => {
         const data = getDataValue();
 
-
         if (!val && tablePart) {
           delete data[tablePart][prop]
         } else {
@@ -50,14 +49,6 @@
 
         setDataValue(data);
       };
-
-      const typedFieldsTypes = [{
-        value: "msg.payload",
-        label: "msg.payload."
-      }, {
-        value: "const",
-        label: "constant"
-      }]
 
       const renderTablePartForm = docType => {
         const doc = window.delovod.documents.find(({value}) => value === docType);
@@ -74,7 +65,6 @@
                 newData[tablePart][value] = data[tablePart][value];
               }
               window.delovod.utils.createTypedField({
-                typedFieldTypes: typedFieldsTypes,
                 customIdSuffix: tablePart,
                 name: name, type: type, value: value, defaultValue: newData[tablePart][value],
                 onChange: (name, value) => setPropertyValue(name, tablePart, value),
