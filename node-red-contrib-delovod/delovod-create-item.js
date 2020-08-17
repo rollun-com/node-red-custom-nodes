@@ -24,11 +24,6 @@ module.exports = function (RED) {
       const header = Object
         .entries(docData)
         .reduce((acc, [key, val]) => {
-          // values from msg.header have more priority
-          if ((msg.header || {})[key]) {
-            acc[key] = msg.header[key];
-            return acc;
-          }
           if (!val) return acc;
           const resolvedValue = global.utils.getTypedFieldValue(val, msg);
           if (resolvedValue) {
@@ -43,6 +38,8 @@ module.exports = function (RED) {
       client
         .saveObject({
             ...header,
+            // fields from msg header have more priority
+            ...(msg.header || {}),
             id: docType,
             number: crypto.randomBytes(7).toString('base64').slice(0, 7),
           },
