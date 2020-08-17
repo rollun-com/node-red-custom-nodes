@@ -39,14 +39,12 @@
       const getDataValue = () => JSON.parse(textarea.val());
       const setPropertyValue = (prop, tablePart, val) => {
         const data = getDataValue();
-
         if (!val && tablePart) {
           delete data[tablePart][prop]
         } else {
           !data[tablePart] && (data[tablePart] = {})
           data[tablePart][prop] = val;
         }
-
         setDataValue(data);
       };
 
