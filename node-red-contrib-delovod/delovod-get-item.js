@@ -14,7 +14,6 @@ module.exports = function (RED) {
       };
 
 
-
       if (!node.config) return makeError(node, `node.config is required!`);
       if (!config.docType) return makeError(node, `config.docType is required!`);
 
@@ -26,6 +25,8 @@ module.exports = function (RED) {
         return {...cond, value};
       });
 
+      const client = new global.delovod.DelovodAPIClient(node.config);
+
       const fields = conditions.reduce((acc, cond) => {
         acc[cond.alias] = cond.alias;
         return acc
@@ -35,56 +36,48 @@ module.exports = function (RED) {
         fields.id = 'id'
       }
 
-      const {GET_OBJECT, REQUEST} = global.delovod.actions;
-
+      const {getObject, request} = client.actions;
       const actionType = conditions.length === 1 && conditions[0].alias === 'id'
-        ? GET_OBJECT
-        : REQUEST;
+        ? getObject
+        : request;
 
-      const url = node.config.host;
-      const packet = `packet=${JSON.stringify({
-        version: node.config.version,
-        key: node.config.key,
-        action: actionType,
-        params: actionType === REQUEST
-          ? {
-            from: config.docType,
-            fields: fields,
-            filters: conditions
-          }
-          : {
-            id: conditions[0].value
-          }
-      })}`;
       const errorField = config['errorField'] || 'error';
+      const returnFirstIfMoreThanOne = config.returnFirstIfMoreThanOne || false;
+      const getFullObject = config.getFullObject || false;
+      (async () => {
+        let result = actionType === request
+          ? await client.request(config.docType, conditions)
+          : await client.getObject(conditions[0].value);
 
-      msg.sentPacket = packet;
-      axios
-        .post(url, packet, {
-          timeout: 10000,
-          headers: {'Content-Type': 'application/x-www-form-urlencoded'}
-        })
-        .then(({data}) => {
+        if (!Array.isArray(result)) {
+          msg.payload = result;
+          return node.send([null, msg]);
+        }
 
-          if (data.error || (Array.isArray(data) && data.length !== 1)) {
-            const errMsg = data.error
-              || (data.length > 1 && `Found more than one document by filter: ${data.map(({id__pr}) => id__pr).join(', ')}`)
-              || (data.length === 0 && `Not found any documents by filter!`)
-            msg.payload = {[errorField]: `[node: ${config.name}] ` + errMsg}
-            node.send([msg, null]);
-          } else {
-            msg.payload = Array.isArray(data) ? data[0] : data;
-            node.send([null, msg]);
-          }
-        })
+        if (result.length === 0) {
+          msg.payload = {[errorField]: 'Not found any documents by filter!'};
+          return node.send([msg, null]);
+        }
+
+        if (returnFirstIfMoreThanOne === true && result.length > 1) {
+          result = [result[0]];
+        }
+
+        if (result.length > 1) {
+          msg.payload = {[errorField]: `Found more than one document by filter: ${data.map(({id__pr}) => id__pr).join(', ')}`}
+          return node.send([msg, null]);
+        }
+
+        let item = result[0];
+        if (getFullObject === true) {
+          item = await client.getObject(item.id);
+        }
+
+        msg.payload = item;
+        node.send([null, msg]);
+      })()
         .catch(err => {
-
-          msg.payload = {[errorField]: `[node: ${config.name}] ` + err.message}
-          if (err.response) {
-            // cannot serialise response with request property due to circular properties
-            err.response.request = null;
-          }
-          msg.response = err.response;
+          msg.payload = {[errorField]: err.message};
           node.send([msg, null]);
         })
     })

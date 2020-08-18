@@ -24,6 +24,12 @@
       searchConditions: {
         value: []
       },
+      returnFirstIfMoreThanOne: {
+        value: false
+      },
+      getFullObject: {
+        value: false
+      },
       conditions: {
         value: '[{"alias": "delMark", "operator": "=", "value": "0"}]'
       },
@@ -131,7 +137,10 @@
         scrollOnAdd: true,
         sortable: true,
       });
-      JSON.parse(node.conditions).forEach(cond => $('ol.list').editableList('addItem', cond));
+      JSON.parse(node.conditions)
+        .forEach(cond => {
+          $('ol.list').editableList('addItem', cond);
+        });
     },
     label: function () {
       return this.name || 'Delovod get item';
@@ -205,38 +214,46 @@
 </script>
 
 <script type="text/html" data-template-name="delovod-get-item">
-    <div class="form-row">
-        <label for="node-input-config"><i class="fa fa-server"></i> Delovod Config</label>
-        <input type="text" id="node-input-config">
-    </div>
-    <div class="form-row">
-        <label for="node-input-docType"><i class="fa fa-server"></i> Document Type</label>
-        <select id="node-input-docType">
-        </select>
-    </div>
-    <div class="form-row">
-        <label for="node-input-errorField"><i class="fa fa-server"></i> Error Field</label>
-        <input type="text" id="node-input-errorField">
-    </div>
-    <div class="form-row">
-        <label for="node-input-name"><i class="fa fa-server"></i> Name</label>
-        <input type="text" id="node-input-name">
-    </div>
-    <input type="hidden" id="node-input-conditions">
+  <div class="form-row">
+    <label for="node-input-name"><i class="fa fa-server"></i> Name</label>
+    <input type="text" id="node-input-name">
+  </div>
+  <div class="form-row">
+    <label for="node-input-config"><i class="fa fa-server"></i> Delovod Config</label>
+    <input type="text" id="node-input-config">
+  </div>
+  <div class="form-row">
+    <label for="node-input-docType"><i class="fa fa-server"></i> Document Type</label>
+    <select id="node-input-docType">
+    </select>
+  </div>
+  <div class="form-row">
+    <label for="node-input-errorField"><i class="fa fa-server"></i> Error Field</label>
+    <input type="text" id="node-input-errorField">
+  </div>
+  <div class="">
+    <span>Get first item, if more than 1 one found</span>
+    <input style="margin-left: 5px; margin-bottom: 6px" type="checkbox" id="node-input-returnFirstIfMoreThanOne">
+  </div>
+  <div class="">
+    <span>Additionally request full item data</span>
+    <input style="margin-left: 5px; margin-bottom: 6px" type="checkbox" id="node-input-getFullObject">
+  </div>
+  <input type="hidden" id="node-input-conditions">
 
-    <div class="form-row node-input-rule-container-row">
-        <div class="red-ui-editableList">
-            <div class="red-ui-editableList-border red-ui-editableList-container" style="height: 450px !important;">
-                <ol id="node-input-rule-container" class="red-ui-editableList-list ui-sortable list"
-                    style="min-height: 0px; min-width: 450px; height: auto;">
-                    <li class="red-ui-editableList-item-sortable red-ui-editableList-item-removable">
-                    </li>
-                </ol>
-            </div>
-        </div>
+  <div class="form-row node-input-rule-container-row">
+    <div class="red-ui-editableList">
+      <div class="red-ui-editableList-border red-ui-editableList-container" style="height: 450px !important;">
+        <ol id="node-input-rule-container" class="red-ui-editableList-list ui-sortable list"
+            style="min-height: 0px; min-width: 450px; height: auto;">
+          <li class="red-ui-editableList-item-sortable red-ui-editableList-item-removable">
+          </li>
+        </ol>
+      </div>
     </div>
+  </div>
 </script>
 
 <script type="text/html" data-help-name="delovod-get-item">
-    <h5>A simple node, performes request delovod</h5>
+  <h5>A simple node, performes request delovod</h5>
 </script>

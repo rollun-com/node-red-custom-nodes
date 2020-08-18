@@ -91,13 +91,17 @@ module.exports = (function () {
 
       async request(type, filters, fields = {}) {
         const _fields = filters
+          // remove filters without {alias} field
           .map(filter => filter.alias)
+          // filter empty {alias}
           .filter(name => !!name)
+          // add fields from filter to select.
           .reduce((fields, name) => {
             fields[name] = name;
             return fields;
           }, {});
 
+        // always add id to select
         if (!("id" in _fields)) {
           _fields.id = 'id';
         }
@@ -124,6 +128,17 @@ module.exports = (function () {
           header,
           ...(tableParts && {tableParts})
         })
+      }
+
+      /**
+       *
+       * @param id
+       * @return {Promise<AxiosResponse<*>>}
+       */
+
+      async getObject(id) {
+        if (!id) throw new Error('Id cannot be empty');
+        return this.baseRequest(this.actions.getObject, {id})
       }
     }
   };
