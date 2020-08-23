@@ -17,6 +17,15 @@
       itemName: {
         value: "msg|payload.itemName"
       },
+      parent: {
+        value: "const|1100300000001001"
+      },
+      mainUnit: {
+        value: "const|1103600000000001"
+      },
+      goodType: {
+        value: "const|1004000000000014"
+      },
       goodChar: {
         value: "msg|payload.goodChar"
       },
@@ -35,6 +44,9 @@
     },
     oneditprepare: function () {
       window.utils.makeTypedInput('itemName', undefined, undefined, this.itemName);
+      window.utils.makeTypedInput('parent', undefined, 'Группа (parent)', this.parent);
+      window.utils.makeTypedInput('mainUnit', undefined, 'Ед. изм. (mainUnit)', this.mainUnit);
+      window.utils.makeTypedInput('goodType', undefined, 'Тип (goodType)', this.goodType);
       window.utils.makeTypedInput('goodChar', undefined, `goodChar (Разновидность)`, this.goodChar);
     }
   });
@@ -49,7 +61,12 @@
     <label for="node-input-config"><i class="fa fa-server"></i> Delovod Config</label>
     <input type="text" id="node-input-config">
   </div>
+  <h4>Настройки товара:</h4>
   <div class="form-row" id="itemName"></div>
+  <div class="form-row" id="parent"></div>
+  <div class="form-row" id="mainUnit"></div>
+  <div class="form-row" id="goodType"></div>
+  <h4>Настройки разновидности</h4>
   <div class="form-row" id="goodChar"></div>
   <div class="">
     <span>Create good if not found</span>

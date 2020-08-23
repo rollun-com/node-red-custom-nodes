@@ -16,6 +16,9 @@ module.exports = function (RED) {
       if (!config.itemName) return makeError(node, `itemName is required!`);
 
       const itemName = global.utils.getTypedFieldValue(config.itemName, msg);
+      const parent = global.utils.getTypedFieldValue(config.parent, msg);
+      const mainUnit = global.utils.getTypedFieldValue(config.mainUnit, msg);
+      const goodType = global.utils.getTypedFieldValue(config.goodType, msg);
       const goodChar = global.utils.getTypedFieldValue(config.goodChar, msg);
 
       const client = new global.delovod.DelovodAPIClient(node.config);
@@ -42,12 +45,15 @@ module.exports = function (RED) {
           if (config.createGoodIfNotFound === true) {
             const {id} = await client.saveObject({
               id: 'catalogs.goods',
-              name: itemName
+              name: itemName,
+              ...(parent && {parent}),
+              ...(mainUnit && {mainUnit}),
+              ...(goodType && {goodType})
             });
             resultTopic += `Good created - ${id}. `
             good = {id};
           } else {
-            msg.payload = {error: `Item (${itemName}) not found.`};
+            msg.payload = {error: `Item (${itemName}) not found. Enable createGoodIfNotFound flag to automatically create`};
             return node.send([msg, null]);
           }
         }
@@ -87,13 +93,12 @@ module.exports = function (RED) {
             msg.payload = good;
             return node.send([null, msg]);
           } else {
-            msg.payload = {error: `No goodChar found by owner ${good.id} and name ${goodChar}`};
+            msg.payload = {error: `No goodChar found by owner ${good.id} and name ${goodChar}. Enable createGoodCharIfNotFound flag to create automatically`};
             return node.send([msg, null]);
           }
         }
       })()
         .catch(err => {
-
           msg.payload = {
             error: err.message
           }
