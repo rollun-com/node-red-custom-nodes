@@ -1,6 +1,6 @@
 module.exports = function (RED) {
   function GSheetGetCells(sheetResponseFormatter = data => data) {
-    return function(config) {
+    return function (config) {
       RED.nodes.createNode(this, config);
       const node = this;
       this.config = RED.nodes.getNode(config.config);
@@ -62,13 +62,13 @@ module.exports = function (RED) {
     if (cells.length === 0) return [];
     const header = cells[0].map(cell => cell._rawData.userEnteredValue.stringValue);
     return cells.slice(1).map(row => {
-      return row.reduce((acc, {_rawData}, idx) => {
+      return row.reduce((acc, {_rawData: {userEnteredValue = {}, effectiveValue = {}, formattedValue = ''}}, idx) => {
         acc[header[idx]] = {
-          userEnteredValueString: _rawData.userEnteredValue.stringValue,
-          userEnteredValueNumber: _rawData.userEnteredValue.numberValue,
-          effectiveValueString: _rawData.effectiveValue.stringValue,
-          effectiveValueNumber: _rawData.effectiveValue.numberValue,
-          formattedValue: _rawData.formattedValue
+          userEnteredValueString: userEnteredValue.stringValue,
+          userEnteredValueNumber: userEnteredValue.numberValue,
+          effectiveValueString: effectiveValue.stringValue,
+          effectiveValueNumber: effectiveValue.numberValue,
+          formattedValue: formattedValue
         }
         return acc;
       }, {});
