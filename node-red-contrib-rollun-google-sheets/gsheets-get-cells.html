@@ -1,59 +1,57 @@
 <script type="text/javascript">
   "use strict";
 
-  RED.nodes.registerType('gsheets-get-cells', {
-    category: 'Rollun GSheet',
+  const configFactory = ({paletteLabel, defaultName}) => ({
+    category: 'Rollun',
     inputs: 1,
     outputs: 2,
     color: "#bce4d0",
     icon: "icons/node-red/white-globe.svg",
-    paletteLabel: "gsheet-get-cells",
+    paletteLabel: paletteLabel,
     defaults: {
       config: {
         value: "", type: "gsheets-config",
         required: true
       },
-      sheetId: {
+      sheetURL: {
         value: ''
       },
       cells: {
-        value: 'A1:B3',
-      },
-      tableId: {
-        value: '',
+        value: 'const|A1:B10',
       },
       name: {
         value: ""
       }
     },
     label: function () {
-      return this.name || 'Gsheet get cells';
+      return this.name || defaultName
     },
     oneditprepare: function () {
-      window.utils.makeTypedInput('cells')
-      window.utils.makeTypedInput('tableId')
+      console.log(this);
+      const node = this;
+      window.utils.makeTypedInput('sheetURL', undefined, 'Sheet URL', node.sheetURL);
+      window.utils.makeTypedInput('cells', undefined, 'Cells', node.cells);
     }
-  });
+  })
+
+  RED.nodes.registerType(
+    'gsheets-get-cells-raw',
+    configFactory({paletteLabel: "gsheet-get-cells-raw", defaultName: 'Gsheet get cells raw'})
+  );
+  RED.nodes.registerType(
+    'gsheets-get-cells-formatted',
+    configFactory({paletteLabel: "gsheet-get-cells-formatted", defaultName: 'Gsheet get cells formatted'})
+  );
 </script>
 
-<script type="text/html" data-template-name="gsheets-get-cells">
+<script type="text/html" data-template-name="gsheets-get-cells-raw">
   <div class="form-row">
     <label for="node-input-config"><i class="fa fa-server"></i> GSheet config</label>
     <input type="text" id="node-input-config">
   </div>
-  <div class="form-row">
-    <label for="node-input-sheetId"><i class="fa fa-server"></i> Sheet ID</label>
-    <input type="text" id="node-input-sheetId">
+  <div class="form-row" id="sheetURL">
   </div>
-  <div class="form-row">
-    <label for="node-input-cells"><i class="fa fa-server"></i> Cells</label>
-    <input type="hidden" id="node-input-cells">
-    <input type="text" id="node-input-cells-view">
-  </div>
-  <div class="form-row">
-    <label for="node-input-cells"><i class="fa fa-server"></i> Table Id</label>
-    <input type="hidden" id="node-input-tableId">
-    <input type="text" id="node-input-tableId-view">
+  <div class="form-row" id="cells">
   </div>
   <div class="form-row">
     <label for="node-input-name"><i class="fa fa-server"></i> Name</label>
@@ -61,3 +59,17 @@
   </div>
 </script>
 
+<script type="text/html" data-template-name="gsheets-get-cells-formatted">
+  <div class="form-row">
+    <label for="node-input-config"><i class="fa fa-server"></i> GSheet config</label>
+    <input type="text" id="node-input-config">
+  </div>
+  <div class="form-row" id="sheetURL">
+  </div>
+  <div class="form-row" id="cells">
+  </div>
+  <div class="form-row">
+    <label for="node-input-name"><i class="fa fa-server"></i> Name</label>
+    <input type="text" id="node-input-name">
+  </div>
+</script>

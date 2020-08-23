@@ -1,57 +1,80 @@
 module.exports = function (RED) {
-  function GSheetGetCells(config) {
-    RED.nodes.createNode(this, config);
-    const node = this;
-    this.config = RED.nodes.getNode(config.config);
+  function GSheetGetCells(sheetResponseFormatter = data => data) {
+    return function(config) {
+      RED.nodes.createNode(this, config);
+      const node = this;
+      this.config = RED.nodes.getNode(config.config);
+
+      const URL = require('url');
+
+      node.on('input', function (msg) {
+
+        const makeError = (text) => {
+          msg.payload = {error: text};
+          node.send([msg, null])
+        };
 
 
-    node.on('input', function (msg) {
+        if (!node.config) return makeError(`node.config is required!`);
+        if (!config.sheetURL) return makeError(`sheetURL is required!`);
+        if (!config.cells) return makeError(`cells is required!`);
 
-      const makeError = (text) => {
-        msg.error = {error: text};
-        msg.payload = undefined;
-        node.send([msg, null])
-      };
+        const sheetURL = global.utils.getTypedFieldValue(config.sheetURL, msg);
+        const cells = global.utils.getTypedFieldValue(config.cells, msg);
 
+        const parsedURL = URL.parse(sheetURL);
 
-      if (!node.config) return makeError(`node.config is required!`);
-      if (!config.sheetId) return makeError(`sheetId is required!`);
+        const sheetIdMatch = parsedURL.path.match(/spreadsheets\/d\/(?<sheetId>[a-z0-9]+)\//i);
+        const tableIdMatch = parsedURL.hash.match(/gid=(?<tableId>[0-9]+)/i);
+        if (!sheetIdMatch) return makeError(`Could not get sheetId from sheetURL.`)
+        if (!tableIdMatch) return makeError(`Could not get tableId from sheetURL.`)
 
-      const [type, value] = global.utils.parseTypedInput(config.cells);
-      const cells = (type === 'msg'
-        ? global.utils.resolvePath(msg, value)
-        : value) || 'A1:B10';
+        const {sheetId} = sheetIdMatch.groups;
+        const {tableId} = tableIdMatch.groups;
 
-      const [tableIdType, tableIdValue] = global.utils.parseTypedInput(config.tableId);
-      const tableId = (tableIdType === 'msg'
-        ? global.utils.resolvePath(msg, tableIdValue)
-        : tableIdValue) || '0';
+        const {GoogleSpreadsheet} = require('google-spreadsheet');
 
-      const {GoogleSpreadsheet} = require('google-spreadsheet');
+        (async () => {
 
-      (async () => {
+          const doc = new GoogleSpreadsheet(sheetId);
 
-        const doc = new GoogleSpreadsheet(config.sheetId);
-
-        await doc.useServiceAccountAuth(node.config.creds);
+          await doc.useServiceAccountAuth(node.config.creds);
 
 
-        await doc.loadInfo();
-        await doc.loadCells(cells);
+          await doc.loadInfo();
+          await doc.loadCells(cells);
 
 
-        const sheet = doc.sheetsById[tableId];
-        msg.payload = sheet;
-        node.send([null, msg]);
-      })()
-        .catch(err => {
+          msg.payload = sheetResponseFormatter(doc.sheetsById[tableId]);
+          node.send([null, msg]);
+        })()
+          .catch(err => {
+            msg.payload = {error: err.message};
+            node.send([msg, null]);
+          });
+      });
 
-          msg.payload = {error: err.message};
-          node.send([msg, null]);
-        });
-
-    });
+    }
   }
 
-  RED.nodes.registerType("gsheets-get-cells", GSheetGetCells);
+  const formatSheet = sheet => {
+    const cells = sheet._cells;
+    if (cells.length === 0) return [];
+    const header = cells[0].map(cell => cell._rawData.userEnteredValue.stringValue);
+    return cells.slice(1).map(row => {
+      return row.reduce((acc, {_rawData}, idx) => {
+        acc[header[idx]] = {
+          userEnteredValueString: _rawData.userEnteredValue.stringValue,
+          userEnteredValueNumber: _rawData.userEnteredValue.numberValue,
+          effectiveValueString: _rawData.effectiveValue.stringValue,
+          effectiveValueNumber: _rawData.effectiveValue.numberValue,
+          formattedValue: _rawData.formattedValue
+        }
+        return acc;
+      }, {});
+    });
+  };
+
+  RED.nodes.registerType("gsheets-get-cells-raw", GSheetGetCells());
+  RED.nodes.registerType("gsheets-get-cells-formatted", GSheetGetCells(formatSheet));
 }

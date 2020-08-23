@@ -16,7 +16,7 @@
     }], displayName, defaultValue) => {
       $(`#${name}`)
         .html(`
-         <label style="margin-right: 10px" for="node-input-resultField">${displayName || name
+         <label style="margin-right: 10px" for="node-input-${name}-view">${displayName || name
           .replace(/([a-z])([A-Z])/g, '$1 $2')
           .split(/\s+/)
           .map((word, idx) => idx === 0 ? (word[0].toUpperCase() + word.slice(1)) : word.toLowerCase())
