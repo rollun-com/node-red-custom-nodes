@@ -54,7 +54,7 @@ module.exports = function (RED) {
             array: _.cloneDeep(array),
             totalItemsAmount: array.length,
             topic: `Element #${i} of array`,
-            originalMsgDoNotTouch: msg,
+            originalMsg: msg,
             req: req,
             res: res
           };

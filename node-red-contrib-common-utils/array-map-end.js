@@ -32,8 +32,8 @@ module.exports = function (RED) {
     node.on('input', function (msg) {
 
       !timeout && timeoutTime > 0 && (timeout = setTimeout(() => {
-        if (msg.originalMsgDoNotTouch) {
-          msg = msg.originalMsgDoNotTouch;
+        if (msg.originalMsg) {
+          msg = msg.originalMsg;
         }
         clearResult(msg._msgid);
         msg.payload = {error: `Did not receive all items from array-map-start after ${timeoutTime}ms`};
@@ -46,10 +46,10 @@ module.exports = function (RED) {
       if (msg._isArrayMapError === true || msg.totalItemsAmount === undefined) {
         const orgError = msg.error || 'Unknown error';
         clearResult(msg._msgid);
-        if (msg.originalMsgDoNotTouch) {
+        if (msg.originalMsg) {
           const req = msg.req;
           const res = msg.res;
-          msg = msg.originalMsgDoNotTouch;
+          msg = msg.originalMsg;
           msg.res = res;
           msg.req = req;
         }
@@ -70,7 +70,7 @@ module.exports = function (RED) {
       if (isFinished(msg._msgid, msg.totalItemsAmount)) {
         try {
           const finalMsg = {
-            ...(msg.originalMsgDoNotTouch || {}),
+            ...(msg.originalMsg || {}),
             topic: `Iteration over, result can be found in msg.payload.`,
             [resultField]: filterEmpty
               ? getResult(msg._msgid).filter(item => item !== null && item !== undefined)
