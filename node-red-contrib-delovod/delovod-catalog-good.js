@@ -69,7 +69,7 @@ module.exports = function (RED) {
         let goodChars = await client.request('catalogs.goodChars', [
           {alias: "owner", operator: "=", value: good.id}
         ]);
-        // filter manually, delovod api does not filter by name...
+        // filter manually, delovod api does not filter by display name...
         goodChars = goodChars.filter(char => char.id__pr === goodChar);
         if (goodChars.length >= 1) {
           const {id} = goodChars[0];

@@ -255,5 +255,12 @@
 </script>
 
 <script type="text/html" data-help-name="delovod-get-item">
-  <h5>A simple node, performes request delovod</h5>
+  <h4>A simple node, filters documents of some type</h4>
+  This node returns error if
+  <ul>
+    <li>No items found</li>
+    <li>Found more than one item (if <b>Get first item, if more than 1 one found</b> enabled, will be returned first item)</li>
+    <li>Delovod returned error</li>
+  </ul>
+  if <b>Additionally request full item data</b> enabled, for item will be done additional read request to get all object fields
 </script>
