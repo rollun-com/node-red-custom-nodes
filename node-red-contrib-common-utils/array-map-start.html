@@ -26,9 +26,6 @@
       window.utils.makeTypedInput('arrayField', [{
         value: "msg",
         label: "msg."
-      }, {
-        value: "json",
-        label: "json"
       }], undefined, this.arrayField);
     }
   });
@@ -48,14 +45,15 @@
 </script>
 
 <script type="text/html" data-help-name="array-map-start">
-  Expects array in <code>Array field</code>, emits event for every element in array,<br/>
+  Expects array or object in <code>Array field</code>, emits event for every element <br/>
   Must be enclosed with array-map-end node<br/>
-  For every element in array <code>msg</code> will be sent with props:
+  For every element in array or object <code>msg</code> will be sent with props:
   <ul>
+    <li><code>msg.type</code> - can be an array or an object</li>
     <li><code>msg.payload</code> - current element of an array</li>
-    <li><code>msg.index</code> - index (number) of element in array</li>
-    <li><code>msg.array</code> - copy of full array.</li>
-    <li><code>msg.topic</code> - description with element index</li>
+    <li><code>msg.index (if it is an array)</code> - index (number) of element in array</li>
+    <li><code>msg.key (if it is an object)</code> - key of element in object</li>
+    <li><code>msg.totalItemsAmount</code> - total items in array or object</li>
     <li><code>msg.originalMsg</code> - msg object, before array-map-start, it is not a copy, all mutations will be saved
     </li>
   </ul>

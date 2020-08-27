@@ -18,42 +18,44 @@ module.exports = function (RED) {
       if (!config.arrayField) return makeError(node, `arrayField is required!`);
       if (isNaN(interval) || interval < 0) return makeError(node, `interval is required, and must be a number > 0!`);
 
-      const [type, value] = global.utils.parseTypedInput(config.arrayField);
-
 
       (async () => {
-        let array;
-        try {
-          array = type === 'json'
-            ? JSON.parse(value)
-            : global.utils.resolvePath(msg, value);
-        } catch (e) {
-          throw new Error('Cannot parse given array: - ' + e.message);
+        let iterable = global.utils.getTypedFieldValue(config.arrayField, msg);
+
+        if (typeof iterable !== 'object') {
+          throw new Error('Data in arrayField must be either object or array!');
         }
 
-        if (!Array.isArray(array)) {
-          throw new Error('data in arrayField is not of type Array!');
-        }
+        const type = Array.isArray(iterable) ? 'array' : 'object';
 
         const {req, res} = msg;
 
-        if (req) {
-          delete msg.req;
-        }
-        if (res) {
-          delete msg.res;
+        if (req) delete msg.req;
+        if (res) delete msg.res;
+
+        if (type === 'object') {
+          iterable = Object.entries(iterable);
         }
 
-        for (let i = 0; i < array.length; i++) {
-          const el = array[i];
+        for (let i = 0, len = iterable.length; i < len; i++) {
+          let key, value, index;
+          if (type === 'array') {
+            index = i;
+            value = iterable[i];
+          }
+
+          if (type === 'object') {
+            [key, value] = iterable[i];
+          }
 
           const msgCopy = {
             _msgid: msg._msgid,
-            payload: _.cloneDeep(el),
-            index: i,
-            array: _.cloneDeep(array),
-            totalItemsAmount: array.length,
-            topic: `Element #${i} of array`,
+            payload: _.cloneDeep(value),
+            type,
+            ...(index !== undefined && {index: i}),
+            ...(key !== undefined && {key}),
+            totalItemsAmount: len,
+            topic: `Element #${i} of iterable`,
             originalMsg: msg,
             req: req,
             res: res

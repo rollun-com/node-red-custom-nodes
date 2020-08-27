@@ -50,6 +50,7 @@
 
 <script type="text/html" data-help-name="array-map-end">
   Must have array-map-start node before, result will be in <code>msg.payload</code><br/>
-  Every <code>msg.payload</code> field, that will be passed to array-map-end, will be composed to single array <br/>
-  Filter empty option removes <b>empty</b> (null or undefined) items from result array.
+  Every <code>msg.payload</code> field, that will be passed to array-map-end, will be composed to single array or object <br/>
+  Filter empty option removes <b>empty</b> (null or undefined) items from result array or object.
+  For object, if <code>msg.key</code> is <b>empty</b> (null or undefined), key will be generated automatically
 </script>
