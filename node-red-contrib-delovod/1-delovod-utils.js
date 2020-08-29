@@ -71,12 +71,15 @@ module.exports = (function () {
        *
        * @param action {"getObject" | "saveObject" | "setDelMark" | "request"}
        * @param params
-       * @return {Promise<AxiosResponse<any>>}
+       * @return {Promise<{result: "ok"}>}
        */
 
       async baseRequest(action, params) {
         if (!this.actions[action]) throw new Error(`Unknown action - ${action}, must be one of ${Object.keys(this.actions)}`);
         const {data} = await this.axios.post('', {action, params});
+        if (data === 'ok') {
+          return {result: 'ok'};
+        }
         if (data.error) throw new Error(data.error);
         return data;
       }
@@ -139,6 +142,20 @@ module.exports = (function () {
       async getObject(id) {
         if (!id) throw new Error('Id cannot be empty');
         return this.baseRequest(this.actions.getObject, {id})
+      }
+
+      /**
+       * Sets delete mark on document, and also can delete this document
+       * @param id
+       * @param forceDelete
+       * @return {Promise<AxiosResponse<*>>}
+       */
+      async setDelMark(id, forceDelete = false) {
+        if (!id) throw new Error('Id cannot be empty');
+        return this.baseRequest(this.actions.setDelMark, {
+          ...(forceDelete && {forceDelete: 1}),
+          header: {id}
+        })
       }
     }
   };
