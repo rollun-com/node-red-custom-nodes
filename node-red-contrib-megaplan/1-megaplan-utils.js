@@ -20,6 +20,7 @@ module.exports = (function () {
           config.headers.Authorization = `Bearer ${token}`;
           return config;
         })
+
       }
 
 
@@ -91,6 +92,7 @@ ${val}`).join('\n');
         return match;
       }
 
+
       /**
        *
        * @param name
@@ -100,9 +102,84 @@ ${val}`).join('\n');
 
       async getEntity(name, idString) {
         const [entity, action] = name.split('.');
-        const defaultFilter = {"fields": ["positions", "program"]};
+
+        const defaultFilters = {
+          'deal.linkedDeals': {
+            "fields": [
+              "positions", "program",
+
+              // Dropship deal specific fields
+
+              "Category1000073CustomFieldMpName",
+              "Category1000073CustomFieldMpOrderNumber",
+              "Category1000073CustomFieldSrName",
+              "Category1000073CustomFieldSrShipMethod",
+              "Category1000073CustomFieldSrOrderNumber",
+              "Category1000073CustomFieldSrPaymentCard",
+              "Category1000073CustomFieldTracknumber",
+              "Category1000073CustomFieldCarrier",
+              "Category1000073CustomFieldDateLabelCreation",
+              "Category1000073CustomFieldAdditionalTracknumbers",
+              "Category1000073CustomFieldShipStatus",
+              "Category1000073CustomFieldProblemDescription",
+              "Category1000073CustomFieldEnterTracknumber",
+              "Category1000073CustomFieldDateEnteringTracknumberIntoMp",
+              "Category1000073CustomFieldTotal",
+              "Category1000073CustomFieldSrVirtualName",
+
+              // Pick-up deal specific fields
+
+              "Category1000074CustomFieldMpName",
+              "Category1000074CustomFieldMpOrderNumber",
+              "Category1000074CustomFieldBagLink",
+              "Category1000074CustomFieldSrName",
+              "Category1000074CustomFieldSrWorker",
+              "Category1000074CustomFieldSrShipMethod",
+              "Category1000074CustomFieldTracknumber",
+              "Category1000074CustomFieldCarrier",
+              "Category1000074CustomFieldWasPacked",
+              "Category1000074CustomFieldShipStatus",
+              "Category1000074CustomFieldProblemDescription",
+              "Category1000074CustomFieldEnterTracknumber",
+              "Category1000074CustomFieldDateEnteringTracknumberIntoMp",
+              "Category1000074CustomFieldWeight",
+              "Category1000074CustomFieldDimensions",
+              "Category1000074CustomFieldTotal",
+              "Category1000074CustomFieldSrVirtualName",
+
+              // Problem deal specific fields
+
+              "Category1000064CustomFieldUserId",
+              "Category1000064CustomFieldMarketplace1",
+              "Category1000064CustomFieldOrderNumber",
+              "Category1000064CustomFieldSourceOfCommunication",
+              "Category1000064CustomFieldHistory",
+              "Category1000064CustomFieldSolution",
+              "Category1000064CustomFieldSrOrderNumber",
+              "Category1000064CustomFieldRmReplacementReturnNumber",
+              "Category1000064CustomFieldRmReturnNumber",
+              "Category1000064CustomFieldDateOfTheLastActions",
+              "Category1000064CustomFieldTrackNumber",
+              "Category1000064CustomField4WeWaitFrom",
+              "Category1000064CustomField4WeWaitFor",
+              "Category1000064CustomFieldSupplierRefundToUs",
+              "Category1000064CustomFieldTotal",
+              "Category1000064CustomFieldOrderLinkInMegaplan"
+            ]
+          }
+        }
+
+        let actionUrl;
+        if (action) {
+          actionUrl = `/${action}`;
+          if (defaultFilters[name]) {
+            actionUrl += `?${JSON.stringify(defaultFilters[name])}`;
+          }
+        }
+
+
         const id = this.getEntityId(idString);
-        return this.axios.get(`api/v3/${entity}/${id}${action ? `/${action}?${JSON.stringify(defaultFilter)}` : ''}`);
+        return this.axios.get(`api/v3/${entity}/${id}${action ? actionUrl : ''}`);
       }
 
       /**
