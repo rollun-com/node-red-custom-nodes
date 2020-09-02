@@ -21,6 +21,10 @@
       },
       version: {
         value: 'msg|version'
+      },
+      actionType: {
+        value: 'search',
+        required: true
       }
     },
     inputs: 1,
@@ -62,31 +66,40 @@
 
 <script type="text/html" data-template-name="MWS">
   <div class="form-row">
-    <label for="node-input-name"><i class="icon-tag"></i> Name</label>
+    <label for="node-input-name">Name</label>
     <input type="text" id="node-input-name" placeholder="Name">
   </div>
   <div class="form-row">
-    <label for="node-input-config"><i class="icon-tag"></i> MWS Credentials</label>
+    <label for="node-input-config">MWS Credentials</label>
     <input type="text" id="node-input-config" placeholder="Config">
   </div>
   <div class="form-row">
-    <label for="node-input-category"><i class="icon-tag"></i> Category</label>
+    <label for="node-input-category">Category</label>
     <select id="node-input-category">
     </select>
   </div>
   <div class="form-row">
-    <label for="node-input-action"><i class="icon-tag"></i> Action</label>
+    <label for="node-input-action">Action</label>
     <select id="node-input-action">
     </select>
   </div>
+  <div class="form-row">
+    <label for="node-input-actionType">Action Type</label>
+    <select id="node-input-actionType">
+      <option value="search">search</option>
+      <option value="submit">submit</option>
+    </select>
+  </div>
+  <h4>Action Type examples can be found <a href="https://fullstacktechnology.com/nodejs/amazon-mws/">here</a></h4>
   <div class="form-row" id="actionPayload">
   </div>
+  <h4>payload examples can be found <a href="https://fullstacktechnology.com/nodejs/amazon-mws/">here</a></h4>
+  <h4>Values <code>SellerId</code> and <code>MWSAuthToken</code> will be filled from config</h4>
   <div class="form-row" id="version">
   </div>
-  <h4>Values <code>SellerId</code> and <code>MWSAuthToken</code> will be filled from config</h4>
-  <h4>versions examples can be found <a
-      href="http://docs.developer.amazonservices.com/en_IN/finances/Finances_GetServiceStatus.html">here</a></h4>
-  <h4>payload examples can be found <a href="https://fullstacktechnology.com/nodejs/amazon-mws/">here</a></h4>
+  <h4>versions examples can be found
+    <a href="http://docs.developer.amazonservices.com/en_IN/finances/Finances_GetServiceStatus.html">here</a>
+  </h4>
 </script>
 
 <script type="text/x-red" data-help-name="MWS">
@@ -97,7 +110,4 @@
     <li>1 - if error</li>
     <li>2 - if success</li>
   </ul>
-
-
-
 </script>
