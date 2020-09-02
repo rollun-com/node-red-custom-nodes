@@ -106,7 +106,9 @@ ${val}`).join('\n');
         const defaultFilters = {
           'deal.linkedDeals': {
             "fields": [
-              "positions", "program",
+              // common fields
+
+              "positions", "program", "contractor",
 
               // Dropship deal specific fields
 

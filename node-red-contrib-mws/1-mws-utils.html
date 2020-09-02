@@ -1,0 +1,200 @@
+<script type="application/javascript">
+  "use strict";
+
+  window.mws = {
+    categories: [
+      {
+        "name": "EasyShip",
+        "actions": [
+          "CreateScheduledPackage",
+          "GetScheduledPackage",
+          "GetServiceStatus",
+          "ListPickupSlots",
+          "UpdateScheduledPackages"
+        ]
+      },
+      {
+        "name": "Feeds",
+        "actions": [
+          "CancelFeedSubmissions",
+          "GetFeedSubmissionCount",
+          "GetFeedSubmissionListByNextToken",
+          "GetFeedSubmissionList",
+          "GetFeedSubmissionResult",
+          "GetFeedSubmissionResultCharset",
+          "GetFeedSubmissionResultRaw",
+          "SubmitFeed",
+          "SubmitFeedUploadVatInvoice"
+        ]
+      },
+      {
+        "name": "Finances",
+        "actions": [
+          "ListFinancialEventGroups",
+          "ListFinancialEventGroupsByNextToken",
+          "ListFinancialEvents",
+          "ListFinancialEventsByNextToken",
+          "GetServiceStatus"
+        ]
+      },
+      {
+        "name": "FulfillmentInboundShipment",
+        "actions": [
+          "ConfirmPreorder",
+          "GetInboundGuidanceForSKU",
+          "GetInboundGuidanceForASIN",
+          "CreateInboundShipmentPlan",
+          "CreateInboundShipment",
+          "UpdateInboundShipment",
+          "GetPreorderInfo",
+          "GetPrepInstructionsForSKU",
+          "GetPrepInstructionsForASIN",
+          "PutTransportContent",
+          "EstimateTransportRequest",
+          "GetTransportContent",
+          "ConfirmTransportRequest",
+          "VoidTransportRequest",
+          "GetPackageLabels",
+          "GetUniquePackageLabels",
+          "GetPalletLabels",
+          "GetBillOfLading",
+          "ListInboundShipments",
+          "ListInboundShipmentsByNextToken",
+          "ListInboundShipmentItems",
+          "ListInboundShipmentItemsByNextToken",
+          "GetServiceStatus"
+        ]
+      },
+      {
+        "name": "FulfillmentInventory",
+        "actions": [
+          "ListInventorySupply",
+          "ListInventorySupplyByNextToken",
+          "GetServiceStatus"
+        ]
+      },
+      {
+        "name": "FulfillmentOutboundShipment",
+        "actions": [
+          "GetFulfillmentPreview",
+          "CreateFulfillmentOrder",
+          "ListAllFulfillmentOrders",
+          "UpdateFulfillmentOrder",
+          "GetFulfillmentOrder",
+          "ListAllFulfillmentOrdersByNextToken",
+          "GetPackageTrackingDetails",
+          "CancelFulfillmentOrder",
+          "ListReturnReasonCodes",
+          "CreateFulfillmentReturn",
+          "GetServiceStatus"
+        ]
+      },
+      {
+        "name": "MerchantFulfillment",
+        "actions": [
+          "CreateShipment",
+          "GetEligibleShippingServices",
+          "GetAdditionalSellerInputs",
+          "GetShipment",
+          "CancelShipment",
+          "GetServiceStatus"
+        ]
+      },
+      {
+        "name": "Orders",
+        "actions": [
+          "ListOrderItems",
+          "ListOrders",
+          "ListOrderFilterStatus",
+          "ListOrderItemsByNextToken",
+          "GetOrder",
+          "ListOrdersByNextToken",
+          "GetServiceStatus"
+        ]
+      },
+      {
+        "name": "Products",
+        "actions": [
+          "ListMatchingProducts",
+          "GetMatchingProduct",
+          "GetMatchingProductForId",
+          "GetCompetitivePricingForASIN",
+          "GetCompetitivePricingForSKU",
+          "GetLowestOfferListingsForSKU",
+          "GetLowestOfferListingsForASIN",
+          "GetLowestPricedOffersForSKU",
+          "GetLowestPricedOffersForASIN",
+          "GetMyFeesEstimate",
+          "GetMyPriceForSKU",
+          "GetMyPriceForASIN",
+          "GetMatchingProductMultipleASIN",
+          "GetProductCategoriesForSKU",
+          "GetProductCategoriesForASIN",
+          "GetServiceStatus"
+        ]
+      },
+      {
+        "name": "Recommendations",
+        "actions": [
+          "GetLastUpdatedTimeForRecommendations",
+          "ListRecommendations",
+          "ListRecommendationsByNextToken",
+          "GetServiceStatus"
+        ]
+      },
+      {
+        "name": "Reports",
+        "actions": [
+          "GetReport",
+          "GetReportList",
+          "GetReportRequestList",
+          "RequestReport",
+          "GetReportRequestListByNextToken",
+          "GetReportRequestCount",
+          "CancelReportRequests",
+          "GetReportListByNextToken",
+          "GetReportCount",
+          "ManageReportSchedule",
+          "GetReportScheduleList",
+          "GetReportScheduleListByNextToken",
+          "GetReportScheduleCount",
+          "UpdateReportAcknowledgements"
+        ]
+      },
+      {
+        "name": "Sellers",
+        "actions": [
+          "ListMarketplaceParticipations",
+          "ListMarketplaceParticipationsByNextToken",
+          "GetServiceStatus"
+        ]
+      },
+      {
+        "name": "ShipmentInvoicing",
+        "actions": [
+          "GetFBAOutboundShipmentDetail",
+          "SubmitFBAOutboundShipmentInvoice",
+          "GetFBAOutboundShipmentInvoiceStatus",
+          "GetServiceStatus"
+        ]
+      },
+      {
+        "name": "Subscriptions",
+        "actions": [
+          "CreateSubscription",
+          "DeleteSubscription",
+          "ListSubscriptions",
+          "RegisterDestination",
+          "DeregisterDestination",
+          "ListRegisteredDestinations",
+          "SendTestNotificationToDestination",
+          "GetSubscription",
+          "UpdateSubscription",
+          "GetServiceStatus"
+        ]
+      }
+    ]
+  }
+
+
+</script>
