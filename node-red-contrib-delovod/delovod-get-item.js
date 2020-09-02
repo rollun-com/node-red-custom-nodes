@@ -64,7 +64,7 @@ module.exports = function (RED) {
         }
 
         if (result.length > 1) {
-          msg.payload = {[errorField]: `Found more than one document by filter: ${data.map(({id__pr}) => id__pr).join(', ')}`}
+          msg.payload = {[errorField]: `Found more than one document by filter: ${result.map(({id__pr}) => id__pr).join(', ')}`}
           return node.send([msg, null]);
         }
 
