@@ -7,7 +7,7 @@ module.exports = function (RED) {
     this.action = config.action
     this.config = RED.nodes.getNode(config.config)
     const mws = this.config.client
-    const node = this
+    const node = this;
     node.on('input', function (msg) {
 
       const category = _.camelCase(config.category);
@@ -18,11 +18,23 @@ module.exports = function (RED) {
         return node.send([msg, null]);
       }
 
-      const payload = global.utils.getTypedFieldValue(config.actionPayload, msg) || {};
+      let payload = global.utils.getTypedFieldValue(config.actionPayload, msg) || {};
       if (typeof payload !== "object") {
         msg.payload = {error: `Action payload must be an object`}
         return node.send([msg, null]);
       }
+
+      payload = _.fromPairs(
+        _.toPairs(payload)
+          .map(([key, value]) => {
+            // if value matches date pattern - 2020-01-22, convert it to Date object
+            if (/^[0-9]{4}-[01][0-9]-[0123][0-9]$/.test(value)) {
+              return [key, new Date(value)]
+            }
+            return [key, value];
+          })
+      );
+
 
       const version = global.utils.getTypedFieldValue(config.version, msg);
 
@@ -37,8 +49,8 @@ module.exports = function (RED) {
       api[config.actionType]({
         'Version': version,
         'Action': config.action,
-        'SellerId': this.merchantId,
-        'MWSAuthToken': this.MWSAuthToken,
+        'SellerId': node.config.merchantId,
+        'MWSAuthToken': node.config.MWSAuthToken,
         ...payload
       }).then(res => {
         msg.payload = res;
