@@ -18,10 +18,13 @@
       },
       actionPayload: {
         value: 'msg|payload'
+      },
+      version: {
+        value: 'msg|version'
       }
     },
     inputs: 1,
-    outputs: 1,
+    outputs: 2,
     icon: "amazon.png",
     label: function () {
       return this.name || "Amazon MWS"
@@ -29,12 +32,15 @@
     oneditprepare: function () {
       const node = this;
 
-      window.utils.makeTypedInput('actionPayload', undefined, 'Action payload', node.actionPayload);
+      window.utils.makeTypedInput('actionPayload', [{
+        value: "msg",
+        label: "msg."
+      }], 'Action payload', node.actionPayload);
+      window.utils.makeTypedInput('version', undefined, 'Version', node.version);
 
       const updateActionSelector = (value = window.mws.categories[0]) => {
         const category = window.mws.categories.find(({name}) => value === name);
         const {actions} = category;
-        console.log('node', node);
         $('#node-input-action')
           .html(
             actions.map(action =>
@@ -75,11 +81,23 @@
   </div>
   <div class="form-row" id="actionPayload">
   </div>
+  <div class="form-row" id="version">
+  </div>
   <h4>Values <code>SellerId</code> and <code>MWSAuthToken</code> will be filled from config</h4>
+  <h4>versions examples can be found <a
+      href="http://docs.developer.amazonservices.com/en_IN/finances/Finances_GetServiceStatus.html">here</a></h4>
   <h4>payload examples can be found <a href="https://fullstacktechnology.com/nodejs/amazon-mws/">here</a></h4>
 </script>
 
 <script type="text/x-red" data-help-name="MWS">
   <h3>A simple node for connecting to MWS</h3>
   <h5>Full documentation for MWS API <a href="https://fullstacktechnology.com/nodejs/amazon-mws/">here</a></h5>
+  <p>This node has two outputs:</p>
+  <ul>
+    <li>1 - if error</li>
+    <li>2 - if success</li>
+  </ul>
+
+
+
 </script>
