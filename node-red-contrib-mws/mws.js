@@ -4,10 +4,14 @@ module.exports = function (RED) {
   function MWSNode(config) {
 
     RED.nodes.createNode(this, config)
+    const node = this;
     this.action = config.action
     this.config = RED.nodes.getNode(config.config)
+
+    if (this.config === null) {
+      return node.error('config is required');
+    }
     const mws = this.config.client
-    const node = this;
     node.on('input', function (msg) {
 
       const category = _.camelCase(config.category);
