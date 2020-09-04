@@ -83,15 +83,36 @@ ${val}`).join('\n');
 
       getEntityId(idString) {
         // if it is id itself
-        if (/$[0-9]+^/.test(idString)) {
+        if (/^[0-9]+$/.test(idString.toString())) {
           return idString;
         }
-        // if it is URL
-        const {pathname} = URL.parse(idString);
-        const [match] = pathname.match(/[0-9]+/);
-        return match;
+        try {
+          // if it is URL
+          const {pathname} = URL.parse(idString);
+          const [match] = pathname.match(/[0-9]+/);
+          return match;
+        } catch (e) {
+          console.log('Invalid id', e)
+          return idString;
+        }
+
       }
 
+      /**
+       *
+       * @param method - get, post, etc.
+       * @param url
+       */
+
+      async baseRequest(method, url, body) {
+        try {
+          const {data} = await this.axios[method](url, body);
+          return data;
+        } catch (err) {
+          console.log(err.response);
+          throw err.response;
+        }
+      }
 
       /**
        *
@@ -181,8 +202,7 @@ ${val}`).join('\n');
 
         const id = this.getEntityId(idString);
 
-        const {data} = await this.axios.get(`api/v3/${entity}/${id}${action ? actionUrl : ''}`);
-        return data;
+        return this.baseRequest('get', `api/v3/${entity}/${id}${action ? actionUrl : ''}`)
       }
 
       /**
@@ -196,8 +216,7 @@ ${val}`).join('\n');
       async updateEntity(name, idString, body = {}) {
         const id = this.getEntityId(idString);
 
-        const {data} = await this.axios.post(`api/v3/${name}/${id}`, body);
-        return data;
+        return this.baseRequest('post', `api/v3/${name}/${id}`, body);
       }
     }
   }
