@@ -33,8 +33,8 @@ module.exports = function (RED) {
       const client = new global.megaplan.apiv3({host: node.config.host, email: node.config.email, password: node.config.password});
       client
         .updateEntity(config.entity, entityId, body)
-        .then(res => {
-          msg.payload = res.data.data;
+        .then(({data}) => {
+          msg.payload = data;
           node.send([null, msg]);
         })
         .catch(err => {

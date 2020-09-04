@@ -1,0 +1,24 @@
+{
+  "name": "rollun-node-red-custom-nodes",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rollun-com/node-red-custom-nodes.git"
+  },
+  "dependencies": {
+    "rollun-ts-utils": "^0",
+    "amazon-mws": "^0.0.27",
+    "axios": "^0.19.2"
+  },
+    "author": "trickymax",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/rollun-com/node-red-custom-nodes/issues"
+  },
+  "homepage": "https://github.com/rollun-com/node-red-custom-nodes#readme"
+}

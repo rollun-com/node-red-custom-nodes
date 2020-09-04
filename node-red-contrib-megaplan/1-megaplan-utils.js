@@ -179,9 +179,10 @@ ${val}`).join('\n');
           }
         }
 
-
         const id = this.getEntityId(idString);
-        return this.axios.get(`api/v3/${entity}/${id}${action ? actionUrl : ''}`);
+
+        const {data} = await this.axios.get(`api/v3/${entity}/${id}${action ? actionUrl : ''}`);
+        return data;
       }
 
       /**
@@ -195,7 +196,8 @@ ${val}`).join('\n');
       async updateEntity(name, idString, body = {}) {
         const id = this.getEntityId(idString);
 
-        return this.axios.post(`api/v3/${name}/${id}`, body);
+        const {data} = await this.axios.post(`api/v3/${name}/${id}`, body);
+        return data;
       }
     }
   }

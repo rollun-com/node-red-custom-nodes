@@ -26,8 +26,8 @@ module.exports = function (RED) {
 
       client
           .getEntity(config.entity, entityId)
-          .then(res => {
-            msg.payload = res.data.data;
+          .then(({data}) => {
+            msg.payload = data;
             node.send([null, msg]);
           })
           .catch(err => {
