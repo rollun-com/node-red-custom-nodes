@@ -4,23 +4,23 @@ module.exports = function (RED) {
   global.utils = {
     /**
      *
-     * @param o - any object
-     * @param s - path like 'a.b.c[0].b'
      * @return {*}
+     * @param obj
+     * @param path
      */
-    resolvePath: function (o, s) {
-      s = s.replace(/\[(\w+)\]/g, '.$1'); // convert indexes to properties
-      s = s.replace(/^\./, '');           // strip a leading dot
-      var a = s.split('.');
+    resolvePath: function (obj, path) {
+      path = path.replace(/\[(\w+)\]/g, '.$1'); // convert indexes to properties
+      path = path.replace(/^\./, '');           // strip a leading dot
+      var a = path.split('.');
       for (var i = 0, n = a.length; i < n; ++i) {
         var k = a[i];
-        if (typeof o === 'object' && k in o) {
-          o = o[k];
+        if (typeof obj === 'object' && k in obj) {
+          obj = obj[k];
         } else {
           return;
         }
       }
-      return o;
+      return obj;
     },
 
     /**

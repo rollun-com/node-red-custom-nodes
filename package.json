@@ -11,11 +11,11 @@
     "url": "git+https://github.com/rollun-com/node-red-custom-nodes.git"
   },
   "dependencies": {
-    "rollun-ts-utils": "^0",
     "amazon-mws": "^0.0.27",
-    "axios": "^0.19.2"
+    "axios": "^0.19.2",
+    "rollun-ts-utils": "^0"
   },
-    "author": "trickymax",
+  "author": "trickymax",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/rollun-com/node-red-custom-nodes/issues"
