@@ -1,6 +1,7 @@
 module.exports = function () {
   const fs = require('fs');
   const _ = require('lodash');
+  const qs = require('querystring');
 
   global.ebay = {
     util: {
@@ -114,16 +115,14 @@ module.exports = function () {
           return cachedToken;
         }
         try {
-          const {data} = await axios.post('https://api.ebay.com/identity/v1/oauth2/token', {
+          const {data} = await axios.post('https://api.ebay.com/identity/v1/oauth2/token', Object.entries({
             grant_type: 'refresh_token',
             refresh_token: refreshToken,
-            scope: scopes.map(scope => scope.includes(oauthScopeBasePath)
-              ? scope
-              : oauthScopeBasePath + scope).join(' ')
-          }, {
+            scope: encodeURI(scopes.join(' '))
+          }).map(([key, value]) => `${key}=${value}`).join('&'), {
             headers: {
               'content-type': 'application/x-www-form-urlencoded',
-              Authorization: `Basic ${btoa(`${clientId}:${clientSecret}`)}`
+              Authorization: `Basic ${Buffer.from(`${clientId}:${clientSecret}`).toString('base64')}`
             }
           })
 
@@ -152,19 +151,19 @@ module.exports = function () {
                     clientId,
                     clientSecret,
                     scopes = [
-                      "api_scope",
-                      "sell.marketing.readonly",
-                      "sell.marketing",
-                      "sell.inventory.readonly",
-                      "sell.inventory",
-                      "sell.account.readonly",
-                      "sell.account",
-                      "sell.fulfillment.readonly",
-                      "sell.fulfillment",
-                      "sell.analytics.readonly",
-                      "sell.finances",
-                      "sell.payment.dispute",
-                      "commerce.identity.readonly"
+                      "https://api.ebay.com/oauth/api_scope",
+                      "https://api.ebay.com/oauth/api_scope/sell.marketing.readonly",
+                      "https://api.ebay.com/oauth/api_scope/sell.marketing",
+                      "https://api.ebay.com/oauth/api_scope/sell.inventory.readonly",
+                      "https://api.ebay.com/oauth/api_scope/sell.inventory",
+                      "https://api.ebay.com/oauth/api_scope/sell.account.readonly",
+                      "https://api.ebay.com/oauth/api_scope/sell.account",
+                      "https://api.ebay.com/oauth/api_scope/sell.fulfillment.readonly",
+                      "https://api.ebay.com/oauth/api_scope/sell.fulfillment",
+                      "https://api.ebay.com/oauth/api_scope/sell.analytics.readonly",
+                      "https://api.ebay.com/oauth/api_scope/sell.finances",
+                      "https://api.ebay.com/oauth/api_scope/sell.payment.dispute",
+                      "https://api.ebay.com/oauth/api_scope/commerce.identity.readonly"
                     ]
                   } = {}) {
         if (!refreshToken) {
@@ -194,10 +193,7 @@ module.exports = function () {
           APIZ: 'https://apiz.ebay.com',
           API: 'https://api.ebay.com'
         }
-      }
-
-      get sell() {
-        return new global.ebay.Sell(this.api);
+        this.sell = new global.ebay.Sell(this.api);
       }
     },
     Sell: class EbaySell {

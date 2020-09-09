@@ -27,7 +27,8 @@ module.exports = function (RED) {
           'catalogs.goods',
           [{alias: "name", operator: "=", value: itemName}]
         );
-        if (items.length > 1) {
+
+        if (config.getFirstGoodIfFoundMore !== true && items.length > 1) {
           msg.payload = {error: `Found 2 or more goods by name - ${itemName}.`};
           return node.send([msg, null]);
         }

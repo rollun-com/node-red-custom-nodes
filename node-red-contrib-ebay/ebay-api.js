@@ -8,8 +8,13 @@ module.exports = function (RED) {
     node.on('input', function (msg) {
       const ebayAPI = new global.ebay.EbayAPI(node.config)
 
-      console.log('test');
-
+      ebayAPI.sell.getOrder('25-05703-28634')
+        .then(({data}) => {
+          console.log('result', data);
+        })
+        .catch((err) => {
+          console.log('error', err.response.data, err.response.status, err.response.statusText);
+        })
       node.send(msg);
     });
   }
