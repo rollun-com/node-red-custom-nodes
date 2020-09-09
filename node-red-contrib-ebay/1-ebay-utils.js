@@ -3,6 +3,12 @@ module.exports = function () {
 
   global.ebay = {
     util: {
+      getQueryParamType: () => {
+
+      },
+      stringifyQuery: () => {
+
+      },
       formatDateFilter: (name, from, to = '') => `${name}:[${from}..${to}]`,
       formatQueryArray: (name, values = []) => `${name}=${values.join(',')}`,
       formatQueryEnum: (name, values) => `${name}:{${values.join('|')}}`,
