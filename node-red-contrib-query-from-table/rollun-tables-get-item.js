@@ -18,7 +18,6 @@ module.exports = function (RED) {
       const processedRql = global.tables.Datastore.resolveRQLWithREDMsg(rql, msg);
 
 
-
       datastore
         .getOne('', processedRql)
         .then(result => {
@@ -32,13 +31,7 @@ module.exports = function (RED) {
           }
         })
         .catch(err => {
-
-          if (err.response && err.response.request) {
-            // cannot serialise response with request property due to circular properties
-            err.response.request = null;
-          }
           msg.payload = {error: err.message};
-          msg.response = err.response;
           node.send([msg, null]);
         })
     });

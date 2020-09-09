@@ -1,20 +1,62 @@
 module.exports = function () {
   const fs = require('fs');
+  const _ = require('lodash');
 
   global.ebay = {
     util: {
-      getQueryParamType: () => {
-
+      getQueryParamType: (value) => {
+        if (!value) return 'empty';
+        if (value.from) return 'datetime';
+        if (Array.isArray(value)) return 'array';
+        if (typeof value === 'object') return 'object';
+        if (typeof value === 'string' || typeof value === 'number') return 'primitive';
+        return 'unknown';
       },
-      stringifyQuery: () => {
-
+      stringifyDatetime: (name, {from, to = ''}, isInner = true) => {
+        return `${name}${isInner ? ':' : '='}[${from}..${to}]`;
       },
-      formatDateFilter: (name, from, to = '') => `${name}:[${from}..${to}]`,
-      formatQueryArray: (name, values = []) => `${name}=${values.join(',')}`,
-      formatQueryEnum: (name, values) => `${name}:{${values.join('|')}}`,
-      formatQueryParams: (params) => Object.entries(params)
-        .filter(([_, val]) => !!val)
-        .map(([key, value]) => `${key}=${value}`).join('&')
+      stringifyArray: (name, value, isInnerArray = false) => {
+        return `${name}${isInnerArray ? ':' : '='}${value.join(',')}`
+      },
+      stringifyObject: (name, value) => {
+        return `${name}=${Object.entries(value).map(([key, value]) => {
+          const valueType = this.getQueryParamType(value);
+          if (valueType === 'datetime') {
+            return this.stringifyDatetime(key, value);
+          }
+          if (valueType === 'array') {
+            return this.stringifyArray(key, value, true);
+          }
+          if (valueType === 'primitive') {
+            return this.stringifyPrimitive(name, value, true);
+          }
+          return `${name}=${value}`;
+        }).join(',')}`
+      },
+      stringifyPrimitive: (name, value, isInner = false) => {
+        if (isInner) {
+          return `${name}:{${value}}`;
+        }
+        return `${name}=${value}`;
+      },
+      stringifyQuery: (query) => {
+        return Object.entries(query)
+          .filter(([, value]) => value && _.size(value) > 0)
+          .map(([key, value]) => {
+            switch (this.getQueryParamType(value)) {
+              case 'datetime':
+                return this.stringifyDatetime(name, value, false);
+              case 'array':
+                return this.stringifyArray(name, value);
+              case 'object':
+                return this.stringifyObject(name, value);
+              case 'primitive':
+                return this.stringifyPrimitive(name, value)
+              default:
+                return `${key}=${value}`
+            }
+          }).join('&');
+      }
     },
     OAUTH_SCOPES: {
       sell: {
@@ -75,7 +117,9 @@ module.exports = function () {
           const {data} = await axios.post('https://api.ebay.com/identity/v1/oauth2/token', {
             grant_type: 'refresh_token',
             refresh_token: refreshToken,
-            scope: scopes.map(scope => `${oauthScopeBasePath}${scope}`).join(' ')
+            scope: scopes.map(scope => scope.includes(oauthScopeBasePath)
+              ? scope
+              : oauthScopeBasePath + scope).join(' ')
           }, {
             headers: {
               'content-type': 'application/x-www-form-urlencoded',
@@ -101,7 +145,7 @@ module.exports = function () {
 
       return axios;
     },
-    client: class EbayAPI {
+    EbayAPI: class EbayAPI {
 
       constructor({
                     refreshToken,
@@ -189,18 +233,11 @@ module.exports = function () {
                         filter = {}
                       }) {
 
-        const filterValue = Object.entries(filter).map(([key, value]) => {
-          if (key === 'transactionDate') {
-            return global.ebay.util.formatDateFilter(key, ...value)
-          }
-          return global.ebay.util.formatQueryEnum(name, [value])
-        }).join(',');
-
         return this.api.get(
           this.API_HOSTS.APIZ +
-          '/finances/v1/transaction?' + global.ebay.util.formatQueryParams({
+          '/finances/v1/transaction?' + global.ebay.util.stringifyQuery({
             limit, offset,
-            filter: filterValue
+            filter
           }));
 
       }
@@ -224,18 +261,19 @@ module.exports = function () {
 
       getOrders({
                   orderIds,
-                  filter = '',
-                  limit = 20,
-                  offset = 20
+                  filter = {},
+                  limit = 100,
+                  offset = 0
                 }) {
         return this.api.get(
           this.API_HOSTS.API +
-          `/fulfillment/v1/order?` + global.ebay.formatQueryParams({
-            limit, offset,
-            // ...(orderIds && )
+          `/fulfillment/v1/order?` +
+          global.ebay.util.stringifyQuery({
+            orderIds,
+            filter,
+            limit,
+            offset
           })
-          //   `${orderIds ? `&orderIds=${orderIds.join(',')}` : ''}` +
-          // ''
         )
       }
     }

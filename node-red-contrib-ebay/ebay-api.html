@@ -1,0 +1,56 @@
+<script type="text/javascript">
+  "use strict";
+  /*global RED*/
+  RED.nodes.registerType('ebay-api', {
+    category: 'Ebay API',
+    inputs: 1,
+    outputs: 2,
+    color: "#85C1E9",
+    icon: "icons/node-red/white-globe.svg",
+    paletteLabel: "Ebay API",
+    defaults: {
+      name: {
+        value: ''
+      },
+      config: {
+        value: '',
+        type: 'ebay-config',
+        required: true
+      }
+    },
+
+    label: function () {
+      return this.name || "Ebay API";
+    },
+    oneditprepare() {
+    }
+  });
+</script>
+
+<script type="text/html" data-template-name="ebay-api">
+  <div class="form-row">
+    <label for="node-input-name">Name</label>
+    <input type="text" id="node-input-name">
+  </div>
+  <div class="form-row">
+    <label for="node-input-config">Credentials</label>
+    <input type="text" id="node-input-config">
+  </div>
+  <!--  <h3 style="color: #AD1625" id="error-msg"></h3>-->
+  <!--  <div class="form-row" id="table-name">-->
+  <!--    <label for="node-input-tableURL"><i class="fa fa-server"></i>Table URL</label>-->
+  <!--    <input type="text" id="node-input-tableURL">-->
+  <!--  </div>-->
+  <!--  <div class="form-row">-->
+  <!--    <label for="node-input-url"><i class="fa fa-random"></i> Datastore URL</label>-->
+  <!--    <input type="text" id="node-input-url">-->
+  <!--  </div>-->
+  <!--  <div class="form-row">-->
+  <!--    <label for="node-input-rql"><i class="fa fa-key"></i> RQL</label>-->
+  <!--    <input type="text" id="node-input-rql">-->
+  <!--  </div>-->
+</script>
+
+<script type="text/html" data-help-name="ebay-api">
+
+</script>

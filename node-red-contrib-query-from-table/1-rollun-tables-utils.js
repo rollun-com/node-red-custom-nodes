@@ -84,7 +84,7 @@ module.exports = (function (RED) {
             if (res.error) throw new Error(res.error);
             return fullResponse ? res : res.data
           })
-          .catch(err => fullResponse ? err : {error: err.message, response: err.response});
+          .catch(err => fullResponse ? err : {error: err.message, response: err.response.data});
       }
 
       /**

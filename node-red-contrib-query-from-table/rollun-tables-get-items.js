@@ -28,15 +28,7 @@ module.exports = function (RED) {
           node.send([null, msg]);
         })
         .catch(err => {
-
-          msg.payload = {
-            error: err.message
-          };
-          if (err.response) {
-            // cannot serialise response with request property due to circular properties
-            err.response.request = null;
-          }
-          msg.response = err.response;
+          msg.payload = {error: err.message};
           node.send([msg, null]);
         })
     });
