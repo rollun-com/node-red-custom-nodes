@@ -8,14 +8,43 @@ module.exports = function (RED) {
     node.on('input', function (msg) {
       const ebayAPI = new global.ebay.EbayAPI(node.config)
 
-      ebayAPI.sell.getOrder('25-05703-28634')
-        .then(({data}) => {
-          console.log('result', data);
+      const apiName = config.apiName;
+
+      if (!ebayAPI[apiName]) {
+        msg.payload = {error: `Unknown ebay API [${apiName}]`};
+        return node.send([msg, null]);
+      }
+
+      const methodName = config.methodName;
+
+      if (!ebayAPI[apiName][methodName]) {
+        msg.payload = {error: `Unknown method in [${apiName}] API [${methodName}]`};
+        return node.send([msg, null]);
+      }
+
+      let payload;
+      try {
+        payload = JSON.parse(config.requestPayload);
+      } catch (e) {
+        payload = config.requestPayload;
+      }
+
+      ebayAPI[apiName][methodName](payload)
+        .then(({data, config: {url}}) => {
+          msg.payload = data;
+          msg.url = url;
+          node.send([null, msg]);
         })
         .catch((err) => {
-          console.log('error', err.response.data, err.response.status, err.response.statusText);
+          if (!err.response) {
+            msg.payload = {error: err.message || err.errno};
+          } else {
+            msg.payload = err.response.data;
+            msg.status = err.response.status;
+            msg.headers = err.response.headers;
+          }
+          node.send([null, msg]);
         })
-      node.send(msg);
     });
   }
 

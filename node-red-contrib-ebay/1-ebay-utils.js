@@ -1,7 +1,6 @@
 module.exports = function () {
   const fs = require('fs');
   const _ = require('lodash');
-  const qs = require('querystring');
 
   global.ebay = {
     util: {
@@ -20,19 +19,24 @@ module.exports = function () {
         return `${name}${isInnerArray ? ':' : '='}${value.join(',')}`
       },
       stringifyObject: (name, value) => {
-        return `${name}=${Object.entries(value).map(([key, value]) => {
-          const valueType = this.getQueryParamType(value);
-          if (valueType === 'datetime') {
-            return this.stringifyDatetime(key, value);
-          }
-          if (valueType === 'array') {
-            return this.stringifyArray(key, value, true);
-          }
-          if (valueType === 'primitive') {
-            return this.stringifyPrimitive(name, value, true);
-          }
-          return `${name}=${value}`;
-        }).join(',')}`
+        const {getQueryParamType, stringifyDatetime, stringifyPrimitive, stringifyArray} = global.ebay.util;
+
+        return `${name}=${Object.entries(value)
+          .filter(([, value]) => value && _.size(value) > 0)
+          .map(([key, value]) => {
+            const valueType = getQueryParamType(value);
+            console.log('stringifyObject', name, value, valueType);
+            if (valueType === 'datetime') {
+              return stringifyDatetime(key, value);
+            }
+            if (valueType === 'array') {
+              return stringifyArray(key, value, true);
+            }
+            if (valueType === 'primitive') {
+              return stringifyPrimitive(name, value, true);
+            }
+            return `${name}=${value}`;
+          }).join(',')}`
       },
       stringifyPrimitive: (name, value, isInner = false) => {
         if (isInner) {
@@ -41,20 +45,22 @@ module.exports = function () {
         return `${name}=${value}`;
       },
       stringifyQuery: (query) => {
+        const {getQueryParamType, stringifyDatetime, stringifyPrimitive, stringifyArray, stringifyObject} = global.ebay.util;
         return Object.entries(query)
           .filter(([, value]) => value && _.size(value) > 0)
-          .map(([key, value]) => {
-            switch (this.getQueryParamType(value)) {
+          .map(([name, value]) => {
+            console.log('stringifyQuery', name, value, getQueryParamType(value));
+            switch (getQueryParamType(value)) {
               case 'datetime':
-                return this.stringifyDatetime(name, value, false);
+                return stringifyDatetime(name, value, false);
               case 'array':
-                return this.stringifyArray(name, value);
+                return stringifyArray(name, value);
               case 'object':
-                return this.stringifyObject(name, value);
+                return stringifyObject(name, value);
               case 'primitive':
-                return this.stringifyPrimitive(name, value)
+                return stringifyPrimitive(name, value)
               default:
-                return `${key}=${value}`
+                return `${name}=${value}`
             }
           }).join('&');
       }
@@ -87,8 +93,6 @@ module.exports = function () {
       const axios = require('axios').create({})
 
       const cacheFileName = '/data/.ebay-auth-token.json';
-
-      const oauthScopeBasePath = 'https://api.ebay.com/oauth/api_scope/';
 
       const getCachedToken = () => {
         try {
@@ -193,7 +197,28 @@ module.exports = function () {
           APIZ: 'https://apiz.ebay.com',
           API: 'https://api.ebay.com'
         }
+        this.taxonomy = new global.ebay.Taxonomy(this.api);
         this.sell = new global.ebay.Sell(this.api);
+      }
+    },
+    Taxonomy: class EbayTaxonomy {
+      constructor(api) {
+        this.api = api;
+        this.API_HOSTS = {
+          API: 'https://api.ebay.com'
+        }
+      }
+
+      /**
+       *
+       * @param query {string}
+       */
+
+      getCategorySuggestions(query) {
+        return this.api.get(this.API_HOSTS.API +
+          '/commerce/taxonomy/v1_beta/category_tree/0/get_category_suggestions?' +
+          `q=${encodeURI(query)}`
+        )
       }
     },
     Sell: class EbaySell {
@@ -224,7 +249,7 @@ module.exports = function () {
        */
 
       getTransactions({
-                        limit = 20,
+                        limit = 50,
                         offset = 0,
                         filter = {}
                       }) {
@@ -234,8 +259,7 @@ module.exports = function () {
           '/finances/v1/transaction?' + global.ebay.util.stringifyQuery({
             limit, offset,
             filter
-          }));
-
+          }))
       }
 
       /**
@@ -261,6 +285,7 @@ module.exports = function () {
                   limit = 100,
                   offset = 0
                 }) {
+
         return this.api.get(
           this.API_HOSTS.API +
           `/fulfillment/v1/order?` +
