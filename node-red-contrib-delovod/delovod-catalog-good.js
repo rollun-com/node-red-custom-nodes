@@ -23,7 +23,7 @@ module.exports = function (RED) {
 
       const client = new global.delovod.DelovodAPIClient(node.config);
       (async () => {
-        const items = await client.request(
+        let items = await client.request(
           'catalogs.goods',
           [{alias: "name", operator: "=", value: itemName}]
         );
@@ -35,12 +35,6 @@ module.exports = function (RED) {
 
         let resultTopic = '';
         let good
-
-        if (items.length === 1) {
-          const {id} = items[0];
-          good = {id: id};
-          resultTopic += `Good found - ${id}. `;
-        }
 
         if (items.length === 0) {
           if (config.createGoodIfNotFound === true) {
@@ -57,6 +51,10 @@ module.exports = function (RED) {
             msg.payload = {error: `Item (${itemName}) not found. Enable createGoodIfNotFound flag to automatically create`};
             return node.send([msg, null]);
           }
+        } else {
+          const {id} = items[0];
+          good = {id: id};
+          resultTopic += `Good found - ${id}. `;
         }
 
         if (!goodChar) {
