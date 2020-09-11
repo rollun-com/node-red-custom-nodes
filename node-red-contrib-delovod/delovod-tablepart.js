@@ -19,7 +19,7 @@ module.exports = function (RED) {
           .reduce((acc, [tablePart, tablePartValue]) => {
             const resolveFields = (baseObj) => {
               return Object.entries(tablePartValue)
-                .map(([key, value]) => [key, global.utils.getTypedFieldValue(value, baseObj)])
+                .map(([key, value]) => [key, global.utils.getTypedFieldValue(baseObj, value)])
                 .reduce((acc, item) => {
                   acc[item[0]] = item[1];
                   return acc;

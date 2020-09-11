@@ -1,4 +1,6 @@
 module.exports = function (RED) {
+  const _ = require('lodash');
+
   function EbayAPI(config) {
     RED.nodes.createNode(this, config);
     const node = this;
@@ -22,14 +24,29 @@ module.exports = function (RED) {
         return node.send([msg, null]);
       }
 
-      let payload;
-      try {
-        payload = JSON.parse(config.requestPayload);
-      } catch (e) {
-        payload = config.requestPayload;
+      const resolvePayload = (requestPayload) => {
+        try {
+          const parsedPayload = JSON.parse(requestPayload);
+          const resolve = (acc, [key, value]) => {
+            if (typeof value === 'string') {
+              const resolvedValue = global.utils.getTypedFieldValue(msg, value);
+              resolvedValue && acc.push([key, resolvedValue]);
+              return acc;
+            }
+            const result = _.toPairs(value).reduce(resolve, []);
+            _.size(result) > 0 && acc.push([key, _.fromPairs(result)])
+            return acc;
+          }
+          return _.fromPairs(
+            _.toPairs(parsedPayload)
+              .reduce(resolve, [])
+          )
+        } catch (e) {
+          return global.utils.getTypedFieldValue(msg, requestPayload)
+        }
       }
 
-      ebayAPI[apiName][methodName](payload)
+      ebayAPI[apiName][methodName](resolvePayload(config.requestPayload))
         .then(({data, config: {url}}) => {
           msg.payload = data;
           msg.url = url;

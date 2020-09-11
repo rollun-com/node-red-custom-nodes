@@ -6,8 +6,8 @@ module.exports = function (RED) {
     const node = this;
 
     node.on('input', function (msg) {
-      const first = global.utils.getTypedFieldValue(config.first, msg);
-      const second = global.utils.getTypedFieldValue(config.second, msg);
+      const first = global.utils.getTypedFieldValue(msg, config.first);
+      const second = global.utils.getTypedFieldValue(msg, config.second);
 
       const [, resultField] = global.utils.parseTypedInput(config.result);
 

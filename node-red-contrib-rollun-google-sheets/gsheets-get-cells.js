@@ -19,8 +19,8 @@ module.exports = function (RED) {
         if (!config.sheetURL) return makeError(`sheetURL is required!`);
         if (!config.cells) return makeError(`cells is required!`);
 
-        const sheetURL = global.utils.getTypedFieldValue(config.sheetURL, msg);
-        const cells = global.utils.getTypedFieldValue(config.cells, msg);
+        const sheetURL = global.utils.getTypedFieldValue(msg, config.sheetURL);
+        const cells = global.utils.getTypedFieldValue(msg, config.cells);
 
         const parsedURL = URL.parse(sheetURL);
 

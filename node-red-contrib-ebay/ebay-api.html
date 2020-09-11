@@ -1,6 +1,6 @@
 <script type="text/javascript">
   "use strict";
-  const ebayApiConfig = {
+  const ebayApiConfig = Object.freeze({
     sell: {
       getOrder: {
         docURL: 'https://developer.ebay.com/api-docs/sell/fulfillment/resources/order/methods/getOrder',
@@ -11,7 +11,7 @@
         config: [{
           type: 'string',
           name: 'limit',
-          default: 50
+          default: 20
         }, {
           type: 'string',
           name: 'offset',
@@ -37,29 +37,11 @@
         config: [{
           type: 'string',
           name: 'limit',
-          default: 50
+          default: 20
         }, {
           type: 'string',
           name: 'offset',
           default: 0
-        }, {
-          type: 'string',
-          name: 'orderId',
-        }, {
-          type: 'string',
-          name: 'transactionId'
-        }, {
-          type: 'string',
-          name: 'payoutId'
-        }, {
-          type: 'string',
-          name: 'salesRecordReference'
-        }, {
-          type: 'string',
-          name: 'buyerUsername'
-        }, {
-          type: 'string',
-          name: 'transactionStatus'
         }, {
           type: 'filter',
           name: 'filter',
@@ -77,6 +59,24 @@
             type: 'enum',
             name: 'transactionStatus',
             values: ['PAYOUT', 'FUNDS_PROCESSING', 'FUNDS_AVAILABLE_FOR_PAYOUT', 'FUNDS_ON_HOLD', 'COMPLETED', 'FAILED']
+          }, {
+            type: 'string',
+            name: 'orderId',
+          }, {
+            type: 'string',
+            name: 'transactionId'
+          }, {
+            type: 'string',
+            name: 'payoutId'
+          }, {
+            type: 'string',
+            name: 'salesRecordReference'
+          }, {
+            type: 'string',
+            name: 'buyerUsername'
+          }, {
+            type: 'string',
+            name: 'transactionStatus'
           }]
         }]
       }
@@ -87,7 +87,7 @@
         config: 'query'
       }
     }
-  }
+  })
 
   RED.nodes.registerType('ebay-api', {
     category: 'Ebay API',
@@ -148,13 +148,17 @@
           if (!apiName) return;
           // do not clear dat on first render.
           !isFirstRender && setRequestPayload('');
-          isFirstRender && (isFirstRender = false)
 
-          buildPayloadForm(apiName, Object.keys(ebayApiConfig[apiName])[0], getRequestPayload())
+          buildPayloadForm(apiName,
+            isFirstRender
+              ? node.methodName
+              : Object.keys(ebayApiConfig[apiName])[0],
+            getRequestPayload())
           $('#node-input-methodName')
             .html(Object.keys(ebayApiConfig[apiName]).map(method =>
               `<option value="${method}" ${node.methodName === method ? 'selected' : ''} >${method}</option>`
             ))
+          isFirstRender && (isFirstRender = false)
         })
 
       const buildPayloadForm = (apiName, methodName, initData) => {
@@ -170,10 +174,11 @@
               $('<div class="form-row">')
                 .append($(`<label>${config}</label>`))
                 .append($(`<input type="text"
+                                  data-path=""
+                                  class="ebay-options-typed-input"
                                   value="${initData || ''}"
                                   style="margin-left: 5px"
-                                  placeholder="${config}">`)
-                  .change(e => setRequestPayload(e.target.value)))
+                                  placeholder="${config}">`))
             );
         } else {
           const requestPayload = getRequestPayload() || {};
@@ -182,86 +187,95 @@
               config
                 .map(({name, type, default: defaultValue, fields}) => {
                   if (type === 'string') {
-                    return $('<div class="form-row">')
-                      .append($(`<label>${name}</label>`))
+                    return $('<div>')
+                      .append($(`<label>${name} ${defaultValue === undefined ? '' : `(default: ${defaultValue})`}</label>`))
                       .append($(`<input type="text"
-                                        value="${requestPayload[name] || ''}"
-                                        placeholder="${defaultValue || ''}">`)
-                        .change(e => {
-                          const currentRequestPayload = getRequestPayload() || {}
-                          setRequestPayload({
-                            ...currentRequestPayload,
-                            [name]: e.target.value
-                          })
-                        }));
+                                        data-path="${name}"
+                                        class="ebay-options-typed-input">`));
                   } else if (type === 'filter') {
                     const {filter = {}} = requestPayload;
                     const div = $('<div class="form-row">');
-                    container.append(div);
+                    // container.append(div);
                     div.append('<h3>Filter</h3>')
                     div.append('<h4>All dates must be in ISO 8601 e.g. YYYY-MM-DDThh:mm:ss.mmmZ</h4>')
                     for (const {name, type, values} of fields) {
                       if (type === 'datetime-range') {
-                        const cb = (field) => {
-                          return (value) => {
-                            const currentRequestPayload = getRequestPayload() || {}
-                            const currentFilter = currentRequestPayload.filter || {};
-                            setRequestPayload({
-                              ...currentRequestPayload,
-                              filter: {
-                                ...currentFilter,
-                                [name]: {
-                                  ...(currentFilter[name] || {}),
-                                  [field]: value
-                                }
-                              }
-                            })
-                          }
-                        }
-                        console.log(filter, name, requestPayload)
                         const {from = '', to = ''} = filter[name] || {};
                         div
                           .append([
-                            $(`<h5>${name} (start value with msg. to get value from msg)</h5>`),
-                            $(`<input value="${from}" style="margin-left: 15px" placeholder="from">`)
-                              .change(e => cb('from')(e.target.value)),
-                            $(`<input value="${to}" style="margin-left: 15px" placeholder="to">`)
-                              .change(e => cb('to')(e.target.value))
+                            $(`<h5>${name}</h5>`),
+                            $(`<input value="${from}"
+                                      data-path="filter.${name}.from"
+                                      class="ebay-options-typed-input"
+                                      style="margin-left: 15px" placeholder="${name}.from">
+                               `),
+                            $(`<input value="${to}"
+                                      data-path="filter.${name}.to"
+                                      class="ebay-options-typed-input"
+                                      style="margin-left: 15px" placeholder="${name}.to">`)
                           ])
                       } else if (type === 'enum') {
-                        const cb = (value) => {
-                          const currentRequestPayload = getRequestPayload() || {}
-                          const currentFilter = currentRequestPayload.filter || {};
-                          setRequestPayload({
-                            ...currentRequestPayload,
-                            filter: {
-                              ...currentFilter,
-                              [name]: value
-                            }
-                          })
-                        }
                         const currentRequestPayload = getRequestPayload() || {}
                         const currentFilter = currentRequestPayload.filter || {};
                         const currValue = currentFilter[name] || '';
                         div
-                          .append($(`
-                            <h5>${name}</h5>
-                            <select style="margin-left: 15px">
+                          .append([
+                            $(`<h5>${name}</h5>`),
+                            $(`<select style="margin-left: 15px">
                             <option ${currValue === '' ? 'selected' : ''} value="">-</option>
                                ${values.map(value => `<option ${currValue === value ? 'selected' : ''} value="${value}">${value}</option>`)}
                             </select>`)
-                            .change(e => cb(e.target.value)))
+                              .change(e =>
+                                setRequestPayload(window._.set(getRequestPayload() || {}, `filter.${name}`, `const|${e.target.value}`))
+                              )
+                          ])
+                      } else if (type === 'string') {
+                        div
+                          .append($(`
+                            <h5>${name}</h5>
+                            <input type="text"
+                                   data-path="filter.${name}"
+                                   class="ebay-options-typed-input">`))
                       }
                     }
+                    return div;
                   }
                 })
             )
         }
+        // replace inputs with typed inputs
+        $('.ebay-options-typed-input')
+          .each((idx, node) => {
+            const types = [{
+              value: "msg",
+              label: "msg."
+            }, {
+              value: "const",
+              label: "constant"
+            }]
+            const data = getRequestPayload();
+            const dataPath = node.dataset.path;
+            const typedValue = dataPath === '' ? data : window._.get(data || {}, dataPath, '');
+            const [type, value = ''] = typedValue.split('|');
+
+            $(node)
+              .typedInput({types: types})
+              .typedInput('value', value)
+              .typedInput('type', type)
+              .on('change', (e, type) => {
+                if (type === true) return;
+                if (dataPath === "") {
+                  setRequestPayload(`${type}|${e.target.value}`)
+                } else {
+                  const newData = window._.set(getRequestPayload() || {}, dataPath, `${type}|${e.target.value}`);
+                  setRequestPayload(newData);
+                }
+              })
+          })
       };
 
       $('#node-input-methodName')
         .change(e => {
-          console.log('method changhe', node.apiName, e.target.value, node.methodName)
           if (e.target.value !== node.methodName) {
             setRequestPayload('');
           }

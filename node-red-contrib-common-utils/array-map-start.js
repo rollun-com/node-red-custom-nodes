@@ -20,7 +20,7 @@ module.exports = function (RED) {
 
 
       (async () => {
-        let iterable = global.utils.getTypedFieldValue(config.arrayField, msg);
+        let iterable = global.utils.getTypedFieldValue(msg, config.arrayField);
 
         if (typeof iterable !== 'object') {
           throw new Error('Data in arrayField must be either object or array!');

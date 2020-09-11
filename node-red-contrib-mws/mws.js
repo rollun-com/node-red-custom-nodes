@@ -22,7 +22,7 @@ module.exports = function (RED) {
         return node.send([msg, null]);
       }
 
-      let payload = global.utils.getTypedFieldValue(config.actionPayload, msg) || {};
+      let payload = global.utils.getTypedFieldValue(msg, config.actionPayload) || {};
       if (typeof payload !== "object") {
         msg.payload = {error: `Action payload must be an object`}
         return node.send([msg, null]);
@@ -40,7 +40,7 @@ module.exports = function (RED) {
       );
 
 
-      const version = global.utils.getTypedFieldValue(config.version, msg);
+      const version = global.utils.getTypedFieldValue(msg, config.version);
 
 
       if (!api[config.actionType]) {

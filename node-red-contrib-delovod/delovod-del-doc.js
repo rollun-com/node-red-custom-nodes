@@ -18,7 +18,7 @@ module.exports = function (RED) {
 
       const client = new global.delovod.DelovodAPIClient(node.config);
 
-      const docId = global.utils.getTypedFieldValue(config.docId, msg);
+      const docId = global.utils.getTypedFieldValue(msg, config.docId);
 
       client
         .setDelMark(docId, config.forceDelete || false)

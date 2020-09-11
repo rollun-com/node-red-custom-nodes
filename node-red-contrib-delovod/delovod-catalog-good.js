@@ -15,11 +15,11 @@ module.exports = function (RED) {
       if (!node.config) return makeError(node, `node.config is required!`);
       if (!config.itemName) return makeError(node, `itemName is required!`);
 
-      const itemName = global.utils.getTypedFieldValue(config.itemName, msg);
-      const parent = global.utils.getTypedFieldValue(config.parent, msg);
-      const mainUnit = global.utils.getTypedFieldValue(config.mainUnit, msg);
-      const goodType = global.utils.getTypedFieldValue(config.goodType, msg);
-      const goodChar = global.utils.getTypedFieldValue(config.goodChar, msg);
+      const itemName = global.utils.getTypedFieldValue(msg, config.itemName);
+      const parent = global.utils.getTypedFieldValue(msg, config.parent);
+      const mainUnit = global.utils.getTypedFieldValue(msg, config.mainUnit);
+      const goodType = global.utils.getTypedFieldValue(msg, config.goodType);
+      const goodChar = global.utils.getTypedFieldValue(msg, config.goodChar);
 
       const client = new global.delovod.DelovodAPIClient(node.config);
       (async () => {

@@ -8,11 +8,11 @@ module.exports = function (RED) {
     node.on('input', function (msg) {
       const {getTypedFieldValue} = global.utils;
 
-      const good = getTypedFieldValue(config.good, msg);
-      const price = +getTypedFieldValue(config.price, msg);
-      const qty = +getTypedFieldValue(config.qty, msg);
-      const goodType = getTypedFieldValue(config.goodType, msg);
-      const unit = getTypedFieldValue(config.unit, msg);
+      const good = getTypedFieldValue(msg, config.good);
+      const price = +getTypedFieldValue(msg, config.price);
+      const qty = +getTypedFieldValue(msg, config.qty);
+      const goodType = getTypedFieldValue(msg, config.goodType);
+      const unit = getTypedFieldValue(msg, config.unit);
       msg.payload = {
         good,
         goodType, // Товар

@@ -25,7 +25,7 @@ module.exports = function (RED) {
         .entries(docData)
         .reduce((acc, [key, val]) => {
           if (!val) return acc;
-          const resolvedValue = global.utils.getTypedFieldValue(val, msg);
+          const resolvedValue = global.utils.getTypedFieldValue(msg, val);
           if (resolvedValue) {
             acc[key] = resolvedValue;
           }

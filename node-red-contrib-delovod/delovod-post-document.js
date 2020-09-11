@@ -15,7 +15,7 @@ module.exports = function (RED) {
       if (!node.config) return makeError(node, `node.config is required!`);
       if (!config.docId) return makeError(node, `docId is required!`);
 
-      const docId = global.utils.getTypedFieldValue(config.docId, msg);
+      const docId = global.utils.getTypedFieldValue(msg, config.docId);
 
       (new global.delovod.DelovodAPIClient(node.config))
         .saveObject({

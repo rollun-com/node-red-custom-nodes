@@ -29,8 +29,9 @@ module.exports = function (RED) {
      * @returns {string[]} - where first is type and second is value.
      */
     parseTypedInput: (val) => {
-      const [type = '', value = ''] = val.split('|');
-      return [type, value];
+      const [type = '', ...value] = val.split('|');
+      // if value contains '|'
+      return [type, value.join('|')];
     },
 
     /**
@@ -40,7 +41,7 @@ module.exports = function (RED) {
      * @return {string|*}
      */
 
-    getTypedFieldValue: (val = '', msg) => {
+    getTypedFieldValue: (msg, val = '') => {
       if (!val) return '';
       const [type, value] = global.utils.parseTypedInput(val);
       if (type === 'msg') {
