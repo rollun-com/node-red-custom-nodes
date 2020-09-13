@@ -19,7 +19,7 @@ module.exports = function (RED) {
 
 
       datastore
-        .getOne('', processedRql)
+        .getFirst('', processedRql)
         .then(result => {
 
           if (result === null) {

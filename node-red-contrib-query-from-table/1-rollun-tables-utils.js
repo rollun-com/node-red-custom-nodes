@@ -9,10 +9,16 @@ module.exports = (function (RED) {
        * @param opts {{URL: string, timeout?: number}}
        * @param timeout {number?}
        */
-      constructor({URL, timeout = 10000}) {
+      constructor({URL, idField = 'id', timeout = 10000}) {
         if (!URL) throw new Error('Url is required.');
         const {protocol, host, pathname} = url.parse(URL);
         if (!host) throw new Error(`url is not in valid format! [${URL}]`);
+
+        /**
+         * @type {string}
+         */
+
+        this.idField = idField;
 
         /**
          * @type {string}
@@ -84,7 +90,15 @@ module.exports = (function (RED) {
             if (res.error) throw new Error(res.error);
             return fullResponse ? res : res.data
           })
-          .catch(err => fullResponse ? err : {error: err.message, response: err.response.data});
+          .catch(err => {
+            // return without exception, to be able to properly send error message. and response.
+            return fullResponse
+              ? (err.response || err)
+              : {
+                error: err.message,
+                response: err.response ? err.response.data : undefined
+              }
+          });
       }
 
       /**
@@ -109,7 +123,7 @@ module.exports = (function (RED) {
        * @return {Promise<[]*>}
        */
 
-      async get(_uri, _rql = '', fullResponse = false) {
+      async query(_uri, _rql = '', fullResponse = false) {
         const rql = _rql.replace(/^\?/, '');
         return global.tables.Datastore._withResponseFormatter(this.axios
             .get(`${this.pathname}${tables.Datastore._getUri(_uri)}?${rql}`),
@@ -125,21 +139,34 @@ module.exports = (function (RED) {
        * @return {Promise<[]*>}
        */
 
-      async getOne(_uri, _rql = '', fullResponse = false) {
+      async getFirst(_uri, _rql = '', fullResponse = false) {
         const rql = _rql.replace(/^\?/, '');
         return global.tables.Datastore._withResponseFormatter(this.axios
             .get(`${this.pathname}${tables.Datastore._getUri(_uri)}?${rql}`)
             .then(result => {
-              if (result && result.data && typeof result.data === 'object' && result.data.length === 1) {
+              if (result.data && result.data.length > 0) {
                 result.data = result.data[0];
               } else {
-                result.data = null
+                result.data = null;
               }
+              // if (result && result.data && typeof result.data === 'object' && result.data.length === 1) {
+              //   result.data = result.data[0];
+              // } else {
+              //   result.data = null
+              // }
               return result;
             }),
           fullResponse
         );
       }
+
+      async read(_uri, id, fullResponse = false) {
+        return global.tables.Datastore._withResponseFormatter(this.axios
+            .get(`${this.pathname}${tables.Datastore._getUri(_uri)}/${encodeURI(id)}`),
+          fullResponse
+        );
+      }
+
 
       /**
        *
@@ -149,7 +176,7 @@ module.exports = (function (RED) {
        * @return {Promise<*>}
        */
 
-      async post(_uri, body, fullResponse = false) {
+      async create(_uri, body, fullResponse = false) {
         return global.tables.Datastore._withResponseFormatter(this.axios
             .post(`${this.pathname}${tables.Datastore._getUri(_uri)}`, body),
           fullResponse
@@ -165,9 +192,9 @@ module.exports = (function (RED) {
        * @return {Promise<*>}
        */
 
-      async put(_uri, body, id, fullResponse = false) {
+      async update(_uri, body, fullResponse = false) {
         return global.tables.Datastore._withResponseFormatter(this.axios
-            .put(`${this.pathname}${tables.Datastore._getUri(_uri)}/${id}`, body),
+            .put(`${this.pathname}${tables.Datastore._getUri(_uri)}/${body[this.idField]}`, body),
           fullResponse
         );
       }

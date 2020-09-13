@@ -47,6 +47,9 @@ module.exports = function (RED) {
       if (type === 'msg') {
         return global.utils.resolvePath(msg, value);
       }
+      // if (type === 'json') {
+      //   return JSON.parse(val);
+      // }
       return value;
     }
   };

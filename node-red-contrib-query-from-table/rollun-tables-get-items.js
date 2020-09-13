@@ -4,7 +4,6 @@ module.exports = function (RED) {
     const node = this;
 
     node.on('input', function (msg) {
-      const axios = require('axios');
       const makeError = (node, text) => {
         msg.error = text;
         msg.payload = undefined;
@@ -18,11 +17,8 @@ module.exports = function (RED) {
       const datastore = new global.tables.Datastore({URL: url});
       const processedRql = global.tables.Datastore.resolveRQLWithREDMsg(rql, msg);
 
-
-
-
       datastore
-        .get('', processedRql)
+        .query('', processedRql)
         .then(result => {
           msg.payload = result;
           node.send([null, msg]);
