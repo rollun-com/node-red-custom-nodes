@@ -131,6 +131,24 @@ ${val}`).join('\n');
 
               "positions", "program", "contractor",
 
+              // Order deal specific fields
+
+              "Category1000072CustomFieldMpName",
+              "Category1000072CustomFieldMpClientId",
+              "Category1000072CustomFieldMpOrderNumber",
+              "Category1000072CustomFieldMpShipMethod",
+              "Category1000072CustomFieldMpOrderItemId",
+              "Category1000072CustomFieldMpOrderNote",
+              "Category1000072CustomFieldDateCrPayed",
+              "Category1000072CustomFieldDateShipBy",
+              "Category1000072CustomFieldDateDeliverBy",
+              "Category1000072CustomFieldCogs",
+              "Category1000072CustomFieldProfit",
+              "Category1000072CustomFieldTracknumber",
+              "Category1000072CustomFieldProblemDescription",
+              "Category1000072CustomFieldHowToBuy3",
+              "Category1000072CustomFieldHowToBuy3Result",
+
               // Dropship deal specific fields
 
               "Category1000073CustomFieldMpName",
