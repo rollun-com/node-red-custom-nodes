@@ -9,10 +9,17 @@ module.exports = (function (RED) {
        * @param opts {{URL: string, timeout?: number}}
        * @param timeout {number?}
        */
-      constructor({URL, idField = 'id', timeout = 10000}) {
+      constructor({URL, idField = 'id', timeout = 10000, msg = {}}) {
         if (!URL) throw new Error('Url is required.');
         const {protocol, host, pathname} = url.parse(URL);
         if (!host) throw new Error(`url is not in valid format! [${URL}]`);
+
+        /**
+         * MSG object, used to resolve variables in RQL string using Datastore.resolveRQLWithREDMsg
+         * @type {object}
+         */
+
+        this.msg = msg;
 
         /**
          * @type {string}
@@ -38,8 +45,12 @@ module.exports = (function (RED) {
 
 
       /**
-       *
-       * @param rql {string}
+       * example:
+       *     if string contains path relative to msg (e.g. msg.rlln.mp.order.id), will be resolve to
+       *      rql = select(id)&limit(20,0)&like(mp_order_id,string:msg.rlln.mp.order.id)
+       *      msg = {rlln: {mp: {order: "123456"}}}
+       *     will be resolved to
+       *     select(id)&limit(20,0)&like(mp_order_id,string:123456)       * @param rql {string}
        * @param msg {*}
        */
 
@@ -48,7 +59,7 @@ module.exports = (function (RED) {
           // remove trailing ?
           .replace(/^\?/, '')
           // resolve path
-          .replace(/msg\.[a-zA-Z.]+/g, match => {
+          .replace(/msg\.[a-zA-Z0-9.]+/g, match => {
             const path = match.replace(/^msg\./, '');
             return global.tables.Datastore.encodeRQLValue(global.utils.resolvePath(msg, path));
           })
@@ -124,7 +135,8 @@ module.exports = (function (RED) {
        */
 
       async query(_uri, _rql = '', fullResponse = false) {
-        const rql = _rql.replace(/^\?/, '');
+        const rql = global.tables.Datastore.resolveRQLWithREDMsg(_rql, this.msg);
+        console.log('rql', rql);
         return global.tables.Datastore._withResponseFormatter(this.axios
             .get(`${this.pathname}${tables.Datastore._getUri(_uri)}?${rql}`),
           fullResponse
@@ -140,7 +152,8 @@ module.exports = (function (RED) {
        */
 
       async getFirst(_uri, _rql = '', fullResponse = false) {
-        const rql = _rql.replace(/^\?/, '');
+        const rql = global.tables.Datastore.resolveRQLWithREDMsg(_rql, this.msg);
+        console.log('rql', rql);
         return global.tables.Datastore._withResponseFormatter(this.axios
             .get(`${this.pathname}${tables.Datastore._getUri(_uri)}?${rql}`)
             .then(result => {
@@ -149,11 +162,6 @@ module.exports = (function (RED) {
               } else {
                 result.data = null;
               }
-              // if (result && result.data && typeof result.data === 'object' && result.data.length === 1) {
-              //   result.data = result.data[0];
-              // } else {
-              //   result.data = null
-              // }
               return result;
             }),
           fullResponse
@@ -216,4 +224,4 @@ module.exports = (function (RED) {
     }
   }
 
-})()
+})();
