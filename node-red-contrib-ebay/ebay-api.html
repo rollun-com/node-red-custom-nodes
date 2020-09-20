@@ -146,7 +146,7 @@
         .change(e => {
           const apiName = e.target.value;
           if (!apiName) return;
-          // do not clear dat on first render.
+          // do not clear data on first render.
           !isFirstRender && setRequestPayload('');
 
           buildPayloadForm(apiName,

@@ -1,8 +1,96 @@
 module.exports = function (RED) {
+
+  let continuePipelineIfIterableIsEmpty = null;
+
+  function ArrayMapStart(config) {
+    RED.nodes.createNode(this, config);
+    const node = this;
+    this.config = RED.nodes.getNode(config.config);
+
+    node.on('input', function (msg) {
+      const _ = require('lodash');
+
+      const makeError = (node, text) => {
+        msg.error = {error: text};
+        msg.payload = undefined;
+        node.send(msg)
+      };
+
+      const interval = +config.interval;
+
+      if (!config.arrayField) return makeError(node, `arrayField is required!`);
+      if (isNaN(interval) || interval < 0) return makeError(node, `interval is required, and must be a number > 0!`);
+
+
+      (async () => {
+        let iterable = global.utils.getTypedFieldValue(msg, config.arrayField);
+
+        if (typeof iterable !== 'object') {
+          throw new Error('Data in arrayField must be either object or array!');
+        }
+
+        const type = Array.isArray(iterable) ? 'array' : 'object';
+
+        if (type === 'object') {
+          iterable = Object.entries(iterable);
+        }
+
+        if (iterable.length === 0) {
+          return continuePipelineIfIterableIsEmpty(msg);
+        }
+
+        const {req, res} = msg;
+
+        if (req) delete msg.req;
+        if (res) delete msg.res;
+
+        for (let i = 0, len = iterable.length; i < len; i++) {
+          let key, value, index;
+          if (type === 'array') {
+            index = i;
+            value = iterable[i];
+          }
+
+          if (type === 'object') {
+            [key, value] = iterable[i];
+          }
+
+          const msgCopy = {
+            _msgid: msg._msgid,
+            payload: _.cloneDeep(value),
+            type,
+            ...(index !== undefined && {index: i}),
+            ...(key !== undefined && {key}),
+            totalItemsAmount: len,
+            topic: `Element #${i} of iterable`,
+            originalMsg: msg,
+            req: req,
+            res: res
+          };
+
+          node.send(msgCopy);
+
+          await (new Promise(resolve => setTimeout(() => resolve(), +config.interval)));
+        }
+
+      })()
+        .catch(err => {
+          console.log(err);
+          msg._isArrayMapError = true;
+          msg.error = err.message;
+          node.send(msg)
+        })
+    });
+  }
+
+  RED.nodes.registerType("array-map-start", ArrayMapStart);
+
   function ArrayMapEnd(config) {
     RED.nodes.createNode(this, config);
     const node = this;
     this.config = RED.nodes.getNode(config.config);
+
+    continuePipelineIfIterableIsEmpty = msg => node.send(msg);
 
     // map _msgif -> array of results
     let results = {};
@@ -54,8 +142,10 @@ module.exports = function (RED) {
       }
     }
 
-    const clearResult = (msgid) => {
-      delete results[msgid];
+    const clearResult = ({_msgid}) => {
+      if (results[_msgid]) {
+        delete results[_msgid];
+      }
     }
 
     node.on('input', function (msg) {
@@ -64,7 +154,7 @@ module.exports = function (RED) {
         if (msg.originalMsg) {
           msg = msg.originalMsg;
         }
-        clearResult(msg._msgid);
+        clearResult(msg);
         msg.payload = {error: `Did not receive all items from array-map-start after ${timeoutTime}ms`};
         node.send(msg);
         timeouted = true;
@@ -74,7 +164,7 @@ module.exports = function (RED) {
 
       if (msg._isArrayMapError === true || msg.totalItemsAmount === undefined) {
         const orgError = msg.error || 'Unknown error';
-        clearResult(msg._msgid);
+        clearResult(msg);
         if (msg.originalMsg) {
           const req = msg.req;
           const res = msg.res;
@@ -103,7 +193,7 @@ module.exports = function (RED) {
             req: msg.req,
             res: msg.res
           }
-          clearResult(msg._msgid);
+          clearResult(msg);
           node.send(finalMsg);
           clearTimeout(timeout);
         } catch (e) {
@@ -114,4 +204,5 @@ module.exports = function (RED) {
   }
 
   RED.nodes.registerType("array-map-end", ArrayMapEnd);
-}
+
+};
