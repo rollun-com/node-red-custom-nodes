@@ -16,11 +16,9 @@ module.exports = function (RED) {
 
       const {url, action, idField} = config;
 
-      const datastore = new global.tables.Datastore({URL: url, idField});
+      const datastore = new global.tables.Datastore({URL: url, idField, msg});
 
-      const payload = global.utils.getTypedFieldValue(msg, config.payload);
-
-      datastore[action]('', payload)
+      datastore[action]('', global.utils.getTypedFieldValue(msg, config.payload))
         .then(result => {
           msg.payload = result;
           if (result && result.error) {
