@@ -236,40 +236,40 @@
   For object, if <code>msg.key</code> is <b>empty</b> (null or undefined), key will be generated automatically
 </script>
 
-<!-- ARRAY MAP CONTINUE -->
-<script type="text/javascript">
-  "use strict";
-  /*global RED*/
-  RED.nodes.registerType('array-map-continue', {
-    category: 'function',
-    inputs: 1,
-    outputs: 0,
-    color: "#c2f4ff",
-    icon: "icons/node-red/link-out.svg",
-    paletteLabel: "array-map-continue",
-    defaults: {
-      name: {
-        value: ""
-      },
-    },
-    label: function () {
-      return this.name || 'Array map continue';
-    },
-    oneditprepare: function () {
-    }
-  });
-</script>
+<!--&lt;!&ndash; ARRAY MAP CONTINUE &ndash;&gt;-->
+<!--<script type="text/javascript">-->
+<!--  "use strict";-->
+<!--  /*global RED*/-->
+<!--  RED.nodes.registerType('array-map-continue', {-->
+<!--    category: 'function',-->
+<!--    inputs: 1,-->
+<!--    outputs: 0,-->
+<!--    color: "#c2f4ff",-->
+<!--    icon: "icons/node-red/link-out.svg",-->
+<!--    paletteLabel: "array-map-continue",-->
+<!--    defaults: {-->
+<!--      name: {-->
+<!--        value: ""-->
+<!--      },-->
+<!--    },-->
+<!--    label: function () {-->
+<!--      return this.name || 'Array map continue';-->
+<!--    },-->
+<!--    oneditprepare: function () {-->
+<!--    }-->
+<!--  });-->
+<!--</script>-->
 
-<script type="text/html" data-template-name="array-map-continue">
-  <div class="form-row">
-    <label for="node-input-name">Name</label>
-    <input type="text" id="node-input-name">
-  </div>
-</script>
+<!--<script type="text/html" data-template-name="array-map-continue">-->
+<!--  <div class="form-row">-->
+<!--    <label for="node-input-name">Name</label>-->
+<!--    <input type="text" id="node-input-name">-->
+<!--  </div>-->
+<!--</script>-->
 
-<script type="text/html" data-help-name="array-map-continue">
-  This node works with both <b>array-map-(start|end)</b> and <b>array-map-(start|end)-sync</b>
+<!--<script type="text/html" data-help-name="array-map-continue">-->
+<!--  This node works with both <b>array-map-(start|end)</b> and <b>array-map-(start|end)-sync</b>-->
 
-  Node immediately sends <b>null</b> to nearest <b>array-map-end(-sync)</b>
-</script>
+<!--  Node immediately sends <b>null</b> to nearest <b>array-map-end(-sync)</b>-->
+<!--</script>-->
 

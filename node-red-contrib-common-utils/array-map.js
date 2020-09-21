@@ -240,14 +240,14 @@ module.exports = function (RED) {
   RED.nodes.registerType("array-map-end", ArrayMapEnd());
   RED.nodes.registerType("array-map-end-sync", ArrayMapEnd({isSync: true}));
 
-  function ArrayMapContinue(config) {
-    RED.nodes.createNode(this, config);
-    const node = this;
-
-    node.on('input', function (msg) {
-      addToResult(msg);
-    })
-  }
-
-  RED.nodes.registerType("array-map-continue", ArrayMapContinue);
+  // function ArrayMapContinue(config) {
+  //   RED.nodes.createNode(this, config);
+  //   const node = this;
+  //
+  //   node.on('input', function (msg) {
+  //     addToResult(msg);
+  //   })
+  // }
+  //
+  // RED.nodes.registerType("array-map-continue", ArrayMapContinue);
 };
