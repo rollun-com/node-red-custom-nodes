@@ -104,6 +104,7 @@ module.exports = function (RED) {
           if (req) delete msg.req;
           if (res) delete msg.res;
 
+          const msgid = RED.util.generateId();
           for (let i = 0, len = iterable.length; i < len; i++) {
             let key, value, index;
             if (type === 'array') {
@@ -116,13 +117,13 @@ module.exports = function (RED) {
             }
 
             const msgCopy = {
-              _msgid: msg._msgid,
+              _msgid: msgid,
               payload: _.cloneDeep(value),
               type,
               ...(index !== undefined && {index: i}),
               ...(key !== undefined && {key}),
               totalItemsAmount: len,
-              topic: `Element #${i} of iterable`,
+              topic: `Element #${i} of ${type}`,
               originalMsg: msg,
               req: req,
               res: res
@@ -131,8 +132,10 @@ module.exports = function (RED) {
             node.send(msgCopy);
 
             if (isSync) {
+              // store resolve func for promise, to call it from ArrayMapEnd, to 'resume' execution
+              // therefore creating 'sync' effect
               await (new Promise(resolve => {
-                arrayStartPromiseResolvers[msg._msgid] = resolve;
+                arrayStartPromiseResolvers[msgCopy._msgid] = resolve;
               }))
             }
 
