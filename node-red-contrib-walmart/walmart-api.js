@@ -1,47 +1,51 @@
-module.exports = class WalmartAPI {
-  constructor({clientId, clientSecret,}) {
+module.exports = function (RED) {
+  function WalmartAPI(config) {
 
-    this.axios = require('axios').create({
-      baseURL: 'https://marketplace.walmartapis.com'
-    })
+    const WalmartAPIClient = require('./walmart-api-client');
 
-    this.authToken = null;
+    RED.nodes.createNode(this, config);
+    const node = this;
+    this.config = RED.nodes.getNode(config.config);
 
-    this.axios.interceptors.request.use(async config => {
-      if (config.url === 'v3/token') return config;
-      const token = await this._getAuthToken();
-      config.headers.Authorization = `Bearer ${token}`;
-      return config;
-    })
-  }
 
-  async _getAuthToken() {
-    const cachedToken = this._getCachedToken();
-    if (cachedToken) {
-      return cachedToken;
-    }
-    const data = {
-      username: this.email,
-      password: this.password,
-      grant_type: 'password'
-    };
+    node.on('input', function (msg) {
+      const makeError = text => {
+        msg.payload = {error: text};
+        node.send([msg, null]);
+      };
 
-    const payload = Object.entries(data).map(([key, val]) => `--12345
-Content-Disposition: form-data; name="${key}"
+      if (!node.config) return makeError(`walmart config is required!`);
 
-${val}`).join('\n');
+      const client = new WalmartAPIClient({
+        ...node.config,
+        correlationId: msg._msgid
+      })
 
-    const result = await this.axios.post('api/v3/auth/access_token', payload, {
-      headers: {
-        'content-type': 'multipart/form-data; boundary=12345'
-      }
+      if (!client[config.method]) return makeError(`invalid method name: ${config.method}`);
+
+
+      // TODO refactor payload to be an object
+
+      const payload = global.utils.getTypedFieldValue(msg, config.payload);
+
+      client[config.method]({
+        // TODO when payload wil be an object, just pass payload to method
+        [config.method === 'getOrder' ? 'orderId' : 'createdStartDate']: payload
+      })
+        .then(result => {
+          msg.payload = result;
+          node.send(msg);
+        })
+        .catch(err => {
+          msg.payload = {err: err.message};
+          msg.response = {
+            status: err.response && err.response.status ? err.response.status : undefined,
+            data: err.response && err.response.data ? err.response.data : undefined
+          }
+          node.send(msg);
+        })
     });
-    fs.writeFileSync('/data/.megaplan-auth-token.json', JSON.stringify({
-      ...result.data,
-      created_at: Math.floor(Date.now() / 1000)
-    }))
-    return result.data.access_token;
   }
 
-
+  RED.nodes.registerType("walmart-api", WalmartAPI);
 }

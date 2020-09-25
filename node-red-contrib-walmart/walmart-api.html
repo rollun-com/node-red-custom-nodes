@@ -1,0 +1,97 @@
+<script type="text/javascript">
+  "use strict";
+
+  RED.nodes.registerType('walmart-api', {
+    category: 'Walmart',
+    inputs: 1,
+    outputs: 2,
+    color: "#85C1E9",
+    icon: "walmart.png",
+    paletteLabel: "walmart-api",
+    defaults: {
+      config: {
+        value: "", type: "walmart-config",
+        required: true
+      },
+      method: {
+        value: 'getOrders'
+      },
+      payload: {
+        value: 'const|'
+      },
+      name: {
+        value: ""
+      }
+    },
+    label: function () {
+      return this.name || 'Walmart API';
+    },
+    oneditprepare: function () {
+      const node = this;
+
+      let isFirstRender = true;
+      const handleMethodChange = (method, defaultValue) => {
+        console.log(method, defaultValue);
+
+        // $('#node-input-method').change triggers onchange with undefined
+        if (isFirstRender && defaultValue === undefined) {
+          isFirstRender = false;
+          return;
+        }
+
+        $('#payload').html('');
+
+        if (method === 'getOrders') {
+          window.utils.makeTypedInput('payload', undefined, 'Created start date', defaultValue || 'msg|createStartDate');
+          $('#payload').prepend('<h5>Date can be in 2 formats: <b>2020-09-01</b> or ISO format - <b>2020-09-25T12:03:36.153Z</b></h5>')
+
+        } else if (method === 'getOrder') {
+          window.utils.makeTypedInput('payload', undefined, 'Order ID', defaultValue || 'msg|orderId');
+        }
+      }
+
+      $('#node-input-method').change(e => handleMethodChange(e.target.value))
+
+      handleMethodChange(node.method, node.payload);
+    }
+  });
+</script>
+
+<script type="text/html" data-template-name="walmart-api">
+  <div class="form-row">
+    <label for="node-input-name"><i class="fa fa-server"></i> Name</label>
+    <input type="text" id="node-input-name">
+  </div>
+  <div class="form-row">
+    <label for="node-input-config"><i class="fa fa-server"></i> Walmart config</label>
+    <input type="text" id="node-input-config">
+  </div>
+  <div class="form-row">
+    <label for="node-input-method"><i class="fa fa-server"></i> Method</label>
+    <select id="node-input-method">
+      <option value="getOrders">Get orders</option>
+      <option value="getOrder">Get order</option>
+    </select>
+  </div>
+  <div id="payload" class="form-row">
+  </div>
+</script>
+
+<script type="text/html" data-help-name="walmart-api">
+  <!--  <h4>A simple node, searches entitry by id in megaplan</h4>-->
+  <!--  <h5>1 output - in case of error, data from <code>meta</code> will be here</h5>-->
+  <!--  <h5>2 output - in case of success, data from <code>data</code> will be here</h5>-->
+  <!--  <h5><b>Entity</b></h5>-->
+  <!--  <ul>-->
+  <!--    <li><code>deal</code> - Megaplan deal</li>-->
+  <!--    <li><code>contractorHuman</code> - Megaplan human client</li>-->
+  <!--    <li><code>offer</code> - Item in megaplan catalog</li>-->
+  <!--    <li><code>deal.linkedDeals</code> - Get linked deals</li>-->
+  <!--  </ul>-->
+  <!--  <h5><b>Entity ID/URL</b></h5>-->
+  <!--  May be id of entity or its URL e.g.-->
+  <!--  <ul>-->
+  <!--    <li><code>ID</code> - 31228</li>-->
+  <!--    <li><code>URL</code> - https://mp39851918.megaplan.ua/deals/31228/card/</li>-->
+  <!--  </ul>-->
+</script>
