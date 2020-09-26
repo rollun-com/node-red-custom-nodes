@@ -13,19 +13,22 @@ module.exports = function () {
         return 'unknown';
       },
       stringifyDatetime: (name, {from, to = ''}, isInner = true) => {
+        console.log('stringifyDatetime', name, from, to, 'isInner', isInner);
         return `${name}${isInner ? ':' : '='}[${from}..${to}]`;
       },
       stringifyArray: (name, value, isInnerArray = false) => {
+        console.log('stringifyArray', name, value, 'isInnerArray', isInnerArray);
         return `${name}${isInnerArray ? ':' : '='}${value.join(',')}`
       },
       stringifyObject: (name, value) => {
         const {getQueryParamType, stringifyDatetime, stringifyPrimitive, stringifyArray} = global.ebay.util;
+        console.log('stringifyObject', name, value);
 
         return `${name}=${Object.entries(value)
           .filter(([, value]) => value && _.size(value) > 0)
           .map(([key, value]) => {
             const valueType = getQueryParamType(value);
-            console.log('stringifyObject', name, value, valueType);
+            console.log('stringifyObject field', key, value, valueType);
             if (valueType === 'datetime') {
               return stringifyDatetime(key, value);
             }
@@ -33,23 +36,26 @@ module.exports = function () {
               return stringifyArray(key, value, true);
             }
             if (valueType === 'primitive') {
-              return stringifyPrimitive(name, value, true);
+              return stringifyPrimitive(key, value, true);
             }
-            return `${name}=${value}`;
+            return `${key}=${value}`;
           }).join(',')}`
       },
       stringifyPrimitive: (name, value, isInner = false) => {
+        console.log('stringifyPrimitive', name, value, 'isInner', isInner);
         if (isInner) {
           return `${name}:{${value}}`;
         }
         return `${name}=${value}`;
       },
       stringifyQuery: (query) => {
+          console.log('stringifyQuery', query);
+
         const {getQueryParamType, stringifyDatetime, stringifyPrimitive, stringifyArray, stringifyObject} = global.ebay.util;
         return Object.entries(query)
-          .filter(([, value]) => value && _.size(value) > 0)
+          .filter(([, value]) => value && (typeof value === 'number' || _.size(value) > 0))
           .map(([name, value]) => {
-            console.log('stringifyQuery', name, value, getQueryParamType(value));
+            console.log('stringifyQuery field', name, value, getQueryParamType(value));
             switch (getQueryParamType(value)) {
               case 'datetime':
                 return stringifyDatetime(name, value, false);

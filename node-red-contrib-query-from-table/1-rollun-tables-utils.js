@@ -46,11 +46,12 @@ module.exports = (function (RED) {
 
       /**
        * example:
-       *     if string contains path relative to msg (e.g. msg.rlln.mp.order.id), will be resolve to
+       *     if string contains path relative to msg (e.g. msg.rlln.mp.order.id), with given args
        *      rql = select(id)&limit(20,0)&like(mp_order_id,string:msg.rlln.mp.order.id)
        *      msg = {rlln: {mp: {order: "123456"}}}
        *     will be resolved to
-       *     select(id)&limit(20,0)&like(mp_order_id,string:123456)       * @param rql {string}
+       *     select(id)&limit(20,0)&like(mp_order_id,string:123456)
+       * @param rql {string}
        * @param msg {*}
        */
 
