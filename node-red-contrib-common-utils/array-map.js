@@ -167,7 +167,6 @@ module.exports = function (RED) {
 
       let timeouted = false;
       let timeout
-      const timeoutTime = +config.timeout || 5000;
       const filterEmpty = !!config.filterEmpty;
       const [, resultField] = (config.resultField || 'msg|payload').split('|');
 
@@ -183,15 +182,15 @@ module.exports = function (RED) {
 
       node.on('input', function (msg) {
 
-        !timeout && timeoutTime > 0 && (timeout = setTimeout(() => {
+        !timeout && config.timeout > 0 && (timeout = setTimeout(() => {
           if (msg.originalMsg) {
             msg = msg.originalMsg;
           }
           clearResult(msg);
-          msg.payload = {error: `Did not receive all items from array-map-start after ${timeoutTime}ms`};
+          msg.payload = {error: `Did not receive all items from array-map-start after ${config.timeout}ms`};
           node.send(msg);
           timeouted = true;
-        }, timeoutTime));
+        }, config.timeout));
 
         if (timeouted) return;
 
