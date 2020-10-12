@@ -5,8 +5,6 @@ module.exports = function (RED) {
     const node = this;
 
     node.on('input', function (msg) {
-      const axios = require('axios');
-
       const makeError = (node, text) => {
         msg.error = {error: text};
         msg.payload = undefined;

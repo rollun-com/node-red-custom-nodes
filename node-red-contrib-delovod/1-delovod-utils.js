@@ -77,6 +77,7 @@ module.exports = (function () {
       async baseRequest(action, params) {
         if (!this.actions[action]) throw new Error(`Unknown action - ${action}, must be one of ${Object.keys(this.actions)}`);
         const {data} = await this.axios.post('', {action, params});
+
         if (data === 'ok') {
           return {result: 'ok'};
         }
@@ -86,15 +87,14 @@ module.exports = (function () {
 
       /**
        *
-       * @param type {string}
+       * @param type {string|object}
        * @param fields
        * @param filters
        * @return {Promise<AxiosResponse<any>>}
        */
 
-      async request(type, filters, fields = {}) {
+      async request(type, filters = [], fields = {}) {
         const _fields = filters
-          // remove filters without {alias} field
           .map(filter => filter.alias)
           // filter empty {alias}
           .filter(name => !!name)
@@ -104,14 +104,14 @@ module.exports = (function () {
             return fields;
           }, {});
 
-        // always add id to select
-        if (!("id" in _fields)) {
+        // always add id to select, if it is not register
+        if (type && !type.register && !("id" in _fields)) {
           _fields.id = 'id';
         }
 
         const result = await this.baseRequest(this.actions.request, {
           from: type,
-          fields: _fields,
+          fields: {..._fields, ...fields},
           filters
         })
         return result;
@@ -157,6 +157,32 @@ module.exports = (function () {
           header: {id}
         })
       }
+
+      /**
+       *
+       * @param type {string}
+       * @param register {string}
+       * @param filters {Array}
+       * @param fields {Array}
+       * @param date {string}
+       * @return {Promise<AxiosResponse<*>>}
+       */
+
+      async requestRegister({type, register, filters, fields, date}) {
+        const _fields = {
+          ...filters.reduce((acc, {alias}) => {
+            acc[alias] = alias;
+            return acc;
+          }, {}),
+          ...fields.reduce((acc, field) => {
+            acc[field] = field;
+            return acc;
+          }, {}),
+        }
+
+        return this.request({type, register, date, filters}, [], _fields)
+      }
+
     }
   };
 })();

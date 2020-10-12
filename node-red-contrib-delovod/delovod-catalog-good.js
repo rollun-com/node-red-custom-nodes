@@ -4,6 +4,10 @@ module.exports = function (RED) {
     const node = this;
     this.config = RED.nodes.getNode(config.config);
 
+    const filterToString = filter => filter.map(({alias, operator, value}) => {
+      return `${alias} ${operator} [${value}]`
+    }).join(' and ');
+
     node.on('input', function (msg) {
 
       const makeError = (node, text) => {
@@ -17,19 +21,26 @@ module.exports = function (RED) {
 
       const itemName = global.utils.getTypedFieldValue(msg, config.itemName);
       const parent = global.utils.getTypedFieldValue(msg, config.parent);
+      const storage = global.utils.getTypedFieldValue(msg, config.storage);
       const mainUnit = global.utils.getTypedFieldValue(msg, config.mainUnit);
       const goodType = global.utils.getTypedFieldValue(msg, config.goodType);
       const goodChar = global.utils.getTypedFieldValue(msg, config.goodChar);
 
       const client = new global.delovod.DelovodAPIClient(node.config);
       (async () => {
+
+        const filter = [{alias: "name", operator: "=", value: itemName}]
+          .concat(parent && config.searchByParent
+            ? {alias: 'parent', operator: '=', value: parent}
+            : [])
+
         let items = await client.request(
           'catalogs.goods',
-          [{alias: "name", operator: "=", value: itemName}]
+          filter
         );
 
         if (config.getFirstGoodIfFoundMore !== true && items.length > 1) {
-          msg.payload = {error: `Found 2 or more goods by name - ${itemName}.`};
+          msg.payload = {error: `Found 2 or more goods by ${filterToString(filter)}.`};
           return node.send([msg, null]);
         }
 
@@ -43,12 +54,15 @@ module.exports = function (RED) {
               name: itemName,
               ...(parent && {parent}),
               ...(mainUnit && {mainUnit}),
-              ...(goodType && {goodType})
+              ...(goodType && {goodType}),
+              ...(storage && {storage})
             });
             resultTopic += `Good created - ${id}. `
             good = {id};
           } else {
-            msg.payload = {error: `Item (${itemName}) not found. Enable createGoodIfNotFound flag to automatically create`};
+            msg.payload = {
+              error: `Item not found by ${filterToString(filter)}. Enable createGoodIfNotFound flag to automatically create`
+            };
             return node.send([msg, null]);
           }
         } else {

@@ -14,7 +14,7 @@
         value: "", type: "delovod-config",
         required: true
       },
-        entityType: {
+      entityType: {
         value: "",
         required: true
       },
@@ -147,7 +147,7 @@
       .map(row => {
         const tds = row.querySelectorAll('td');
         return {
-            value: tds[0].innerText.trim(), name: tds[1].innerText.trim()
+          value: tds[0].innerText.trim(), name: tds[1].innerText.trim()
         }
       })
       .filter(({value}) => value[0] === 'd');
@@ -188,43 +188,43 @@
 </script>
 
 <script type="text/html" data-template-name="delovod-get-items">
-    <div class="form-row">
-        <label for="node-input-config"><i class="fa fa-server"></i> Delovod Config</label>
-        <input type="text" id="node-input-config">
-    </div>
-    <div class="form-row">
-        <label for="node-input-entityType"><i class="fa fa-server"></i> Entity</label>
-        <select id="node-input-entityType">
-        </select>
-    </div>
-    <div class="form-row">
-        <label for="node-input-errorField"><i class="fa fa-server"></i> Error Field</label>
-        <input type="text" id="node-input-errorField">
-    </div>
-    <div class="form-row">
-        <label for="node-input-name"><i class="fa fa-server"></i> Name</label>
-        <input type="text" id="node-input-name">
-    </div>
-    <input type="hidden" id="node-input-conditions">
+  <div class="form-row">
+    <label for="node-input-config"><i class="fa fa-server"></i> Delovod Config</label>
+    <input type="text" id="node-input-config">
+  </div>
+  <div class="form-row">
+    <label for="node-input-entityType"><i class="fa fa-server"></i> Entity</label>
+    <select id="node-input-entityType">
+    </select>
+  </div>
+  <div class="form-row">
+    <label for="node-input-errorField"><i class="fa fa-server"></i> Error Field</label>
+    <input type="text" id="node-input-errorField">
+  </div>
+  <div class="form-row">
+    <label for="node-input-name"><i class="fa fa-server"></i> Name</label>
+    <input type="text" id="node-input-name">
+  </div>
+  <input type="hidden" id="node-input-conditions">
 
-    <div class="form-row node-input-rule-container-row">
-        <div class="red-ui-editableList">
-            <div class="red-ui-editableList-border red-ui-editableList-container" style="height: 450px !important;">
-                <ol id="node-input-rule-container" class="red-ui-editableList-list ui-sortable list"
-                    style="min-height: 0px; min-width: 450px; height: auto;">
-                    <li class="red-ui-editableList-item-sortable red-ui-editableList-item-removable">
-                    </li>
-                </ol>
-            </div>
-        </div>
+  <div class="form-row node-input-rule-container-row">
+    <div class="red-ui-editableList">
+      <div class="red-ui-editableList-border red-ui-editableList-container" style="height: 450px !important;">
+        <ol id="node-input-rule-container" class="red-ui-editableList-list ui-sortable list"
+            style="min-height: 0px; min-width: 450px; height: auto;">
+          <li class="red-ui-editableList-item-sortable red-ui-editableList-item-removable">
+          </li>
+        </ol>
+      </div>
     </div>
+  </div>
 </script>
 
 <script type="text/html" data-help-name="delovod-get-item">
-    <h4>A simple node, filters documents of some type</h4>
-    This node returns error if
-    <ul>
-        <li>Delovod returned error</li>
-    </ul>
-    Node returns Array of found documents.
+  <h4>A simple node, filters documents of some type</h4>
+  This node returns error if
+  <ul>
+    <li>Delovod returned error</li>
+  </ul>
+  Node returns Array of found documents.
 </script>

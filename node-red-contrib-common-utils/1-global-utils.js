@@ -42,6 +42,7 @@ module.exports = function (RED) {
      */
 
     getTypedFieldValue: (msg, val = '') => {
+      console.log(msg, val)
       if (!val) return '';
       const [type, value] = global.utils.parseTypedInput(val);
       if (type === 'msg') {

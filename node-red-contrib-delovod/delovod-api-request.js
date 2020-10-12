@@ -11,36 +11,24 @@ module.exports = function (RED) {
         node.send(msg)
       };
 
-
       if (!node.config) return makeError(node, `node.config is required!`);
       if (!config['action']) return makeError(node, `action is required!`);
 
-      const action = config['action'];
-      const payload = msg.payload;
-
-      const url = node.config.host;
-
-      const delovodAPI = new global.delovod.DelovodAPIClient(node.config);
-
-      delovodAPI
-        .baseRequest(action, payload)
+      new global.delovod.DelovodAPIClient(node.config)
+        .baseRequest(config['action'], msg.payload)
         .then(res => {
-
-          msg.payload = res
+          msg.payload = res || null
           node.send(msg);
         })
         .catch(err => {
-
           msg.payload = {error: err.message}
           if (err.response) {
             // cannot serialise response with request property due to circular properties
             err.response.request = null;
+            msg.raw_response = err.response;
           }
-          msg.response = err.response;
           node.send(msg);
         })
-
-      node.send(msg);
     });
   }
 

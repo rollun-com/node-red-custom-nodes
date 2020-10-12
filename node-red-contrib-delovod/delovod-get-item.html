@@ -162,7 +162,7 @@
 
         }
       })
-      .filter(({value}) => value[0] === 'd');
+      .filter(({value}) => value.indexOf('document') === 0);
     const detailedInfo = await Promise.all(docsNames.map(doc => {
       return (async () => {
         const res = await fetch('/ru/mdata/' + doc.value).then(res => res.text());
@@ -259,8 +259,11 @@
   This node returns error if
   <ul>
     <li>No items found</li>
-    <li>Found more than one item (if <b>Get first item, if more than 1 one found</b> enabled, will be returned first item)</li>
+    <li>Found more than one item (if <b>Get first item, if more than 1 one found</b> enabled, will be returned first
+      item)
+    </li>
     <li>Delovod returned error</li>
   </ul>
-  if <b>Additionally request full item data</b> enabled, for item will be done additional read request to get all object fields
+  if <b>Additionally request full item
+    data</b> enabled, for item will be done additional read request to get all object fields
 </script>
