@@ -154,22 +154,16 @@
     <input type="text" id="node-input-config">
   </div>
   <div class="form-row">
-    <label for="node-input-registerType">Register Type</label>
-    <select id="node-input-registerType">
-      <option value="balance">Balance registers</option>
-      <option value="accumulation">Accumulation registers</option>
+    <label for="node-input-register"> Register Type</label>
+    <select id="node-input-register">
     </select>
   </div>
   <h5>Date format: <b>2015-01-01 00:00:00</b> or just date <b>2015-01-01</b></h5>
   <div class="form-row" id="date">
   </div>
-  <div class="form-row">
-    <label for="node-input-register"> Register Type</label>
-    <select id="node-input-register">
-    </select>
-  </div>
   <input type="hidden" id="node-input-conditions">
   <h5>Search conditions, add conditions with an empty value, to force field in output</h5>
+  values like <b>msg.payload</b> will be treated as values from <b>msg</b>
   <div class="form-row node-input-rule-container-row">
     <div class="red-ui-editableList">
       <div class="red-ui-editableList-border red-ui-editableList-container" style="height: 450px !important;">
@@ -184,4 +178,14 @@
 </script>
 
 <script type="text/html" data-help-name="delovod-register">
+  <h5>This node requests registers <a href="https://help.delovod.ua/ru/mdata/balanceRegisters.goods"
+                                      target="_blank">doc</a></h5>
+  config:
+  <ul>
+    <li><b>Register type</b> - type of requested register, see doc</li>
+    <li><b>Date</b> - can be empty</li>
+    <li><b>Search conditions</b> - values in conditions can be from <b>msg</b> like - <b>msg.payload.value</b>. If value
+      is empty, condition will not be searched for, but will be in response fields.
+    </li>
+  </ul>
 </script>
