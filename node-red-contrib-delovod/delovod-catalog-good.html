@@ -32,9 +32,6 @@
       goodChar: {
         value: "msg|payload.goodChar"
       },
-      storage: {
-        value: "const|"
-      },
       name: {
         value: ""
       },
@@ -57,7 +54,6 @@
     oneditprepare: function () {
       window.utils.makeTypedInput('itemName', undefined, undefined, this.itemName);
       window.utils.makeTypedInput('parent', undefined, 'Group (parent)', this.parent);
-      window.utils.makeTypedInput('storage', undefined, 'Storage (catalogs.storages)', this.storage);
       window.utils.makeTypedInput('mainUnit', undefined, 'Unit (mainUnit)', this.mainUnit);
       window.utils.makeTypedInput('goodType', undefined, 'Type (goodType)', this.goodType);
       window.utils.makeTypedInput('goodChar', undefined, `goodChar (Variation)`, this.goodChar);
@@ -81,7 +77,6 @@
     <span>Search also by parent</span>
     <input style="margin-left: 5px; margin-bottom: 6px" type="checkbox" id="node-input-searchByParent">
   </div>
-  <div class="form-row" id="storage"></div>
   <div class="form-row" id="mainUnit"></div>
   <div class="form-row" id="goodType"></div>
   <div class="">

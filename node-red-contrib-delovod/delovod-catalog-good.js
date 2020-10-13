@@ -21,7 +21,6 @@ module.exports = function (RED) {
 
       const itemName = global.utils.getTypedFieldValue(msg, config.itemName);
       const parent = global.utils.getTypedFieldValue(msg, config.parent);
-      const storage = global.utils.getTypedFieldValue(msg, config.storage);
       const mainUnit = global.utils.getTypedFieldValue(msg, config.mainUnit);
       const goodType = global.utils.getTypedFieldValue(msg, config.goodType);
       const goodChar = global.utils.getTypedFieldValue(msg, config.goodChar);
@@ -54,8 +53,7 @@ module.exports = function (RED) {
               name: itemName,
               ...(parent && {parent}),
               ...(mainUnit && {mainUnit}),
-              ...(goodType && {goodType}),
-              ...(storage && {storage})
+              ...(goodType && {goodType})
             });
             resultTopic += `Good created - ${id}. `
             good = {id};
