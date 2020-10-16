@@ -1,3 +1,5 @@
+const {resolvePath} = require('../node-red-contrib-common-utils/1-global-utils');
+
 module.exports = (function (RED) {
   const url = require('url');
 
@@ -62,7 +64,7 @@ module.exports = (function (RED) {
           // resolve path
           .replace(/msg\.[a-zA-Z0-9.]+/g, match => {
             const path = match.replace(/^msg\./, '');
-            return global.tables.Datastore.encodeRQLValue(global.utils.resolvePath(msg, path));
+            return global.tables.Datastore.encodeRQLValue(resolvePath(msg, path));
           })
       }
 

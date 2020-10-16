@@ -1,3 +1,5 @@
+const {getTypedFieldValue} = require('../node-red-contrib-common-utils/1-global-utils');
+
 module.exports = function (RED) {
   function DelovodQuery(config) {
     RED.nodes.createNode(this, config);
@@ -6,7 +8,6 @@ module.exports = function (RED) {
 
 
     node.on('input', function (msg) {
-      const {getTypedFieldValue} = global.utils;
 
       const good = getTypedFieldValue(msg, config.good);
       const price = +getTypedFieldValue(msg, config.price);
