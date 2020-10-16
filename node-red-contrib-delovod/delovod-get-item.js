@@ -1,3 +1,5 @@
+const {resolvePath} = require('../node-red-contrib-common-utils/1-global-utils');
+
 module.exports = function (RED) {
   function Filter(config) {
     RED.nodes.createNode(this, config);
@@ -18,7 +20,7 @@ module.exports = function (RED) {
       const conditions = JSON.parse(config.conditions).map(cond => {
         let value = cond.value;
         if (value.indexOf('msg') === 0) {
-          value = global.utils.resolvePath(msg, value.replace(/^msg\./, ''));
+          value = resolvePath(msg, value.replace(/^msg\./, ''));
         }
         return {...cond, value};
       });

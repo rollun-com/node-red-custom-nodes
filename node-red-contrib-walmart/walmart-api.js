@@ -1,3 +1,5 @@
+const {getTypedFieldValue} = require('../node-red-contrib-common-utils/1-global-utils')
+
 module.exports = function (RED) {
   function WalmartAPI(config) {
 
@@ -26,10 +28,10 @@ module.exports = function (RED) {
 
       // TODO refactor payload to be an object
 
-      const payload = global.utils.getTypedFieldValue(msg, config.payload);
+      const payload = getTypedFieldValue(msg, config.payload);
 
       client[config.method]({
-        // TODO when payload wil be an object, just pass payload to method
+        // TODO when payload will be an object, just pass payload to method
         [config.method === 'getOrder' ? 'orderId' : 'createdStartDate']: payload
       })
         .then(result => {

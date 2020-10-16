@@ -1,3 +1,5 @@
+const {getTypedFieldValue} = require('../node-red-contrib-common-utils/1-global-utils')
+
 module.exports = function (RED) {
   function DeleteDocument(config) {
     RED.nodes.createNode(this, config);
@@ -18,7 +20,7 @@ module.exports = function (RED) {
 
       const client = new global.delovod.DelovodAPIClient(node.config);
 
-      const docId = global.utils.getTypedFieldValue(msg, config.docId);
+      const docId = getTypedFieldValue(msg, config.docId);
 
       client
         .setDelMark(docId, config.forceDelete || false)

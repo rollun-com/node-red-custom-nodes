@@ -1,3 +1,5 @@
+const {getTypedFieldValue} = require('../node-red-contrib-common-utils/1-global-utils')
+
 module.exports = function (RED) {
   function GSheetGetCells(sheetResponseFormatter = data => data) {
     return function (config) {
@@ -19,8 +21,8 @@ module.exports = function (RED) {
         if (!config.sheetURL) return makeError(`sheetURL is required!`);
         if (!config.cells) return makeError(`cells is required!`);
 
-        const sheetURL = global.utils.getTypedFieldValue(msg, config.sheetURL);
-        const cells = global.utils.getTypedFieldValue(msg, config.cells);
+        const sheetURL = getTypedFieldValue(msg, config.sheetURL);
+        const cells = getTypedFieldValue(msg, config.cells);
 
         const parsedURL = URL.parse(sheetURL);
 

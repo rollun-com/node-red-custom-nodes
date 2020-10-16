@@ -1,3 +1,6 @@
+const {getTypedFieldValue} = require('../node-red-contrib-common-utils/1-global-utils')
+
+
 module.exports = function (RED) {
   function DelovodCatalogItem(config) {
     RED.nodes.createNode(this, config);
@@ -19,11 +22,11 @@ module.exports = function (RED) {
       if (!node.config) return makeError(node, `node.config is required!`);
       if (!config.itemName) return makeError(node, `itemName is required!`);
 
-      const itemName = global.utils.getTypedFieldValue(msg, config.itemName);
-      const parent = global.utils.getTypedFieldValue(msg, config.parent);
-      const mainUnit = global.utils.getTypedFieldValue(msg, config.mainUnit);
-      const goodType = global.utils.getTypedFieldValue(msg, config.goodType);
-      const goodChar = global.utils.getTypedFieldValue(msg, config.goodChar);
+      const itemName = getTypedFieldValue(msg, config.itemName);
+      const parent = getTypedFieldValue(msg, config.parent);
+      const mainUnit = getTypedFieldValue(msg, config.mainUnit);
+      const goodType = getTypedFieldValue(msg, config.goodType);
+      const goodChar = getTypedFieldValue(msg, config.goodChar);
 
       const client = new global.delovod.DelovodAPIClient(node.config);
       (async () => {

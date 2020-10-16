@@ -1,3 +1,5 @@
+const {getTypedFieldValue} = require('../node-red-contrib-common-utils/1-global-utils')
+
 module.exports = function (RED) {
   const _ = require('lodash');
 
@@ -29,7 +31,7 @@ module.exports = function (RED) {
           const parsedPayload = JSON.parse(requestPayload);
           const resolve = (acc, [key, value]) => {
             if (typeof value === 'string') {
-              const resolvedValue = global.utils.getTypedFieldValue(msg, value);
+              const resolvedValue = getTypedFieldValue(msg, value);
               resolvedValue && acc.push([key, resolvedValue]);
               return acc;
             }
@@ -42,7 +44,7 @@ module.exports = function (RED) {
               .reduce(resolve, [])
           )
         } catch (e) {
-          return global.utils.getTypedFieldValue(msg, requestPayload)
+          return getTypedFieldValue(msg, requestPayload)
         }
       }
 

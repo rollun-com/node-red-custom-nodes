@@ -1,3 +1,5 @@
+const {getTypedFieldValue} = require('../node-red-contrib-common-utils/1-global-utils')
+
 module.exports = function (RED) {
 
   const _ = require('lodash');
@@ -83,7 +85,7 @@ module.exports = function (RED) {
 
 
         (async () => {
-          let iterable = global.utils.getTypedFieldValue(msg, config.arrayField);
+          let iterable = getTypedFieldValue(msg, config.arrayField);
 
           if (typeof iterable !== 'object') {
             throw new Error('Data in arrayField must be either object or array!');

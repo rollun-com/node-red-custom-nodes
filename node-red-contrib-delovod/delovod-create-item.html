@@ -17,6 +17,9 @@
         value: window.delovod.documents[0].value,
         required: true
       },
+      docId: {
+        value: 'const|'
+      },
       docData: {
         value: "{}"
       },
@@ -30,6 +33,7 @@
     oneditprepare: function () {
       const node = this;
 
+      window.utils.makeTypedInput('docId', undefined, 'Doc ID, set it, to update existing document', node.docId);
 
       const textarea = $('#node-input-docData');
       const setDataValue = newData => typeof newData === 'string'
@@ -68,7 +72,6 @@
                   .attr('type', 'text')
                   .attr('id', 'input-' + value)
               } else {
-                const defaultValue = options[0].options[0].value;
                 const [, initValue = ''] = (initData[value] || '').split('|')
 
                 input = $('<select>')
@@ -97,7 +100,7 @@
           });
         $('#document-create-form')
           .html(`
-            <h3>Простая нода для создания документов в delovod</h3>
+            <h3>Простая нода для создания(обновления) документов в delovod</h3>
             <h4>Все поля находящиеся в <code>msg.header</code> считаются более приоритетными, чем то, что вы настраиваете в натройках ноды</h4>
             <h4>Табличная часть предполагает наличие следующих полей - ${Object.keys(document.fields).filter(name => name !== 'header').join(', ')},
             которые должны быть переданы в эту ноду в <code>msg.tableParts</code>
@@ -157,9 +160,9 @@
   <div class="form-row">
     <label for="node-input-docType"><i class="fa fa-server"></i> Document type</label>
     <select id="node-input-docType">
-
     </select>
   </div>
+  <div class="form-row" id="docId"></div>
   <div class="form-row" id="document-create-form">
 
   </div>
@@ -169,8 +172,10 @@
 <script type="text/html" data-help-name="delovod-create-item">
   <h4>Create document in delovod</h4>
   This node formats header for delovod document, table part expected to be in <code>msg.tableParts</code><br/>
+  If You set Doc ID, instead of creating document, node will update existing document with Your values
   <ul>
-    <li>In case of success msg will be send to 2 output with id of new document</li>
-    <li>In case of error msg will be send to 1 output with <b>error</b></li>
+    <li>In case of success msg will be send to 2 output with id of new (updated) document</li>
+    <li>In case of error msg will be send to 1 output with <b>error</b> in <b>payload</b> and sent document in <b>sentDocument</b>
+    </li>
   </ul>
 </script>

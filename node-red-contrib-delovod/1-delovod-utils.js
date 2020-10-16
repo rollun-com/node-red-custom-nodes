@@ -122,6 +122,7 @@ module.exports = (function () {
        * @param header
        * @param tableParts
        * @param saveType {"SAVE" | "REGISTER" | "UNREGISTER"}
+       * @doc https://help.delovod.ua/ru/API_saveObject
        * @return {Promise<AxiosResponse<*>>}
        */
 

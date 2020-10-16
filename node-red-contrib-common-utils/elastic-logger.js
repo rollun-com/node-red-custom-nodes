@@ -1,3 +1,5 @@
+const {resolvePath, parseTypedInput} = require('../node-red-contrib-common-utils/1-global-utils');
+
 module.exports = function (RED) {
   function ElasticLogger(config) {
     RED.nodes.createNode(this, config);
@@ -93,15 +95,15 @@ module.exports = function (RED) {
       const {value} = Object.values(log_levels).find(({name}) => name === config.level);
 
       (async () => {
-        const [messageFieldType, messageFieldValue] = global.utils.parseTypedInput(config.messageField);
-        const [contextFieldType, contextFieldValue] = global.utils.parseTypedInput(config.contextField);
+        const [messageFieldType, messageFieldValue] = parseTypedInput(config.messageField);
+        const [contextFieldType, contextFieldValue] = parseTypedInput(config.contextField);
 
         const message = messageFieldType === 'msg'
-          ? global.utils.resolvePath(msg, messageFieldValue)
+          ? resolvePath(msg, messageFieldValue)
           : messageFieldValue;
 
         const context = contextFieldType === 'msg'
-          ? global.utils.resolvePath(msg, contextFieldValue)
+          ? resolvePath(msg, contextFieldValue)
           : contextFieldValue;
 
         if (value >= minLogLevelValue) {

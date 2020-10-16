@@ -1,3 +1,5 @@
+const {getTypedFieldValue} = require('../node-red-contrib-common-utils/1-global-utils')
+
 module.exports = function (RED) {
   function FormatTablePart(config) {
     RED.nodes.createNode(this, config);
@@ -19,7 +21,7 @@ module.exports = function (RED) {
           .reduce((acc, [tablePart, tablePartValue]) => {
             const resolveFields = (baseObj) => {
               return Object.entries(tablePartValue)
-                .map(([key, value]) => [key, global.utils.getTypedFieldValue(baseObj, value)])
+                .map(([key, value]) => [key, getTypedFieldValue(baseObj, value)])
                 .reduce((acc, item) => {
                   acc[item[0]] = item[1];
                   return acc;

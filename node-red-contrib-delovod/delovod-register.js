@@ -1,3 +1,5 @@
+const {getTypedFieldValue} = require('../node-red-contrib-common-utils/1-global-utils')
+
 module.exports = function (RED) {
   function RegisterQuery(config) {
     RED.nodes.createNode(this, config);
@@ -18,7 +20,7 @@ module.exports = function (RED) {
           return {
             ...cond,
             value: cond.value.trim().indexOf('msg.') === 0
-              ? global.utils.getTypedFieldValue(msg, 'msg|' + cond.value.replace(/^msg\./, ''))
+              ? getTypedFieldValue(msg, 'msg|' + cond.value.replace(/^msg\./, ''))
               : cond.value.trim()
           }
         })
@@ -34,7 +36,7 @@ module.exports = function (RED) {
           register,
           filters: conditions.filter(({value}) => !!value),
           fields: conditions.filter(({value}) => !value).map(({alias}) => alias),
-          date: global.utils.getTypedFieldValue(msg, config.date)
+          date: getTypedFieldValue(msg, config.date)
         })
         .then(res => {
           msg.payload = res || null;

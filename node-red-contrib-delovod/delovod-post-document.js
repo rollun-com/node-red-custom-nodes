@@ -1,3 +1,6 @@
+const {getTypedFieldValue} = require('../node-red-contrib-common-utils/1-global-utils')
+
+
 module.exports = function (RED) {
   function DelovodPostDocument(config) {
     RED.nodes.createNode(this, config);
@@ -15,7 +18,7 @@ module.exports = function (RED) {
       if (!node.config) return makeError(node, `node.config is required!`);
       if (!config.docId) return makeError(node, `docId is required!`);
 
-      const docId = global.utils.getTypedFieldValue(msg, config.docId);
+      const docId = getTypedFieldValue(msg, config.docId);
 
       (new global.delovod.DelovodAPIClient(node.config))
         .saveObject({

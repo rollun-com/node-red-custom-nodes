@@ -1,4 +1,5 @@
 const _ = require('lodash');
+const {getTypedFieldValue} = require('../node-red-contrib-common-utils/1-global-utils')
 
 module.exports = function (RED) {
   function MWSNode(config) {
@@ -22,7 +23,7 @@ module.exports = function (RED) {
         return node.send([msg, null]);
       }
 
-      let payload = global.utils.getTypedFieldValue(msg, config.actionPayload) || {};
+      let payload = getTypedFieldValue(msg, config.actionPayload) || {};
       if (typeof payload !== "object") {
         msg.payload = {error: `Action payload must be an object`}
         return node.send([msg, null]);
@@ -40,7 +41,7 @@ module.exports = function (RED) {
       );
 
 
-      const version = global.utils.getTypedFieldValue(msg, config.version);
+      const version = getTypedFieldValue(msg, config.version);
 
 
       if (!api[config.actionType]) {

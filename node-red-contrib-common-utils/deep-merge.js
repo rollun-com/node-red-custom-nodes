@@ -1,3 +1,6 @@
+const {getTypedFieldValue, parseTypedInput} = require('../node-red-contrib-common-utils/1-global-utils')
+
+
 module.exports = function (RED) {
   const _ = require('lodash');
 
@@ -6,10 +9,10 @@ module.exports = function (RED) {
     const node = this;
 
     node.on('input', function (msg) {
-      const first = global.utils.getTypedFieldValue(msg, config.first);
-      const second = global.utils.getTypedFieldValue(msg, config.second);
+      const first = getTypedFieldValue(msg, config.first);
+      const second = getTypedFieldValue(msg, config.second);
 
-      const [, resultField] = global.utils.parseTypedInput(config.result);
+      const [, resultField] = (config.result);
 
       msg[resultField] = _.merge(first, second);
       node.send(msg);

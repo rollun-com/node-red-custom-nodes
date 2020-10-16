@@ -1,3 +1,7 @@
+const {getTypedFieldValue} = require('../node-red-contrib-common-utils/1-global-utils')
+
+const crypto = require('crypto');
+
 module.exports = function (RED) {
   function CreateItem(config) {
     RED.nodes.createNode(this, config);
@@ -7,9 +11,9 @@ module.exports = function (RED) {
 
     node.on('input', function (msg) {
 
-      const crypto = require('crypto');
       const docType = config.docType;
       const docData = JSON.parse(config.docData);
+      const docId = getTypedFieldValue(msg, config.docId);
 
       const makeError = (text) => {
 
@@ -25,32 +29,36 @@ module.exports = function (RED) {
         .entries(docData)
         .reduce((acc, [key, val]) => {
           if (!val) return acc;
-          const resolvedValue = global.utils.getTypedFieldValue(msg, val);
+          const resolvedValue = getTypedFieldValue(msg, val);
           if (resolvedValue) {
             acc[key] = resolvedValue;
           }
           return acc;
         }, {});
-      const documentTableParts = msg.tableParts || null;
+      const documentTableParts = msg.tableParts;
 
-      console.log('table parts', documentTableParts);
+      const resultHeader = {
+        ...header,
+        // fields from msg header have more priority
+        ...(msg.header || {}),
+        // use doc it to update doc, if passed, and doc type, to create new document
+        id: docId || docType,
+        number: crypto.randomBytes(7).toString('base64').slice(0, 7),
+      }
+
       const client = new global.delovod.DelovodAPIClient(node.config);
       client
-        .saveObject({
-            ...header,
-            // fields from msg header have more priority
-            ...(msg.header || {}),
-            id: docType,
-            number: crypto.randomBytes(7).toString('base64').slice(0, 7),
-          },
-          documentTableParts
-        )
+        .saveObject(resultHeader, documentTableParts)
         .then(result => {
           msg.payload = result;
           node.send([null, msg]);
         })
         .catch(err => {
           msg.payload = {error: err.message};
+          msg.sentPayload = {
+            header: resultHeader,
+            tableParts: documentTableParts
+          }
           node.send([msg, null])
         })
     })

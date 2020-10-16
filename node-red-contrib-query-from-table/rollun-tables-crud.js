@@ -1,3 +1,5 @@
+const {getTypedFieldValue} = require('../node-red-contrib-common-utils/1-global-utils')
+
 module.exports = function (RED) {
   function DatastoreCRUD(config) {
     RED.nodes.createNode(this, config);
@@ -18,7 +20,7 @@ module.exports = function (RED) {
 
       const datastore = new global.tables.Datastore({URL: url, idField, msg});
 
-      datastore[action]('', global.utils.getTypedFieldValue(msg, config.payload))
+      datastore[action]('', getTypedFieldValue(msg, config.payload))
         .then(result => {
           msg.payload = result;
           if (result && result.error) {

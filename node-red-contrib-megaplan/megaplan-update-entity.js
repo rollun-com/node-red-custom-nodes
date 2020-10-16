@@ -1,3 +1,5 @@
+const {resolvePath, parseTypedInput} = require('../node-red-contrib-common-utils/1-global-utils')
+
 module.exports = function (RED) {
   function MegaplanUpdateEntity(config) {
     RED.nodes.createNode(this, config);
@@ -15,18 +17,18 @@ module.exports = function (RED) {
       if (!config.entity) return makeError(`Entity field is required`);
       if (!config.body) return makeError(`Body field is required`);
 
-      const [entityIdtype, entityIdValue] = global.utils.parseTypedInput(config.entityId);
+      const [entityIdtype, entityIdValue] = parseTypedInput(config.entityId);
 
       const entityId = entityIdtype === 'msg'
-        ? global.utils.resolvePath(msg, entityIdValue.replace('/^msg.', ''))
+        ? resolvePath(msg, entityIdValue.replace('/^msg.', ''))
         : entityIdValue;
 
       if (!entityId) return makeError('Field Entity ID cannot be empty!');
 
-      const [bodyType, bodyValue] = global.utils.parseTypedInput(config.body);
+      const [bodyType, bodyValue] = parseTypedInput(config.body);
 
       const body = bodyType === 'msg'
-        ? global.utils.resolvePath(msg, bodyValue.replace('/^msg.', ''))
+        ? resolvePath(msg, bodyValue.replace('/^msg.', ''))
         : bodyValue;
 
 
