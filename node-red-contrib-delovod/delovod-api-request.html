@@ -77,8 +77,11 @@
       <h5>saveObject (create new object - document, good etc. example of new good payload)</h5>
       <pre>
       {
-         "id": "catalogs.goods",
-         "name": "my_test_item"
+         "header: {
+            "id": "catalogs.goods",
+            "name": "my_test_item",
+            "accPolicy": 1201200000001002 // Goods
+          }
       }
       </pre>
     </li>
@@ -91,7 +94,7 @@
         }
       }
       </pre>
-      <h5>setDelMark (delete document, forceDelete: 1 - also delete, 0 - 1 just mark as `to delete`)</h5>
+      <h5>setDelMark (delete document, forceDelete: 1 - also delete, 0 - just mark as `to delete`)</h5>
       <pre>
       {
         "forceDelete": 1,
@@ -102,7 +105,7 @@
       </pre>
     </li>
     <li>
-      <h5>request (filter any objects, e.g. search good with title <b>my_test_item</b>)</h5>
+      <h5>request (filter any objects, e.g. search good with name <b>my_test_item</b>)</h5>
       <pre>
       {
         "from": "catalogs.goods",

@@ -26,6 +26,7 @@ module.exports = function (RED) {
       const parent = getTypedFieldValue(msg, config.parent);
       const mainUnit = getTypedFieldValue(msg, config.mainUnit);
       const goodType = getTypedFieldValue(msg, config.goodType);
+      const accPolicy = getTypedFieldValue(msg, config.accPolicy);
       const goodChar = getTypedFieldValue(msg, config.goodChar);
 
       const client = new global.delovod.DelovodAPIClient(node.config);
@@ -56,7 +57,8 @@ module.exports = function (RED) {
               name: itemName,
               ...(parent && {parent}),
               ...(mainUnit && {mainUnit}),
-              ...(goodType && {goodType})
+              ...(goodType && {goodType}),
+              ...(accPolicy && {accPolicy}),
             });
             resultTopic += `Good created - ${id}. `
             good = {id};

@@ -63,6 +63,7 @@ module.exports = (function () {
           data.key = this.key;
           data.version = this.version;
           config.data = `packet=${JSON.stringify(data)}`
+          console.log(config.data);
           return config;
         })
       }
