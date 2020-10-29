@@ -25,6 +25,9 @@
       goodType: {
         value: 'const|1004000000000014',
       },
+      accGood: {
+        value: '',
+      },
       unit: {
         value: 'const|1103600000000001',
       },
@@ -56,6 +59,7 @@
       const requiredWithDefault = $('#required-with-default');
       const appendToRequiredWithDef = (...args) => appendInput(requiredWithDefault, ...args);
       appendToRequiredWithDef('goodType', 'Good type (default - Товар)', node.goodType);
+      appendToRequiredWithDef('accGood', 'accGood (good type for new DB)', node.accGood);
       appendToRequiredWithDef('unit', 'Unit (default - ШТ)', node.unit);
     }
   });
@@ -72,4 +76,12 @@
   <h3>Required fields with default values:</h3>
   <div id="required-with-default">
   </div>
+</script>
+
+<script type="text/html" data-help-name="delovod-tablepart-tpGoods">
+  This node formats Your good to table part tpGoods
+
+  <h4>IMPORTANT</h4>
+  <b>Use <b>accGood</b> instead of <b>Good type</b> in new (v10) database</b>
+  accGood example - <code>1119000000001016</code> Goods
 </script>

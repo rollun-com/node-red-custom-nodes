@@ -12,11 +12,14 @@ module.exports = function (RED) {
       const good = getTypedFieldValue(msg, config.good);
       const price = +getTypedFieldValue(msg, config.price);
       const qty = +getTypedFieldValue(msg, config.qty);
+      const accGood = getTypedFieldValue(msg, config.accGood);
       const goodType = getTypedFieldValue(msg, config.goodType);
       const unit = getTypedFieldValue(msg, config.unit);
       msg.payload = {
         good,
-        goodType, // Товар
+        // DEPRECATED goodType
+        ...(goodType && {goodType}),
+        ...(accGood && {accGood}),
         price: price,
         amountCur: price * qty,
         qty: qty,
