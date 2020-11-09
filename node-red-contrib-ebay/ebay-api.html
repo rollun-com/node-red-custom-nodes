@@ -109,7 +109,12 @@
         value: ''
       }
     },
-
+    outputLabels: function (index) {
+      return [
+        'error',
+        'success'
+      ][index]
+    },
     label: function () {
       return this.name || "Ebay API";
     },
