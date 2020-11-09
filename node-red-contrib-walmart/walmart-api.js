@@ -51,7 +51,7 @@ module.exports = function (RED) {
       client[config.apiName][config.methodName](resolvePayload(config.requestPayload))
         .then(result => {
           msg.payload = result;
-          node.send(msg);
+          node.send([null, msg]);
         })
         .catch(err => {
           msg.payload = {err: err.message};
@@ -59,7 +59,7 @@ module.exports = function (RED) {
             status: err.response && err.response.status ? err.response.status : undefined,
             data: err.response && err.response.data ? err.response.data : undefined
           }
-          node.send(msg);
+          node.send([msg, null]);
         })
     });
   }
