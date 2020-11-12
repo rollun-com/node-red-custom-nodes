@@ -14,6 +14,8 @@ module.exports = (function () {
         this.axios = require('axios').create({
           baseURL: config.host
         });
+        const hash = Buffer.from(this.email + this.password).toString('base64');
+        this.cacheFileName = `/data/${hash}-megaplan-auth-token.json`;
         this.axios.interceptors.request.use(async config => {
           if (config.url === 'api/v3/auth/access_token') return config;
           const token = await this._getAuthToken();
@@ -30,10 +32,9 @@ module.exports = (function () {
        * @private
        */
       _getCachedToken() {
-        const cacheTokenFile = '/data/.megaplan-auth-token.json';
         try {
-          if (fs.existsSync(cacheTokenFile)) {
-            const file = fs.readFileSync(cacheTokenFile, 'utf8');
+          if (fs.existsSync(this.cacheFileName)) {
+            const file = fs.readFileSync(this.cacheFileName, 'utf8');
             const data = JSON.parse(file);
             if (!data.access_token || !data.expires_in || !data.created_at) {
               throw new Error('invalid file format - ' + file);
@@ -70,7 +71,7 @@ ${val}`).join('\n');
             'content-type': 'multipart/form-data; boundary=12345'
           }
         });
-        fs.writeFileSync('/data/.megaplan-auth-token.json', JSON.stringify({
+        fs.writeFileSync(this.cacheFileName, JSON.stringify({
           ...result.data,
           created_at: Math.floor(Date.now() / 1000)
         }))

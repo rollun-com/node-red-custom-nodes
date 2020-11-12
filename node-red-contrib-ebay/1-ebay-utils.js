@@ -98,7 +98,8 @@ module.exports = function () {
 
       const axios = require('axios').create({})
 
-      const cacheFileName = '/data/.ebay-auth-token.json';
+      const hash = Buffer.from(refreshToken + clientId + clientSecret).toString('base64');
+      const cacheFileName = `/data/${hash}-ebay-auth-token.json`;
 
       const getCachedToken = () => {
         try {

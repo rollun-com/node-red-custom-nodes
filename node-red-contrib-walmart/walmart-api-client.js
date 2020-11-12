@@ -55,9 +55,12 @@ module.exports = class WalmartAPI {
      * @type {{expires_in: number, access_token: string, created_at: number} | null}
      */
 
-    this.correlationId = '1234hfvgt';//correlationId;
+    this.correlationId = correlationId;
 
     this.authToken = null;
+
+    const hash = Buffer.from(clientId + clientSecret).toString('base64');
+    this.cacheFileName = `/data/${hash}-walmart-auth-token.json`;
 
     this.axios.interceptors.request.use(async config => {
       if (config.url === '/v3/token') return config;
@@ -80,7 +83,6 @@ module.exports = class WalmartAPI {
     if (cachedToken) {
       return cachedToken;
     }
-    console.log('fetch new token');
     const {data} = await this.axios.post('/v3/token', 'grant_type=client_credentials', {
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
@@ -96,7 +98,7 @@ module.exports = class WalmartAPI {
     }
 
     // cache token on disk
-    fs.writeFile('/data/.walmart-auth-token.json', JSON.stringify(this.authToken), (err) => {
+    fs.writeFile(this.cacheFileName, JSON.stringify(this.authToken), (err) => {
       if (err) {
         console.warn('Could cache walmart token on disk');
       }
@@ -119,9 +121,8 @@ module.exports = class WalmartAPI {
     }
 
     if (this.authToken === null) {
-      const cacheTokenFile = '/data/.walmart-auth-token.json';
       try {
-        this.authToken = JSON.parse(fs.readFileSync(cacheTokenFile, 'utf8'));
+        this.authToken = JSON.parse(fs.readFileSync(this.cacheFileName, 'utf8'));
       } catch (e) {
         return null;
       }
