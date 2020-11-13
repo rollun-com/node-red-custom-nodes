@@ -7,7 +7,7 @@ module.exports = function (RED) {
     node.on('input', function (msg) {
       const makeError = (node, text) => {
         msg.payload = {error: text};
-        node.send([msg])
+        node.send([msg, null])
       };
 
       if (!node.config) return makeError(node, `node.config is required!`);
