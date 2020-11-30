@@ -98,7 +98,7 @@ module.exports = function (RED) {
           }
 
           if (iterable.length === 0) {
-            return makeError(node, `${type} is empty! Empty ${type} is not supported yet.`);
+            return node.send([null, null, msg]);
           }
 
           const {req, res} = msg;
@@ -134,8 +134,8 @@ module.exports = function (RED) {
             node.send(msgCopy);
 
             if (isSync) {
-              // store resolve func for promise, to call it from ArrayMapEnd, to 'resume' execution
-              // therefore creating 'sync' effect
+              // store 'resolve' func for promise, to call it from ArrayMapEnd, to 'resume' execution
+              // therefore creating 'sync' iteration effect
               await (new Promise(resolve => {
                 arrayStartPromiseResolvers[msgCopy._msgid] = resolve;
               }))
