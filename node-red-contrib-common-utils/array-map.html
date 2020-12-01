@@ -105,9 +105,9 @@
     Must be enclosed with array-map-end node<br/>
     Node has 3 outputs:
     <ul>
-      <li>1 - everything is alright</li>
-      <li>2 - error</li>
-      <li>3 - empty array (in msg.paylaod)</li>
+        <li>1 - everything is alright</li>
+        <li>2 - error</li>
+        <li>3 - empty array (in msg.paylaod)</li>
     </ul>
     For every element in array or object <code>msg</code> will be sent with props:
     <ul>
@@ -149,7 +149,7 @@
     RED.nodes.registerType('array-map-end', {
         category: 'function',
         inputs: 1,
-        outputs: 1,
+        outputs: 2,
         color: "#c2f4ff",
         icon: "icons/node-red/template.svg",
         paletteLabel: "array-map-end",
@@ -167,6 +167,12 @@
                 value: false
             }
         },
+        outputLabels: function (index) {
+            return [
+                'success',
+                'break'
+            ][index]
+        },
         label: function () {
             return this.name || 'Array map end';
         },
@@ -181,7 +187,7 @@
     RED.nodes.registerType('array-map-end-sync', {
         category: 'function',
         inputs: 1,
-        outputs: 1,
+        outputs: 2,
         color: "#c2f4ff",
         icon: "icons/node-red/template.svg",
         paletteLabel: "array-map-end-sync",
@@ -198,6 +204,12 @@
             filterEmpty: {
                 value: false
             }
+        },
+        outputLabels: function (index) {
+            return [
+                'success',
+                'break'
+            ][index]
         },
         label: function () {
             return this.name || 'Array map end sync';
@@ -245,18 +257,75 @@
 </script>
 
 <script type="text/html" data-help-name="array-map-end">
+    Node hash 2 outputs:
+    <ul>
+        <li><b>1 - success</b> normal case</li>
+        <li><b>2 - break</b> if iteration stopped with array-map-break</li>
+    </ul>
     Must have array-map-start node before, result will be in <code>msg.payload</code><br/>
     Every
     <code>msg.payload</code> field, that will be passed to array-map-end, will be composed to single array or object
     <br/>
-    Filter empty option removes <b>empty</b> (null or undefined) items from result array or object.
+    <b>Filter empty</b> option removes <b>empty</b> (null or undefined) items from result array or object.
     For object, if <code>msg.key</code> is <b>empty</b> (null or undefined), key will be generated automatically
 </script>
 <script type="text/html" data-help-name="array-map-end-sync">
+    Node hash 2 outputs:
+    <ul>
+        <li><b>1 - success</b> normal case</li>
+        <li><b>2 - break</b> if iteration stopped with array-map-break</li>
+    </ul>
     Must have array-map-start-sync node before, result will be in <code>msg.payload</code><br/>
     Every
     <code>msg.payload</code> field, that will be passed to array-map-end, will be composed to single array or object
     <br/>
     Filter empty option removes <b>empty</b> (null or undefined) items from result array or object.
     For object, if <code>msg.key</code> is <b>empty</b> (null or undefined), key will be generated automatically
+
+    If You set msg.payload before array-map-break it will be sent to 'break' output  in array-map-end
+
+    otherwise current iteration result will be sent
+</script>
+
+
+<!-- Array break -->
+
+<script type="text/javascript">
+    "use strict";
+    /*global RED*/
+    RED.nodes.registerType('array-map-break', {
+        category: 'function',
+        inputs: 1,
+        outputs: 1,
+        color: "#c2f4ff",
+        icon: "icons/node-red/template.svg",
+        paletteLabel: "array-map-break",
+        defaults: {},
+        outputLabels: function (index) {
+            return [
+                'success'
+            ][index]
+        },
+        label: function () {
+            return this.name || 'Array map break';
+        },
+        oneditprepare: function () {
+        }
+    });
+
+</script>
+
+<script type="text/html" data-template-name="array-map-break">
+</script>
+
+<script type="text/html" data-help-name="array-map-break">
+    This node 'stops' iteration, and result of iteration will be sent to 'break' output in array-map-end
+
+    This node must have array-map-start before and array-map-end after in pipeline
+
+    Node sets <code>__arrayMapBreakFlag</code> flag to <code>true</code>, do not delete it.
+
+    If You set msg.payload before array-map-break it will be sent to 'break' output  in array-map-end
+
+    otherwise current iteration result will be sent
 </script>
