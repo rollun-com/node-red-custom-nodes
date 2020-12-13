@@ -1,15 +1,15 @@
 const {getTypedFieldValue} = require('../node-red-contrib-common-utils/1-global-utils')
+const WalmartAPIClient = require('./walmart-api-client');
+const _ = require('lodash');
 
 module.exports = function (RED) {
   function WalmartAPI(config) {
-
-    const WalmartAPIClient = require('./walmart-api-client');
-
     RED.nodes.createNode(this, config);
     const node = this;
     this.config = RED.nodes.getNode(config.config);
 
 
+    // TODO move this logic to common module for ebay and walmart
     node.on('input', function (msg) {
       const makeError = text => {
         msg.payload = {error: text};
@@ -23,20 +23,35 @@ module.exports = function (RED) {
         correlationId: msg._msgid
       })
 
-      if (!client[config.method]) return makeError(`invalid method name: ${config.method}`);
+      if (!client[config.apiName]) return makeError(`invalid API name: ${config.apiName}`);
+      if (!client[config.apiName][config.methodName]) return makeError(`invalid method name ${config.methodName} in API ${config.apiName} `);
 
 
-      // TODO refactor payload to be an object
-
-      const payload = getTypedFieldValue(msg, config.payload);
-
-      client[config.method]({
-        // TODO when payload will be an object, just pass payload to method
-        [config.method === 'getOrder' ? 'orderId' : 'createdStartDate']: payload
-      })
+      const resolvePayload = (requestPayload) => {
+        try {
+          const parsedPayload = JSON.parse(requestPayload);
+          const resolve = (acc, [key, value]) => {
+            if (typeof value === 'string') {
+              const resolvedValue = getTypedFieldValue(msg, value);
+              resolvedValue && acc.push([key, resolvedValue]);
+              return acc;
+            }
+            const result = _.toPairs(value).reduce(resolve, []);
+            _.size(result) > 0 && acc.push([key, _.fromPairs(result)])
+            return acc;
+          }
+          return _.fromPairs(
+            _.toPairs(parsedPayload)
+              .reduce(resolve, [])
+          )
+        } catch (e) {
+          return getTypedFieldValue(msg, requestPayload)
+        }
+      }
+      client[config.apiName][config.methodName](resolvePayload(config.requestPayload))
         .then(result => {
           msg.payload = result;
-          node.send(msg);
+          node.send([null, msg]);
         })
         .catch(err => {
           msg.payload = {err: err.message};
@@ -44,7 +59,7 @@ module.exports = function (RED) {
             status: err.response && err.response.status ? err.response.status : undefined,
             data: err.response && err.response.data ? err.response.data : undefined
           }
-          node.send(msg);
+          node.send([msg, null]);
         })
     });
   }

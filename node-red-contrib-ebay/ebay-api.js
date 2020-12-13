@@ -22,7 +22,7 @@ module.exports = function (RED) {
       const methodName = config.methodName;
 
       if (!ebayAPI[apiName][methodName]) {
-        msg.payload = {error: `Unknown method in [${apiName}] API [${methodName}]`};
+        msg.payload = {error: `Unknown method [${methodName}] in [${apiName}] API`};
         return node.send([msg, null]);
       }
 

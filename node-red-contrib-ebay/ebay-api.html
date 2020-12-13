@@ -71,9 +71,6 @@
           }, {
             type: 'string',
             name: 'buyerUsername'
-          }, {
-            type: 'string',
-            name: 'transactionStatus'
           }]
         }]
       }
@@ -112,7 +109,12 @@
         value: ''
       }
     },
-
+    outputLabels: function (index) {
+      return [
+        'error',
+        'success'
+      ][index]
+    },
     label: function () {
       return this.name || "Ebay API";
     },
@@ -164,7 +166,10 @@
 
         // reset container
         container
-          .html(`<h4>Full doc for [${apiName}] API, [${methodName}] method can be found <a style="color: cornflowerblue" href="${docURL}">here</a></h4>`);
+          .html(`
+      <h4>Full doc for [${apiName}] API, [${methodName}] method can be found <a style="color: cornflowerblue" href="${docURL}">here</a></h4>
+      <h4><b>IMPORTANT:</b> If method meant to return an array of items, and nothing has been found by filter, Ebay will return an empty string as response, so as this node in payload.</h4>
+`);
         if (typeof config === 'string') {
           container
             .append(
@@ -214,7 +219,7 @@
                       } else if (type === 'enum') {
                         const currentRequestPayload = getRequestPayload() || {}
                         const currentFilter = currentRequestPayload.filter || {};
-                        const currValue = currentFilter[name] || '';
+                        const [_, currValue = ''] = (currentFilter[name] || '').split('|');
                         div
                           .append([
                             $(`<h5>${name}</h5>`),

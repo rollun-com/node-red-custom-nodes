@@ -1,6 +1,43 @@
 const fs = require('fs');
 const {randomString} = require('rollun-ts-utils');
 
+class MarketplaceAPI {
+  /**
+   *
+   * @param axios - axios instance, that handles authorization
+   */
+  constructor(axios) {
+    this.axios = axios;
+  }
+
+  /**
+   *
+   * @param uri {string}
+   * @param method {"get"|"post"|"delete"|"put"}
+   * @param body {*}
+   * @return {Promise<*>}
+   */
+
+  async baseRequest(uri, method, body = undefined) {
+    const {data} = await this.axios[method](uri, body);
+    return data;
+  }
+
+  async getOrders(params) {
+    const query = Object.entries(params).map(([key, val]) => `${key}=${encodeURIComponent(val)}`).join('&')
+    return this.baseRequest(`/v3/orders?${query}`, 'get');
+  }
+
+  async getOrder(orderId) {
+    return this.baseRequest(`/v3/orders/${orderId}?productInfo=true`, 'get');
+  }
+
+  async getReturns(params) {
+    const query = Object.entries(params).map(([key, val]) => `${key}=${encodeURIComponent(val)}`).join('&')
+    return this.baseRequest(`/v3/orders?${query}`, 'get');
+  }
+}
+
 module.exports = class WalmartAPI {
   constructor({clientId, clientSecret, correlationId}) {
 
@@ -18,9 +55,12 @@ module.exports = class WalmartAPI {
      * @type {{expires_in: number, access_token: string, created_at: number} | null}
      */
 
-    this.correlationId = '1234hfvgt';//correlationId;
+    this.correlationId = correlationId;
 
     this.authToken = null;
+
+    const hash = Buffer.from(clientId + clientSecret).toString('base64');
+    this.cacheFileName = `/data/${hash}-walmart-auth-token.json`;
 
     this.axios.interceptors.request.use(async config => {
       if (config.url === '/v3/token') return config;
@@ -30,6 +70,8 @@ module.exports = class WalmartAPI {
       config.headers['WM_SEC.ACCESS_TOKEN'] = token;
       return config;
     })
+
+    this.marketplace = new MarketplaceAPI(this.axios);
   }
 
   _getAuthHeader(clientId, clientSecret) {
@@ -41,7 +83,6 @@ module.exports = class WalmartAPI {
     if (cachedToken) {
       return cachedToken;
     }
-    console.log('fetch new token');
     const {data} = await this.axios.post('/v3/token', 'grant_type=client_credentials', {
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
@@ -57,7 +98,7 @@ module.exports = class WalmartAPI {
     }
 
     // cache token on disk
-    fs.writeFile('/data/.walmart-auth-token.json', JSON.stringify(this.authToken), (err) => {
+    fs.writeFile(this.cacheFileName, JSON.stringify(this.authToken), (err) => {
       if (err) {
         console.warn('Could cache walmart token on disk');
       }
@@ -80,9 +121,8 @@ module.exports = class WalmartAPI {
     }
 
     if (this.authToken === null) {
-      const cacheTokenFile = '/data/.walmart-auth-token.json';
       try {
-        this.authToken = JSON.parse(fs.readFileSync(cacheTokenFile, 'utf8'));
+        this.authToken = JSON.parse(fs.readFileSync(this.cacheFileName, 'utf8'));
       } catch (e) {
         return null;
       }
@@ -90,27 +130,4 @@ module.exports = class WalmartAPI {
 
     return isExpired(this.authToken) ? null : this.authToken.access_token;
   }
-
-  /**
-   *
-   * @param uri {string}
-   * @param method {"get"|"post"|"delete"|"put"}
-   * @param body {*}
-   * @return {Promise<*>}
-   */
-
-  async baseRequest(uri, method, body = undefined) {
-    const {data} = await this.axios[method](uri, body);
-    return data;
-  }
-
-  async getOrders({createdStartDate, createdEndDate}) {
-    const query = createdStartDate ? `createdStartDate=${createdStartDate}` : '';
-    return this.baseRequest(`/v3/orders?${query}`, 'get');
-  }
-
-  async getOrder({orderId}) {
-    return this.baseRequest(`/v3/orders/${orderId}?productInfo=true`, 'get');
-  }
-
 }
