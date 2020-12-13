@@ -104,14 +104,15 @@ module.exports = (function (RED) {
             if (res.error) throw new Error(res.error);
             return fullResponse ? res : res.data
           })
+          // rethrow error, with different message, if key error exists in response
           .catch(err => {
-            // return without exception, to be able to properly send error message. and response.
-            return fullResponse
-              ? (err.response || err)
-              : {
-                error: err.message,
-                response: err.response ? err.response.data : undefined
+            if (err.response && err.response.data) {
+              if (err.response.data.error) {
+                throw new Error(err.response.data.error);
               }
+              throw new Error(JSON.stringify(err.response.data));
+            }
+            throw err;
           });
       }
 
@@ -156,7 +157,6 @@ module.exports = (function (RED) {
 
       async getFirst(_uri, _rql = '', fullResponse = false) {
         const rql = global.tables.Datastore.resolveRQLWithREDMsg(_rql, this.msg);
-        console.log('rql', rql);
         return global.tables.Datastore._withResponseFormatter(this.axios
             .get(`${this.pathname}${tables.Datastore._getUri(_uri)}?${rql}`)
             .then(result => {

@@ -21,7 +21,7 @@ module.exports = function (RED) {
       datastore
         .getFirst('', processedRql)
         .then(result => {
-
+          console.log('Success', result);
           if (result === null) {
             msg.payload = {error: 'No records found, or found 2 or more by this filter -' + processedRql};
             node.send([msg, null]);
