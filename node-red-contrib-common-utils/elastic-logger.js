@@ -90,19 +90,22 @@ module.exports = function (RED) {
             port: node.config.logstashPort
         });
 
+
         node.on('input', function (msg) {
+            const logLevel = msg.level || config.level;
             const {value: minLogLevelValue} = Object.values(log_levels).find(({name}) => name === node.config.minLevel);
-            const {value} = Object.values(log_levels).find(({name}) => name === config.level);
+            const level = Object.values(log_levels).find(({name}) => name === logLevel);
 
             (async () => {
-                if (value >= minLogLevelValue) {
+                // in passed level is not standard, log anyway
+                if (!level || level.value >= minLogLevelValue) {
+                    const message = getTypedFieldValue(msg, config.messageField);
+                    const context = getTypedFieldValue(msg, config.contextField);
+
                     try {
-
-                        const message = getTypedFieldValue(msg, config.messageField);
-                        const context = getTypedFieldValue(msg, config.contextField);
-
                         if (typeof message !== 'string') throw new Error(`message must be of type string - ${typeof message} given!`);
-                        await logger.log(config.level, message || 'default message', context || {}, msg._msgid);
+                        console.log(logLevel, message || 'default message', context || {}, msg._msgid);
+                        await logger.log(logLevel, message || 'default message', context || {}, msg._msgid);
                         // node.warn({
                         //   topic: `Message logged to elasticsearch.`,
                         //   message, context

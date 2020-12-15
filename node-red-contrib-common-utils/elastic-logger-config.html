@@ -26,7 +26,7 @@
     oneditprepare: function () {
       $('#node-config-input-minLevel')
         .html(Object.values(window.logger.log_levels).map(({name, description}) =>
-          `<option ${this.minLevel === name ? 'selected' : ''} value="${name}">${name} - ${description}</option>`
+          `<option ${this.minLevel === name ? 'selected' : ''} value="${name}">${name}</option>`
         ).join('\n'))
     }
   });

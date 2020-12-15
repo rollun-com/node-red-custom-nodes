@@ -30,11 +30,11 @@
       return `[${this.level.toUpperCase()}] ${this.name}`;
     },
     oneditprepare: function () {
-      window.utils.makeTypedInput('messageField')
-      window.utils.makeTypedInput('contextField')
+      window.utils.makeTypedInput('messageField');
+      window.utils.makeTypedInput('contextField');
       $('#node-input-level')
-        .html(Object.values(window.logger.log_levels).map(({name, description}) =>
-          `<option ${this.level === name ? 'selected' : '' } value="${name}">${name} - ${description}</option>`
+        .html(Object.values(window.logger.log_levels).map(({name}) =>
+          `<option ${this.level === name ? 'selected' : '' } value="${name}">${name}</option>`
         ).join('\n'))
     }
   });
@@ -59,6 +59,7 @@
     <input type="hidden" id="node-input-contextField">
     <input type="text" id="node-input-contextField-view">
   </div>
+  <h4>Log level in <code>msg.level</code> has more priority</h4>
   <div class="form-row">
     <label for="node-input-level">Log Level</label>
     <select id="node-input-level">
