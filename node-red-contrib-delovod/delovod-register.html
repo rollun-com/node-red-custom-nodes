@@ -45,7 +45,7 @@
         ).join('\n'))
         .val(node.register)
         .on('change', e => {
-          console.log('change', e.target.value, isFirstSelectRender)
+
           currRegister = e.target.value
           if (!isFirstSelectRender) {
             $("ol.list").editableList('empty');
@@ -87,7 +87,7 @@
           const optionsFactory = (options) =>
             options.map(({name, value}) => `<option value="${value}">${name} (${value})</option>`).join('\n');
 
-          console.log('currRegister', register, Object.values(register.fields).flat());
+
           const selectField = $('<select>').css('margin-top', '10px')
             .attr('id', 'select-document-type-condition-#' + index)
             .change(e => handleConditionChange('alias', e.target.value, getIndex(e)))

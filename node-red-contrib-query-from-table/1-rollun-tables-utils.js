@@ -140,7 +140,7 @@ module.exports = (function (RED) {
 
       async query(_uri, _rql = '', fullResponse = false) {
         const rql = global.tables.Datastore.resolveRQLWithREDMsg(_rql, this.msg);
-        console.log('rql', rql);
+
         return global.tables.Datastore._withResponseFormatter(this.axios
             .get(`${this.pathname}${tables.Datastore._getUri(_uri)}?${rql}`),
           fullResponse

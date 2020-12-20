@@ -120,7 +120,7 @@
     },
     oneditprepare() {
       const setRequestPayload = (newPayload) => {
-        console.log('set', newPayload);
+
         if (typeof newPayload === 'object') {
           $('#node-input-requestPayload').val(JSON.stringify(newPayload));
         } else {

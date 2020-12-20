@@ -114,13 +114,13 @@ module.exports = function (RED) {
           try {
             if (typeof message !== 'string') throw new Error(`message must be of type string - ${typeof message} given!`);
             await logger.log(logLevel, message || 'default message', context || {}, msg._msgid);
-            node.warn({
-              topic: `Message logged to elasticsearch.`,
-              message, context
-            })
+            // node.warn({
+            //   topic: `Message logged to elasticsearch.`,
+            //   message, context
+            // })
           } catch (err) {
             node.warn({
-              topic: `Error: ${err.message}.`,
+              topic: `Could not log message: ${err.message}.`,
               message, context
             })
           }
