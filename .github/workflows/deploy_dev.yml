@@ -27,3 +27,6 @@ jobs:
       
     - name: Deploy cto node-red instance
       run: curl ${{secrets.CTO_NR_HOOK}}
+    
+    - name: Deploy accounting instance
+      run: curl ${{secrets.ACCOUNTING_NR_HOOK}}
