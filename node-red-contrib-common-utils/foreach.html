@@ -55,7 +55,6 @@
 
     const candidateNodes = RED.nodes.filterNodes({type: 'foreach-end'});
 
-    console.log('candidateNodes', candidateNodes);
 
     const search = $("#node-input-link-target-filter").searchBox({
       style: "compact",
@@ -99,6 +98,12 @@
       })
     }
 
+    console.log({
+      candidateNodes,
+      flows,
+      flowMap
+    });
+
 
     candidateNodes.forEach(function (n) {
       if (flowMap[n.z]) {
@@ -119,7 +124,6 @@
       return f.children.length > 0
     });
 
-    console.log('flows', flows);
     treeList.treeList('data', flows);
     setTimeout(function () {
       treeList.treeList('show', node.z);
