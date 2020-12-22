@@ -157,7 +157,9 @@
     oneditsave: function () {
       const node = this;
       const {noderedTreeList} = treeList.data();
-      const selectedAmount = noderedTreeList?._selected?.size;
+      const selectedAmount = noderedTreeList && noderedTreeList._selected
+        ? noderedTreeList._selected.size
+        : 0;
       if (selectedAmount > 1) {
         alert('Selected more than 1 foreach-end nodes, only 1 is permitted. (first one will be used)')
       }
@@ -313,7 +315,9 @@
     oneditsave: function () {
       const node = this;
       const {noderedTreeList} = breakTreeList.data();
-      const selectedAmount = noderedTreeList?._selected?.size;
+      const selectedAmount = noderedTreeList && noderedTreeList._selected
+        ? noderedTreeList._selected.size
+        : 0;
       if (selectedAmount > 1) {
         alert('Selected more than 1 foreach-end nodes, only 1 is permitted. (first one will be used)')
       }
