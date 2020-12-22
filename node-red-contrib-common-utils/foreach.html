@@ -129,7 +129,7 @@
   RED.nodes.registerType('foreach-start', {
     category: 'function',
     inputs: 1,
-    outputs: 1,
+    outputs: 2,
     color: "#c2f4ff",
     icon: "icons/node-red/template.svg",
     paletteLabel: "foreach-start",
@@ -146,8 +146,8 @@
     },
     outputLabels: function (index) {
       return [
-        'success',
-        'error'
+        'error',
+        'success'
       ][index]
     },
     label: function () {
@@ -157,7 +157,7 @@
     oneditsave: function () {
       const node = this;
       const {noderedTreeList} = treeList.data();
-      const selectedAmount = noderedTreeList._selected.size;
+      const selectedAmount = noderedTreeList?._selected?.size;
       if (selectedAmount > 1) {
         alert('Selected more than 1 foreach-end nodes, only 1 is permitted. (first one will be used)')
       }
@@ -182,6 +182,7 @@
     },
     outputLabels: function (index) {
       return [
+        'break',
         'success'
       ][index]
     },
@@ -312,7 +313,7 @@
     oneditsave: function () {
       const node = this;
       const {noderedTreeList} = breakTreeList.data();
-      const selectedAmount = noderedTreeList._selected.size;
+      const selectedAmount = noderedTreeList?._selected?.size;
       if (selectedAmount > 1) {
         alert('Selected more than 1 foreach-end nodes, only 1 is permitted. (first one will be used)')
       }

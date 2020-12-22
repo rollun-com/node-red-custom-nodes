@@ -42,6 +42,14 @@ class ArrayMapState {
     return Object.keys(this.arrayMapResults[_msgid]).length === totalItemsAmount;
   };
 
+  initResult({_msgid, type}) {
+    this.arrayMapResults[_msgid] = type === 'array' ? [] : {};
+  }
+
+  isIterationInProgress({_msgid}) {
+    return this.arrayMapResults[_msgid];
+  }
+
   getResult({_msgid, type}, filterEmpty = false) {
     const toDel = (val) => val !== null && val !== undefined;
     if (type === 'array') {
@@ -94,10 +102,8 @@ class ArrayMapState {
   }
 
   getResolveFn({_msgid}) {
-    // console.log('get', _msgid);
     return this.resolveFn[_msgid];
   }
-
 }
 
 module.exports = {
