@@ -6,6 +6,7 @@ module.exports = function (RED) {
   const state = new ForEachState(RED);
 
   function getMetaInfoKey(n) {
+    if (!n) return 'unknown_node';
     return (n.name || n.id).replace(/\s/g, '').toLowerCase();
   }
 
@@ -19,9 +20,8 @@ module.exports = function (RED) {
 
     // add timeout to let foreach-end mount
     setTimeout(() => {
-      RED.nodes
-        .getNode(n.link)
-        .link = n.id;
+      const endNode = RED.nodes.getNode(n.link);
+      endNode && (endNode.link = n.id);
     }, 100);
 
     const handler = function (msg) {
@@ -133,7 +133,7 @@ module.exports = function (RED) {
       // foreach-start after break happened
       setTimeout(() => {
         const self = RED.nodes.getNode(n.id);
-        state.addToResult(msg, getMetaInfoKey(RED.nodes.getNode(self.link)),  n.arrayField);
+        state.addToResult(msg, getMetaInfoKey(RED.nodes.getNode(self.link)), n.arrayField);
         RED.events.emit(backChannelEvent, msg);
       }, 100);
     });
