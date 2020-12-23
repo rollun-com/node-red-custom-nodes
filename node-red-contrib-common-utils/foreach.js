@@ -1,25 +1,39 @@
-const {ArrayMapState} = require("./array-map-state");
+const {ForEachState} = require("./array-map-state");
 const {getTypedFieldValue} = require('../node-red-contrib-common-utils/1-global-utils');
 
 module.exports = function (RED) {
 
-  const state = new ArrayMapState(RED);
+  const state = new ForEachState(RED);
+
+  function getMetaInfoKey(n) {
+    return (n.name || n.id).replace(/\s/g, '').toLowerCase();
+  }
 
   function ForEachStart(n) {
     RED.nodes.createNode(this, n);
+    console.log('ForEachStart', n);
     const node = this;
     const event = "node:" + n.link;
     const backChannelEvent = 'back_channel_' + event;
+    const metaInfoKey = getMetaInfoKey(n);
+
+    // add timeout to let foreach-end mount
+    setTimeout(() => {
+      RED.nodes
+        .getNode(n.link)
+        .link = n.id;
+    }, 100);
 
     const handler = function (msg) {
-      const resolve = state.getResolveFn(msg);
+      const resolve = state.getResolveFn(msg, metaInfoKey);
       resolve && resolve();
     };
 
     RED.events.on(backChannelEvent, handler);
 
     this.on("input", async function (msg) {
-      if (state.isIterationInProgress(msg)) {
+
+      if (state.isIterationInProgress(msg, metaInfoKey)) {
         msg.error = 'iteration_is_already_in_progress';
         return node.send(msg);
       }
@@ -44,23 +58,25 @@ module.exports = function (RED) {
       }
 
       try {
-        msg.size = iterable.length;
-        msg.type = type;
 
-        state.initResult(msg);
+        msg[metaInfoKey + msg._msgid] = {
+          size: iterable.length,
+          type: type
+        };
+
+        state.initResult(msg, metaInfoKey);
 
         for (const [key, value] of iterable) {
           // indexes are strings after Object.entries function applied to array
-          msg.key = type === 'array' ? +key : key;
+          msg[metaInfoKey + msg._msgid].key = type === 'array' ? +key : key;
           msg.value = value;
 
           node.send([null, msg]);
           console.log('sent message', key, value);
           await new Promise((resolve, reject) => {
-            state.addResolveFn(msg, resolve);
-            state.addBreakFn(msg, reject);
-          })
-          console.log('after promise');
+            state.addResolveFn(msg, metaInfoKey, resolve);
+            state.addBreakFn(msg, metaInfoKey, reject);
+          });
         }
         msg.__stopReason = 'iteration_end';
         RED.events.emit(event, msg);
@@ -77,15 +93,12 @@ module.exports = function (RED) {
 
   RED.nodes.registerType("foreach-start", ForEachStart);
 
-  function cleanUpMsg(msg, state) {
-    delete msg.key;
-    delete msg.value;
-    delete msg.size;
-    delete msg.type;
+  function cleanUpMsg(msg, state, metaInfoKey) {
+    delete msg[metaInfoKey + msg._msgid];
     delete msg.__errorReason;
     delete msg.__stopReason;
-    state.clearResult(msg);
-    state.clearResolveFn(msg);
+    state.clearResult(msg, metaInfoKey);
+    state.clearResolveFn(msg, metaInfoKey);
   }
 
   function ForEachEnd(n) {
@@ -95,16 +108,18 @@ module.exports = function (RED) {
     const node = this;
 
     const handler = function (msg) {
+      const self = RED.nodes.getNode(n.id);
+      const metaInfoKey = getMetaInfoKey(RED.nodes.getNode(self.link));
       if (msg.__stopReason === 'break') {
-        cleanUpMsg(msg, state);
+        cleanUpMsg(msg, state, metaInfoKey);
         return node.send(msg);
       }
       if ([
         'empty_iterable',
         'iteration_end'
       ].includes(msg.__stopReason)) {
-        msg.payload = state.getResult(msg);
-        cleanUpMsg(msg, state);
+        msg.payload = state.getResult(msg, metaInfoKey);
+        cleanUpMsg(msg, state, metaInfoKey);
         return node.send([null, msg]);
       }
       return node.send(msg);
@@ -116,8 +131,9 @@ module.exports = function (RED) {
       // add little delay, to resolve issue, when message comes to foreach-end faster than
       // foreach-break, when no other delays exists, foreach-end may trigger another message from
       // foreach-start after break happened
-      setInterval(() => {
-        state.addToResult(msg, getTypedFieldValue(msg, n.arrayField) || null);
+      setTimeout(() => {
+        const self = RED.nodes.getNode(n.id);
+        state.addToResult(msg, getMetaInfoKey(RED.nodes.getNode(self.link)),  n.arrayField);
         RED.events.emit(backChannelEvent, msg);
       }, 100);
     });
@@ -131,7 +147,7 @@ module.exports = function (RED) {
   function ForEachBreak(n) {
     RED.nodes.createNode(this, n);
     this.on("input", function (msg) {
-      const reject = state.getBreakFn(msg);
+      const reject = state.getBreakFn(msg, getMetaInfoKey(RED.nodes.getNode(n.link)));
       console.log('break', reject);
       reject && reject();
       msg.__stopReason = 'break';
