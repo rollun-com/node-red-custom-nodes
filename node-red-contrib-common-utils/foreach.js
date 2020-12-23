@@ -3,16 +3,31 @@ const {getTypedFieldValue} = require('../node-red-contrib-common-utils/1-global-
 
 module.exports = function (RED) {
 
-  const state = new ForEachState(RED);
+  let forEachStatesMap = {};
+
+  const getForEachState = (startNodeId, msgid) => {
+    return forEachStatesMap[`${startNodeId}_${msgid}`];
+  };
+
+  const createForEachState = (startNodeId, msgid) => {
+    return forEachStatesMap[`${startNodeId}_${msgid}`] = new ForEachState();
+  };
+
+  const deleteForEachState = (startNodeId, msgid) => {
+    delete forEachStatesMap[`${startNodeId}_${msgid}`];
+  };
 
   function getMetaInfoKey(n) {
     if (!n) return 'unknown_node';
     return (n.name || n.id).replace(/\s/g, '').toLowerCase();
   }
 
+  function getStateFieldName(nodeId, msgid) {
+    return `__foreach_state_${nodeId}_${msgid}`;
+  }
+
   function ForEachStart(n) {
     RED.nodes.createNode(this, n);
-    console.log('ForEachStart', n);
     const node = this;
     const event = "node:" + n.link;
     const backChannelEvent = 'back_channel_' + event;
@@ -22,9 +37,10 @@ module.exports = function (RED) {
     setTimeout(() => {
       const endNode = RED.nodes.getNode(n.link);
       endNode && (endNode.link = n.id);
-    }, 100);
+    }, 50);
 
     const handler = function (msg) {
+      const state = getForEachState(n.id, msg._msgid);
       const resolve = state.getResolveFn(msg, metaInfoKey);
       resolve && resolve();
     };
@@ -32,9 +48,11 @@ module.exports = function (RED) {
     RED.events.on(backChannelEvent, handler);
 
     this.on("input", async function (msg) {
+      const state = createForEachState(n.id, msg._msgid);
 
       if (state.isIterationInProgress(msg, metaInfoKey)) {
-        msg.error = 'iteration_is_already_in_progress';
+        msg.payload = {error: 'iteration_is_already_in_progress'};
+        delete msg[getStateFieldName(n.id, msg._msgid)];
         return node.send(msg);
       }
 
@@ -42,11 +60,13 @@ module.exports = function (RED) {
         msg.__errorReason = 'no_input_iterable';
         return RED.events.emit(event, msg);
       }
+
       let iterable = getTypedFieldValue(msg, n.arrayField);
       const type = Array.isArray(iterable) ? 'array' : (typeof iterable === 'object' ? 'object' : '');
 
       if (!type) {
-        msg.error = 'invalid_iterable_type';
+        msg.payload = {error: 'invalid_iterable_type'};
+        deleteForEachState(n.id, msg._msgid);
         return node.send(msg);
       }
 
@@ -58,8 +78,7 @@ module.exports = function (RED) {
       }
 
       try {
-
-        msg[metaInfoKey + msg._msgid] = {
+        msg[metaInfoKey] = {
           size: iterable.length,
           type: type
         };
@@ -68,14 +87,13 @@ module.exports = function (RED) {
 
         for (const [key, value] of iterable) {
           // indexes are strings after Object.entries function applied to array
-          msg[metaInfoKey + msg._msgid].key = type === 'array' ? +key : key;
-          msg.value = value;
+          msg[metaInfoKey].key = type === 'array' ? +key : key;
+          msg[metaInfoKey].value = value;
 
-          node.send([null, msg]);
-          console.log('sent message', key, value);
           await new Promise((resolve, reject) => {
             state.addResolveFn(msg, metaInfoKey, resolve);
             state.addBreakFn(msg, metaInfoKey, reject);
+            node.send([null, msg]);
           });
         }
         msg.__stopReason = 'iteration_end';
@@ -93,12 +111,11 @@ module.exports = function (RED) {
 
   RED.nodes.registerType("foreach-start", ForEachStart);
 
-  function cleanUpMsg(msg, state, metaInfoKey) {
-    delete msg[metaInfoKey + msg._msgid];
+  function cleanUpMsg(msg, startNodeId, metaInfoKey) {
+    delete msg[metaInfoKey];
     delete msg.__errorReason;
     delete msg.__stopReason;
-    state.clearResult(msg, metaInfoKey);
-    state.clearResolveFn(msg, metaInfoKey);
+    deleteForEachState(startNodeId, msg._msgid);
   }
 
   function ForEachEnd(n) {
@@ -109,17 +126,21 @@ module.exports = function (RED) {
 
     const handler = function (msg) {
       const self = RED.nodes.getNode(n.id);
-      const metaInfoKey = getMetaInfoKey(RED.nodes.getNode(self.link));
+      const startNode = RED.nodes.getNode(self.link);
+      const state = getForEachState(self.link, msg._msgid);
+      const metaInfoKey = getMetaInfoKey(startNode);
       if (msg.__stopReason === 'break') {
-        cleanUpMsg(msg, state, metaInfoKey);
+        cleanUpMsg(msg, self.link, metaInfoKey);
         return node.send(msg);
       }
       if ([
         'empty_iterable',
         'iteration_end'
       ].includes(msg.__stopReason)) {
-        msg.payload = state.getResult(msg, metaInfoKey);
-        cleanUpMsg(msg, state, metaInfoKey);
+        if (state) {
+          msg.payload = state.getResult(msg, metaInfoKey);
+        }
+        cleanUpMsg(msg, self.link, metaInfoKey);
         return node.send([null, msg]);
       }
       return node.send(msg);
@@ -133,7 +154,12 @@ module.exports = function (RED) {
       // foreach-start after break happened
       setTimeout(() => {
         const self = RED.nodes.getNode(n.id);
-        state.addToResult(msg, getMetaInfoKey(RED.nodes.getNode(self.link)), n.arrayField);
+        const startNode = RED.nodes.getNode(self.link);
+        const state = getForEachState(self.link, msg._msgid);
+        if (state) {
+          state.addToResult(msg, getMetaInfoKey(startNode), n.arrayField);
+        }
+
         RED.events.emit(backChannelEvent, msg);
       }, 100);
     });
@@ -147,9 +173,13 @@ module.exports = function (RED) {
   function ForEachBreak(n) {
     RED.nodes.createNode(this, n);
     this.on("input", function (msg) {
-      const reject = state.getBreakFn(msg, getMetaInfoKey(RED.nodes.getNode(n.link)));
-      console.log('break', reject);
+      const endNode = RED.nodes.getNode(n.link);
+      const startNode = endNode && RED.nodes.getNode(endNode.link);
+      const metaInfoKey = getMetaInfoKey(startNode);
+      const state = msg[getStateFieldName(self.link, msg._msgid)];
+      const reject = state && state.getBreakFn(msg, metaInfoKey);
       reject && reject();
+      state && state.clearBreakFn(msg, metaInfoKey);
       msg.__stopReason = 'break';
       RED.events.emit("node:" + n.link, msg);
     });

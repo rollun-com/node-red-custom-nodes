@@ -1,5 +1,6 @@
 const _ = require('lodash');
 const {getTypedFieldValue} = require('../node-red-contrib-common-utils/1-global-utils');
+const {randomString} = require('rollun-ts-utils');
 
 /**
  * This class holds state for array-start and array-end nodes
@@ -108,54 +109,59 @@ class ArrayMapState {
 }
 
 class ForEachState {
-  constructor(RED) {
-    this.RED = RED;
+  constructor() {
+    this.id = Math.random().toString();
 
-    // map - [foreach-start node id + _msgid]: array|object of results
+    // map - [foreach-start node name | id]: array|object of results
     // DO NOT MODIFY DIRECTLY
     this.results = {};
 
-    // map - [foreach-start node id + _msgid]: function to stop iteration
+    // map - [foreach-start node name | id]: function to stop iteration
     this.breakFn = {};
 
-    // map - [foreach-start node id + _msgid]: function to continue iteration
+    // map - [foreach-start node name | id]: function to continue iteration
     this.resolveFn = {};
 
   }
 
   addToResult(msg, metaInfoKey, arrayField) {
-    const {_msgid, type, key} = msg;
+    const {_msgid} = msg;
+    const {type, key} = msg[metaInfoKey];
     const result = getTypedFieldValue(msg, arrayField);
 
-    if (!this.results[metaInfoKey + _msgid]) {
+    if (!this.results[metaInfoKey]) {
       this.initResult({_msgid, key}, metaInfoKey);
     }
     if (type === 'array') {
-      this.results[metaInfoKey + _msgid].push(result);
-    } else {
-      const objectKey = key || this.RED.util.generateId();
-      this.results[metaInfoKey + _msgid][objectKey] = result;
+      this.results[metaInfoKey].push(result);
+    }
+    if (type === 'object') {
+      const objectKey = key || randomString(10);
+      this.results[metaInfoKey][objectKey] = result;
     }
   };
 
-  initResult({_msgid, type}, metaInfoKey) {
-    this.results[metaInfoKey + _msgid] = type === 'array' ? [] : {};
+  initResult(msg, metaInfoKey) {
+    const {type} = msg[metaInfoKey];
+    this.results[metaInfoKey] = type === 'array' ? [] : {};
   }
 
   isIterationInProgress({_msgid}, metaInfoKey) {
-    return !!this.results[metaInfoKey + _msgid];
+    return !!this.results[metaInfoKey];
   }
 
-  getResult({_msgid, type}, metaInfoKey, filterEmpty = false) {
+  getResult(msg, metaInfoKey, filterEmpty = false) {
     const toDel = (val) => val !== null && val !== undefined;
+    const {type} = msg[metaInfoKey];
+
     if (type === 'array') {
-      const arr = this.results[metaInfoKey + _msgid] || [];
+      const arr = this.results[metaInfoKey] || [];
       return filterEmpty
         ? arr.filter(toDel)
         : arr
     }
     if (type === 'object') {
-      const obj = this.results[metaInfoKey + _msgid] || {};
+      const obj = this.results[metaInfoKey] || {};
       return filterEmpty
         ? Object.entries(obj)
           .filter(([, val]) => toDel(val))
@@ -168,37 +174,38 @@ class ForEachState {
   };
 
   clearResult({_msgid}, metaInfoKey) {
-    if (this.results[metaInfoKey + _msgid]) {
-      delete this.results[metaInfoKey + _msgid];
+    if (this.results[metaInfoKey]) {
+      delete this.results[metaInfoKey];
     }
   };
+
   //
   addBreakFn({_msgid}, metaInfoKey, breakFn) {
-    this.breakFn[metaInfoKey + _msgid] = breakFn;
+    this.breakFn[metaInfoKey] = breakFn;
   }
 
   getBreakFn({_msgid}, metaInfoKey) {
-    return this.breakFn[metaInfoKey + _msgid];
+    return this.breakFn[metaInfoKey];
   }
 
   clearBreakFn({_msgid}, metaInfoKey) {
-    if (this.breakFn[metaInfoKey + _msgid]) {
-      delete this.breakFn[metaInfoKey + _msgid];
+    if (this.breakFn[metaInfoKey]) {
+      delete this.breakFn[metaInfoKey];
     }
   }
 
   addResolveFn({_msgid}, metaInfoKey, resolveFn) {
-    this.resolveFn[metaInfoKey + _msgid] = resolveFn;
+    this.resolveFn[metaInfoKey] = resolveFn;
   }
 
   clearResolveFn({_msgid}, metaInfoKey) {
-    if (this.resolveFn[metaInfoKey + _msgid]) {
-      delete this.resolveFn[metaInfoKey + _msgid];
+    if (this.resolveFn[metaInfoKey]) {
+      delete this.resolveFn[metaInfoKey];
     }
   }
 
   getResolveFn({_msgid}, metaInfoKey) {
-    return this.resolveFn[metaInfoKey + _msgid];
+    return this.resolveFn[metaInfoKey];
   }
 }
 
