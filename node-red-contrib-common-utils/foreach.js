@@ -52,7 +52,7 @@ module.exports = function (RED) {
 
       if (state.isIterationInProgress(msg, metaInfoKey)) {
         msg.payload = {error: 'iteration_is_already_in_progress'};
-        delete msg[getStateFieldName(n.id, msg._msgid)];
+        deleteForEachState(n.id, msg._msgid);
         return node.send(msg);
       }
 
@@ -63,6 +63,13 @@ module.exports = function (RED) {
 
       let iterable = getTypedFieldValue(msg, n.arrayField);
       const type = Array.isArray(iterable) ? 'array' : (typeof iterable === 'object' ? 'object' : '');
+
+      msg[metaInfoKey] = {
+        size: iterable.length,
+        type: type
+      };
+
+      state.initResult(msg, metaInfoKey);
 
       if (!type) {
         msg.payload = {error: 'invalid_iterable_type'};
@@ -78,13 +85,6 @@ module.exports = function (RED) {
       }
 
       try {
-        msg[metaInfoKey] = {
-          size: iterable.length,
-          type: type
-        };
-
-        state.initResult(msg, metaInfoKey);
-
         for (const [key, value] of iterable) {
           // indexes are strings after Object.entries function applied to array
           msg[metaInfoKey].key = type === 'array' ? +key : key;
@@ -105,7 +105,7 @@ module.exports = function (RED) {
     });
 
     this.on("close", function () {
-      RED.events.removeListener(event, handler);
+      RED.events.removeListener(backChannelEvent, handler);
     });
   }
 
@@ -133,10 +133,15 @@ module.exports = function (RED) {
         cleanUpMsg(msg, self.link, metaInfoKey);
         return node.send(msg);
       }
-      if ([
-        'empty_iterable',
-        'iteration_end'
-      ].includes(msg.__stopReason)) {
+      if ('empty_iterable' === msg.__stopReason) {
+        console.log(msg);
+        if (state) {
+          msg.payload = state.getResult(msg, metaInfoKey);
+        }
+        cleanUpMsg(msg, self.link, metaInfoKey);
+        return node.send([null, msg]);
+      }
+      if ('iteration_end' === msg.__stopReason) {
         if (state) {
           msg.payload = state.getResult(msg, metaInfoKey);
         }
