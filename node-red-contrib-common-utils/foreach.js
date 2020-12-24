@@ -1,5 +1,6 @@
 const {ForEachState} = require("./array-map-state");
 const {getTypedFieldValue} = require('../node-red-contrib-common-utils/1-global-utils');
+const _ = require('lodash');
 
 module.exports = function (RED) {
 
@@ -18,12 +19,8 @@ module.exports = function (RED) {
   };
 
   function getMetaInfoKey(n) {
-    if (!n) return 'unknown_node';
+    if (!n) return 'unknown_foreach_node';
     return (n.name || n.id).replace(/\s/g, '').toLowerCase();
-  }
-
-  function getStateFieldName(nodeId, msgid) {
-    return `__foreach_state_${nodeId}_${msgid}`;
   }
 
   function ForEachStart(n) {
@@ -56,20 +53,18 @@ module.exports = function (RED) {
         return node.send(msg);
       }
 
-      if (!n.arrayField) {
+      let iterable = getTypedFieldValue(msg, n.inputField);
+      if (!iterable) {
         msg.__errorReason = 'no_input_iterable';
         return RED.events.emit(event, msg);
       }
 
-      let iterable = getTypedFieldValue(msg, n.arrayField);
       const type = Array.isArray(iterable) ? 'array' : (typeof iterable === 'object' ? 'object' : '');
 
       msg[metaInfoKey] = {
         size: iterable.length,
         type: type
       };
-
-      state.initResult(msg, metaInfoKey);
 
       if (!type) {
         msg.payload = {error: 'invalid_iterable_type'};
@@ -78,6 +73,7 @@ module.exports = function (RED) {
       }
 
       iterable = Object.entries(iterable);
+      state.initResult(msg, metaInfoKey);
 
       if (iterable.length === 0) {
         msg.__stopReason = 'empty_iterable';
@@ -85,10 +81,11 @@ module.exports = function (RED) {
       }
 
       try {
+        const [, path] = n.outputField.split('|');
         for (const [key, value] of iterable) {
           // indexes are strings after Object.entries function applied to array
           msg[metaInfoKey].key = type === 'array' ? +key : key;
-          msg[metaInfoKey].value = value;
+          _.set(msg, path, value);
 
           await new Promise((resolve, reject) => {
             state.addResolveFn(msg, metaInfoKey, resolve);
@@ -133,17 +130,18 @@ module.exports = function (RED) {
         cleanUpMsg(msg, self.link, metaInfoKey);
         return node.send(msg);
       }
+
+      const [, path] = n.outputField.split('|');
       if ('empty_iterable' === msg.__stopReason) {
-        console.log(msg);
         if (state) {
-          msg.payload = state.getResult(msg, metaInfoKey);
+          _.set(msg, path, state.getResult(msg, metaInfoKey));
         }
         cleanUpMsg(msg, self.link, metaInfoKey);
         return node.send([null, msg]);
       }
       if ('iteration_end' === msg.__stopReason) {
         if (state) {
-          msg.payload = state.getResult(msg, metaInfoKey);
+          _.set(msg, path, state.getResult(msg, metaInfoKey));
         }
         cleanUpMsg(msg, self.link, metaInfoKey);
         return node.send([null, msg]);
@@ -162,9 +160,8 @@ module.exports = function (RED) {
         const startNode = RED.nodes.getNode(self.link);
         const state = getForEachState(self.link, msg._msgid);
         if (state) {
-          state.addToResult(msg, getMetaInfoKey(startNode), n.arrayField);
+          state.addToResult(msg, getMetaInfoKey(startNode), n.inputField);
         }
-
         RED.events.emit(backChannelEvent, msg);
       }, 100);
     });
@@ -181,7 +178,7 @@ module.exports = function (RED) {
       const endNode = RED.nodes.getNode(n.link);
       const startNode = endNode && RED.nodes.getNode(endNode.link);
       const metaInfoKey = getMetaInfoKey(startNode);
-      const state = msg[getStateFieldName(self.link, msg._msgid)];
+      const state = startNode && getForEachState(startNode.link, msg._msgid);
       const reject = state && state.getBreakFn(msg, metaInfoKey);
       reject && reject();
       state && state.clearBreakFn(msg, metaInfoKey);

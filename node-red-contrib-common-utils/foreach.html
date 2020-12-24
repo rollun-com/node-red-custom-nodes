@@ -27,10 +27,15 @@
 
     const node = this;
 
-    window.utils.makeTypedInput('arrayField', [{
+    window.utils.makeTypedInput('inputField', [{
       value: "msg",
       label: "msg."
-    }], undefined, node.arrayField);
+    }], undefined, node.inputField);
+
+    window.utils.makeTypedInput('outputField', [{
+      value: "msg",
+      label: "msg."
+    }], undefined, node.outputField);
 
     const activeSubflow = RED.nodes.subflow(node.z);
 
@@ -141,7 +146,10 @@
       name: {
         value: ""
       },
-      arrayField: {
+      inputField: {
+        value: 'msg|payload'
+      },
+      outputField: {
         value: 'msg|payload'
       },
       link: {
@@ -182,8 +190,14 @@
       name: {
         value: ""
       },
-      arrayField: {
+      inputField: {
         value: 'msg|payload'
+      },
+      outputField: {
+        value: 'msg|payload'
+      },
+      filterEmpty: {
+        value: true
       }
     },
     outputLabels: function (index) {
@@ -196,10 +210,15 @@
       return this.name || 'foreach end';
     },
     oneditprepare: function () {
-      window.utils.makeTypedInput('arrayField', [{
+      window.utils.makeTypedInput('inputField', [{
         value: "msg",
         label: "msg."
-      }], 'Result field', this.arrayField);
+      }], undefined, this.inputField);
+
+      window.utils.makeTypedInput('outputField', [{
+        value: "msg",
+        label: "msg."
+      }], undefined, this.outputField);
     }
   });
 
@@ -335,7 +354,8 @@
         <label for="node-input-name">Name</label>
         <input type="text" id="node-input-name">
     </div>
-    <div class="form-row" id="arrayField"></div>
+    <div class="form-row" id="inputField"></div>
+    <div class="form-row" id="outputField"></div>
     <h5>You can select only one <b>foreach-end</b> node.</h5>
     <div style="position:relative; height: 30px; text-align: right;">
         <div style="display:inline-block"><input type="text" id="node-input-link-target-filter"></div>
@@ -348,7 +368,11 @@
         <label for="node-input-name">Name</label>
         <input type="text" id="node-input-name">
     </div>
-    <div class="form-row" id="arrayField">
+    <div class="form-row" id="inputField"></div>
+    <div class="form-row" id="outputField"></div>
+    <div class="">
+        <span> Filter empty (all <code>null</code> or <code>undefined</code> values in <b>Input field</b> in foreach-end will be removed from result)</span>
+        <input style="margin-left: 5px; margin-bottom: 6px" type="checkbox" id="node-input-filterEmpty">
     </div>
 </script>
 
@@ -366,87 +390,90 @@
 
 <script type="text/html" data-help-name="foreach-start">
     Foreach node
-    It consists of 2 pair nodes:
+    It consists of 2 nodes:
     <ol>
         <li>foreach-start</li>
         <li>foreach-end</li>
     </ol>
-    <b>foreach-start</b> must be closed with <b>foreach-end</b></br>
-    <b>foreach-start</b> send one by one items from array or object in <b>ArrayField</b>
-    configured in foreach start</br>
+    <b>foreach-start</b> must be closed with <b>foreach-end</b><br>
+    <b>foreach-start</b> receives array or object in <b>Input field</b>
+    and sends one by one items from array or object in <b>Output field</b>
+    configured in foreach start<br>
 
-    <b>IMPORTANT</b> - do not forget to select matching node (start-end, break-end) in nodes start and break</br>
+    <b>IMPORTANT</b> - do not forget to select matching node (start-end, break-end) in nodes start and break<br>
 
-    <b>foreach-start</b> add some meta information to every msg</br>
+    <b>foreach-start</b> add some meta information to every msg under <code>msg.[your node name in lower case without spaces or node id]</code><br>
+    For example, if Your node foreach-start hash name <b>TEST_NAME</b> your metainfo will be stored in <code>msg.test_name</code>
     <ol>
         <li><b>key</b> - index for <b>array</b> and key for <b>object</b></li>
-        <li><b>value</b> - item of array/object</li>
         <li><b>size</b> - total size of array/object</li>
         <li><b>type</b> - array or object</li>
     </ol>
 
-    <b>foreach-end</b> - stores all values that come to node in <b>Result Field</b>,
-    (configured in <b>foreach-end</b>).</br>
-    After iteration is done, all values are send in<b>msg.payload</b> at the right side of node
+    <b>foreach-end</b> - stores all values that come to node in <b>Input field</b>,
+    (configured in <b>foreach-end</b>).<br>
+    When iteration is done, all values are send in <b>Output field</b>
 
-    <b>foreach-break</b> - stops iteration immediately, and connected <b>foreach-end</b> sends
-    <b>msg</b> with all collected results.
+    <b>foreach-break</b> - stops iteration immediately, and  after that, connected <b>foreach-end</b> node sends
+    all collected results in <b>Output field</b> .
 </script>
 
 <script type="text/html" data-help-name="foreach-end">
     Foreach node
-    It consists of 2 pair nodes:
+    It consists of 2 nodes:
     <ol>
         <li>foreach-start</li>
         <li>foreach-end</li>
     </ol>
-    <b>foreach-start</b> must be closed with <b>foreach-end</b></br>
-    <b>foreach-start</b> send one by one items from array or object in <b>ArrayField</b>
-    configured in foreach start</br>
+    <b>foreach-start</b> must be closed with <b>foreach-end</b><br>
+    <b>foreach-start</b> receives array or object in <b>Input field</b>
+    and sends one by one items from array or object in <b>Output field</b>
+    configured in foreach start<br>
 
-    <b>IMPORTANT</b> - do not forget to select matching node (start-end, break-end) in nodes start and break</br>
+    <b>IMPORTANT</b> - do not forget to select matching node (start-end, break-end) in nodes start and break<br>
 
-    <b>foreach-start</b> add some meta information to every msg</br>
+    <b>foreach-start</b> add some meta information to every msg under <code>msg.[your node name in lower case without spaces or node id]</code><br>
+    For example, if Your node foreach-start hash name <b>TEST_NAME</b> your metainfo will be stored in <code>msg.test_name</code>
     <ol>
         <li><b>key</b> - index for <b>array</b> and key for <b>object</b></li>
-        <li><b>value</b> - item of array/object</li>
         <li><b>size</b> - total size of array/object</li>
         <li><b>type</b> - array or object</li>
     </ol>
 
-    <b>foreach-end</b> - stores all values that come to node in <b>Result Field</b>,
-    (configured in <b>foreach-end</b>).</br>
-    After iteration is done, all values are send in<b>msg.payload</b> at the right side of node
+    <b>foreach-end</b> - stores all values that come to node in <b>Input field</b>,
+    (configured in <b>foreach-end</b>).<br>
+    When iteration is done, all values are send in <b>Output field</b>
 
-    <b>foreach-break</b> - stops iteration immediately, and connected <b>foreach-end</b> sends
-    <b>msg</b> with all collected results.
+    <b>foreach-break</b> - stops iteration immediately, and  after that, connected <b>foreach-end</b> node sends
+    all collected results in <b>Output field</b> .
 </script>
 
 <script type="text/html" data-help-name="foreach-break">
     Foreach node
-    It consists of 2 pair nodes:
+    It consists of 2 nodes:
     <ol>
         <li>foreach-start</li>
         <li>foreach-end</li>
     </ol>
-    <b>foreach-start</b> must be closed with <b>foreach-end</b></br>
-    <b>foreach-start</b> send one by one items from array or object in <b>ArrayField</b>
-    configured in foreach start</br>
+    <b>foreach-start</b> must be closed with <b>foreach-end</b><br>
+    <b>foreach-start</b> receives array or object in <b>Input field</b>
+    and sends one by one items from array or object in <b>Output field</b>
+    configured in foreach start<br>
 
-    <b>IMPORTANT</b> - do not forget to select matching node (start-end, break-end) in nodes start and break</br>
+    <b>IMPORTANT</b> - do not forget to select matching node (start-end, break-end) in nodes start and break<br>
 
-    <b>foreach-start</b> add some meta information to every msg</br>
+    <b>foreach-start</b> add some meta information to every msg under <code>msg.[your node name in lower case without spaces or node id]</code><br>
+    For example, if Your node foreach-start hash name <b>TEST_NAME</b> your metainfo will be stored in <code>msg.test_name</code>
     <ol>
         <li><b>key</b> - index for <b>array</b> and key for <b>object</b></li>
-        <li><b>value</b> - item of array/object</li>
         <li><b>size</b> - total size of array/object</li>
         <li><b>type</b> - array or object</li>
     </ol>
 
-    <b>foreach-end</b> - stores all values that come to node in <b>Result Field</b>,
-    (configured in <b>foreach-end</b>).</br>
-    After iteration is done, all values are send in<b>msg.payload</b> at the right side of node
+    <b>foreach-end</b> - stores all values that come to node in <b>Input field</b>,
+    (configured in <b>foreach-end</b>).<br>
+    When iteration is done, all values are send in <b>Output field</b>
 
-    <b>foreach-break</b> - stops iteration immediately, and connected <b>foreach-end</b> sends
-    <b>msg</b> with all collected results.
+    <b>foreach-break</b> - stops iteration immediately, and  after that, connected <b>foreach-end</b> node sends
+    all collected results in <b>Output field</b> .
 </script>

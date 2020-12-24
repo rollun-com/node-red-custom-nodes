@@ -25,6 +25,9 @@ function resolvePath(obj, path) {
  * @returns {string[]} - where first is type and second is value.
  */
 function parseTypedInput(val) {
+  if (!val) {
+    return ['unknown'];
+  }
   const [type = '', ...value] = val.split('|');
   // if value contains '|'
   return [type, value.join('|')];

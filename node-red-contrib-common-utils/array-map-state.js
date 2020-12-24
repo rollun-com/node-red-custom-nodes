@@ -3,6 +3,7 @@ const {getTypedFieldValue} = require('../node-red-contrib-common-utils/1-global-
 const {randomString} = require('rollun-ts-utils');
 
 /**
+ *  @deprecated
  * This class holds state for array-start and array-end nodes
  */
 
@@ -23,7 +24,7 @@ class ArrayMapState {
 
   }
 
-  addToResult({payload, _msgid, type, key}, customResult,) {
+  addToResult({payload, _msgid, type, key}, customResult) {
     if (!this.arrayMapResults[_msgid]) {
       this.arrayMapResults[_msgid] = type === 'array' ? [] : {};
     }
@@ -110,16 +111,13 @@ class ArrayMapState {
 
 class ForEachState {
   constructor() {
-    this.id = Math.random().toString();
-
-    // map - [foreach-start node name | id]: array|object of results
-    // DO NOT MODIFY DIRECTLY
+    // map - [metaInfoKey]: array|object of results
     this.results = {};
 
-    // map - [foreach-start node name | id]: function to stop iteration
+    // map - [metaInfoKey]: function to stop iteration
     this.breakFn = {};
 
-    // map - [foreach-start node name | id]: function to continue iteration
+    // map - [metaInfoKey]: function to continue iteration
     this.resolveFn = {};
 
   }
