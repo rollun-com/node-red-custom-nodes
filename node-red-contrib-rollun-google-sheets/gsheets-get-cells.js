@@ -26,10 +26,10 @@ module.exports = function (RED) {
 
         const parsedURL = URL.parse(sheetURL);
 
-        const sheetIdMatch = parsedURL.path.match(/spreadsheets\/d\/(?<sheetId>[a-z0-9]+)\//i);
+        const sheetIdMatch = parsedURL.path.match(/spreadsheets\/d\/(?<sheetId>.+)\//i);
         const tableIdMatch = parsedURL.hash.match(/gid=(?<tableId>[0-9]+)/i);
-        if (!sheetIdMatch) return makeError(`Could not get sheetId from sheetURL.`)
-        if (!tableIdMatch) return makeError(`Could not get tableId from sheetURL.`)
+        if (!sheetIdMatch) return makeError(`Could not get sheetId from sheetURL.`);
+        if (!tableIdMatch) return makeError(`Could not get tableId from sheetURL.`);
 
         const {sheetId} = sheetIdMatch.groups;
         const {tableId} = tableIdMatch.groups;
@@ -42,10 +42,8 @@ module.exports = function (RED) {
 
           await doc.useServiceAccountAuth(node.config.creds);
 
-
           await doc.loadInfo();
           await doc.loadCells(cells);
-
 
           msg.payload = sheetResponseFormatter(doc.sheetsById[tableId]);
           node.send([null, msg]);
