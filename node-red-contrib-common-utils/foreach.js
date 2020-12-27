@@ -37,7 +37,6 @@ module.exports = function (RED) {
     }, 50);
 
     const handler = function (msg) {
-      console.log('start msg event', msg);
       const state = getForEachState(n.id, msg._msgid);
       const resolve = state.getResolveFn(msg, metaInfoKey);
       resolve && resolve(msg);
@@ -89,7 +88,6 @@ module.exports = function (RED) {
           msg[metaInfoKey].key = type === 'array' ? +key : key;
           _.set(msg, path, value);
 
-          console.log('before iteration', msg);
           resultMsg = await new Promise((resolve, reject) => {
             state.addResolveFn(msg, metaInfoKey, resolve);
             state.addBreakFn(msg, metaInfoKey, reject);
@@ -126,7 +124,6 @@ module.exports = function (RED) {
     const node = this;
 
     const handler = function (msg) {
-      console.log('end msg event', msg);
       const self = RED.nodes.getNode(n.id);
       const startNode = RED.nodes.getNode(self.link);
       const state = getForEachState(self.link, msg._msgid);
@@ -139,14 +136,14 @@ module.exports = function (RED) {
       const [, path] = n.outputField.split('|');
       if ('empty_iterable' === msg.__stopReason) {
         if (state) {
-          _.set(msg, path, state.getResult(msg, metaInfoKey));
+          _.set(msg, path, state.getResult(msg, metaInfoKey, n.filterEmpty));
         }
         cleanUpMsg(msg, self.link, metaInfoKey);
         return node.send([null, msg]);
       }
       if ('iteration_end' === msg.__stopReason) {
         if (state) {
-          _.set(msg, path, state.getResult(msg, metaInfoKey));
+          _.set(msg, path, state.getResult(msg, metaInfoKey, n.filterEmpty));
         }
         cleanUpMsg(msg, self.link, metaInfoKey);
         return node.send([null, msg]);
@@ -161,7 +158,6 @@ module.exports = function (RED) {
       // foreach-break, when no other delays exists, foreach-end may trigger another message from
       // foreach-start after break happened
       setTimeout(() => {
-        console.log('end input msg', msg);
         const self = RED.nodes.getNode(n.id);
         const startNode = RED.nodes.getNode(self.link);
         const state = getForEachState(self.link, msg._msgid);
