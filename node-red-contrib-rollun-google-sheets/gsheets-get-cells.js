@@ -1,4 +1,5 @@
 const {getTypedFieldValue} = require('../node-red-contrib-common-utils/1-global-utils')
+const {GoogleSpreadsheet} = require('google-spreadsheet');
 
 module.exports = function (RED) {
   function GSheetGetCells(sheetResponseFormatter = data => data) {
@@ -34,7 +35,6 @@ module.exports = function (RED) {
         const {sheetId} = sheetIdMatch.groups;
         const {tableId} = tableIdMatch.groups;
 
-        const {GoogleSpreadsheet} = require('google-spreadsheet');
 
         (async () => {
 
@@ -43,9 +43,13 @@ module.exports = function (RED) {
           await doc.useServiceAccountAuth(node.config.creds);
 
           await doc.loadInfo();
-          await doc.loadCells(cells);
+          const sheet = doc.sheetsById[tableId];
+          if (!sheet) {
+            throw new Error(`Google sheet with id ${tableId} not found!`);
+          }
+          await sheet.loadCells(cells);
 
-          msg.payload = sheetResponseFormatter(doc.sheetsById[tableId]);
+          msg.payload = sheetResponseFormatter(sheet);
           node.send([null, msg]);
         })()
           .catch(err => {
