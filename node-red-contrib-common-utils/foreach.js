@@ -82,21 +82,20 @@ module.exports = function (RED) {
 
       try {
         const [, path] = n.outputField.split('|');
-        let resultMsg;
+        let resultMsg = msg;
         for (const [key, value] of iterable) {
           // indexes are strings after Object.entries function applied to array
-          msg[metaInfoKey].key = type === 'array' ? +key : key;
-          _.set(msg, path, value);
+          resultMsg[metaInfoKey].key = type === 'array' ? +key : key;
+          _.set(resultMsg, path, value);
 
           resultMsg = await new Promise((resolve, reject) => {
-            state.addResolveFn(msg, metaInfoKey, resolve);
-            state.addBreakFn(msg, metaInfoKey, reject);
-            node.send([null, resultMsg || msg]);
+            state.addResolveFn(resultMsg, metaInfoKey, resolve);
+            state.addBreakFn(resultMsg, metaInfoKey, reject);
+            node.send([null, resultMsg]);
           });
         }
-        const _msg = resultMsg || msg;
-        _msg.__stopReason = 'iteration_end';
-        RED.events.emit(event, _msg);
+        resultMsg.__stopReason = 'iteration_end';
+        RED.events.emit(event, resultMsg);
       } catch (e) {
         console.log('err', e);
       }
