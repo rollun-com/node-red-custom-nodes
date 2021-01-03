@@ -103,6 +103,8 @@ module.exports = function (RED) {
     });
 
     this.on("close", function () {
+      // reset states on close
+      forEachStatesMap = {};
       RED.events.removeListener(backChannelEvent, handler);
     });
   }

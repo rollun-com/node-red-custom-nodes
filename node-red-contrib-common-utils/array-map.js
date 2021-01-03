@@ -48,6 +48,8 @@ module.exports = function (RED) {
                         return node.send([null, null, msg]);
                     }
 
+                    console.log('ARRAY: iterable length', {iterable: iterable.length});
+
                     const {req, res} = msg;
 
                     if (req) delete msg.req;
@@ -70,7 +72,7 @@ module.exports = function (RED) {
 
                         const msgCopy = {
                             _msgid: msgid,
-                            payload: _.cloneDeep(value),
+                            payload: value,
                             type,
                             ...(index !== undefined && {index: i}),
                             ...(key !== undefined && {key}),
@@ -101,6 +103,7 @@ module.exports = function (RED) {
                             canIterate = false;
                         }
                     }
+                    console.log('ARRAY: ITERATION END');
                 })()
                     .catch(err => {
                         console.log(err);
