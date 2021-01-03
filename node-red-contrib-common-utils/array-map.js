@@ -1,15 +1,22 @@
 const {ArrayMapState} = require("./array-map-state");
-const {getTypedFieldValue} = require('../node-red-contrib-common-utils/1-global-utils')
+const {getTypedFieldValue} = require('../node-red-contrib-common-utils/1-global-utils');
 const _ = require('lodash');
 
 module.exports = function (RED) {
-    const state = new ArrayMapState(RED);
+    let state = new ArrayMapState(RED);
 
     function ArrayMapStart({isSync = false} = {}) {
         return function (config) {
             RED.nodes.createNode(this, config);
             const node = this;
             this.config = RED.nodes.getNode(config.config);
+
+            node.on('close', () => {
+                console.log('Clean UP');
+                // force garbage collection on state, to prevent memory leaks
+                state = null;
+                state = new ArrayMapState(RED)
+            });
 
             node.on('input', function (msg) {
 
