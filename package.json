@@ -11,7 +11,7 @@
     "url": "git+https://github.com/rollun-com/node-red-custom-nodes.git"
   },
   "dependencies": {
-    "axios": "^0.19.2",
+    "axios": "^0.21.1",
     "google-spreadsheet": "^3.0.11",
     "node-red-contrib-string": "~0.2.2",
     "node-red-contrib-tgr-jsonata": "~1.0.2",
