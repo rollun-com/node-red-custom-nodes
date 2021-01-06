@@ -24,7 +24,7 @@ class MarketplaceAPI {
   }
 
   async getOrders(params) {
-    const query = Object.entries(params).map(([key, val]) => `${key}=${encodeURIComponent(val)}`).join('&')
+    const query = Object.entries(params).map(([key, val]) => `${key}=${encodeURIComponent(val)}`).join('&');
     return this.baseRequest(`/v3/orders?${query}`, 'get');
   }
 
@@ -49,13 +49,13 @@ module.exports = class WalmartAPI {
         'WM_SVC.NAME': 'Walmart Marketplace',
         'WM_SVC.VERSION': '1.0.0'
       }
-    })
+    });
+
+    this.correlationId = correlationId;
 
     /**
      * @type {{expires_in: number, access_token: string, created_at: number} | null}
      */
-
-    this.correlationId = correlationId;
 
     this.authToken = null;
 
@@ -69,7 +69,7 @@ module.exports = class WalmartAPI {
       config.headers['WM_QOS.CORRELATION_ID'] = this.correlationId;
       config.headers['WM_SEC.ACCESS_TOKEN'] = token;
       return config;
-    })
+    });
 
     this.marketplace = new MarketplaceAPI(this.axios);
   }
@@ -91,11 +91,12 @@ module.exports = class WalmartAPI {
         'WM_QOS.CORRELATION_ID': this.correlationId,
         'WM_SVC.VERSION': '1.0.0'
       }
-    })
+    });
+
     this.authToken = {
       ...data,
       created_at: Math.floor(Date.now() / 1000),
-    }
+    };
 
     // cache token on disk
     fs.writeFile(this.cacheFileName, JSON.stringify(this.authToken), (err) => {

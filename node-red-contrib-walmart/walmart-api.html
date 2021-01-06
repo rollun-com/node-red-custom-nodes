@@ -11,7 +11,7 @@
         docURL: 'https://developer.walmart.com/tryout/us/mp/orders',
         config: [{
           type: 'string',
-          name: 'createStartDate'
+          name: 'createdStartDate'
         }]
       },
       getReturns: {
@@ -113,7 +113,7 @@
         container
           .html(`
             <h4>Full doc for API ${apiName} method ${methodName} can be found <a href="${docURL}" style="color: cornflowerblue;" target="_blank">here</a></h4>
-            <h4>Date can be in 2 formats: <b>2020-09-01</b> or ISO format - <b>2020-09-25T12:03:36.153Z</b></h4>
+            <h4>Date must be in UTC, ISO 8601 format - <b>2020-09-25T12:03:36.153Z</b></h4>
           `);
         if (typeof config === 'string') {
           container

@@ -21,11 +21,10 @@ module.exports = function (RED) {
       const client = new WalmartAPIClient({
         ...node.config,
         correlationId: msg._msgid
-      })
+      });
 
       if (!client[config.apiName]) return makeError(`invalid API name: ${config.apiName}`);
       if (!client[config.apiName][config.methodName]) return makeError(`invalid method name ${config.methodName} in API ${config.apiName} `);
-
 
       const resolvePayload = (requestPayload) => {
         try {
@@ -37,9 +36,9 @@ module.exports = function (RED) {
               return acc;
             }
             const result = _.toPairs(value).reduce(resolve, []);
-            _.size(result) > 0 && acc.push([key, _.fromPairs(result)])
+            _.size(result) > 0 && acc.push([key, _.fromPairs(result)]);
             return acc;
-          }
+          };
           return _.fromPairs(
             _.toPairs(parsedPayload)
               .reduce(resolve, [])
@@ -47,7 +46,8 @@ module.exports = function (RED) {
         } catch (e) {
           return getTypedFieldValue(msg, requestPayload)
         }
-      }
+      };
+
       client[config.apiName][config.methodName](resolvePayload(config.requestPayload))
         .then(result => {
           msg.payload = result;
