@@ -12,6 +12,9 @@
         config: [{
           type: 'string',
           name: 'createdStartDate'
+        }, {
+          type: 'string',
+          name: 'nextCursor'
         }]
       },
       getReturns: {
@@ -22,10 +25,13 @@
         }, {
           type: 'string',
           name: 'returnOrderId'
+        }, {
+          type: 'string',
+          name: 'nextCursor'
         }]
-      },
+      }
     }
-  })
+  });
 
   RED.nodes.registerType('walmart-api', {
     category: 'Walmart',
@@ -71,7 +77,8 @@
         } else {
           $('#node-input-requestPayload').val(newPayload);
         }
-      }
+      };
+
       const getRequestPayload = () => {
         const value = $('#node-input-requestPayload').val();
         try {
@@ -97,13 +104,13 @@
             isFirstRender
               ? node.methodName
               : Object.keys(walmartApiConfig[apiName])[0],
-            getRequestPayload())
+            getRequestPayload());
           $('#node-input-methodName')
             .html(Object.keys(walmartApiConfig[apiName]).map(method =>
               `<option value="${method}" ${node.methodName === method ? 'selected' : ''} >${method}</option>`
-            ))
+            ));
           isFirstRender && (isFirstRender = false)
-        })
+        });
 
       const buildPayloadForm = (apiName, methodName, initData) => {
         const container = $('#request-payload');
@@ -114,6 +121,7 @@
           .html(`
             <h4>Full doc for API ${apiName} method ${methodName} can be found <a href="${docURL}" style="color: cornflowerblue;" target="_blank">here</a></h4>
             <h4>Date must be in UTC, ISO 8601 format - <b>2020-09-25T12:03:36.153Z</b></h4>
+            <h4>nextCursor usually passed in <code>msg.payload.list.meta.nextCursor</code> and it is <b>null</b> if no other items left</h4>
           `);
         if (typeof config === 'string') {
           container
@@ -258,44 +266,44 @@
 </script>
 
 <script type="text/html" data-template-name="walmart-api">
-  <div class="form-row">
-    <label for="node-input-name">Name</label>
-    <input type="text" id="node-input-name">
-    <input type="hidden" id="node-input-requestPayload">
-  </div>
-  <div class="form-row">
-    <label for="node-input-config"><i class="fa fa-server"></i> Walmart config</label>
-    <input type="text" id="node-input-config">
-  </div>
-  <div class="form-row">
-    <label for="node-input-apiName">API Name</label>
-    <select id="node-input-apiName">
-      <option value="marketplace">Marketplace APIs</option>
-    </select>
-  </div>
-  <div class="form-row">
-    <label for="node-input-methodName"><i class="fa fa-server"></i> Method</label>
-    <select id="node-input-methodName"></select>
-  </div>
-  <div id="request-payload" class="form-row">
-  </div>
+    <div class="form-row">
+        <label for="node-input-name">Name</label>
+        <input type="text" id="node-input-name">
+        <input type="hidden" id="node-input-requestPayload">
+    </div>
+    <div class="form-row">
+        <label for="node-input-config"><i class="fa fa-server"></i> Walmart config</label>
+        <input type="text" id="node-input-config">
+    </div>
+    <div class="form-row">
+        <label for="node-input-apiName">API Name</label>
+        <select id="node-input-apiName">
+            <option value="marketplace">Marketplace APIs</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-input-methodName"><i class="fa fa-server"></i> Method</label>
+        <select id="node-input-methodName"></select>
+    </div>
+    <div id="request-payload" class="form-row">
+    </div>
 </script>
 
 <script type="text/html" data-help-name="walmart-api">
-  <!--  <h4>A simple node, searches entitry by id in megaplan</h4>-->
-  <!--  <h5>1 output - in case of error, data from <code>meta</code> will be here</h5>-->
-  <!--  <h5>2 output - in case of success, data from <code>data</code> will be here</h5>-->
-  <!--  <h5><b>Entity</b></h5>-->
-  <!--  <ul>-->
-  <!--    <li><code>deal</code> - Megaplan deal</li>-->
-  <!--    <li><code>contractorHuman</code> - Megaplan human client</li>-->
-  <!--    <li><code>offer</code> - Item in megaplan catalog</li>-->
-  <!--    <li><code>deal.linkedDeals</code> - Get linked deals</li>-->
-  <!--  </ul>-->
-  <!--  <h5><b>Entity ID/URL</b></h5>-->
-  <!--  May be id of entity or its URL e.g.-->
-  <!--  <ul>-->
-  <!--    <li><code>ID</code> - 31228</li>-->
-  <!--    <li><code>URL</code> - https://mp39851918.megaplan.ua/deals/31228/card/</li>-->
-  <!--  </ul>-->
+    <!--  <h4>A simple node, searches entitry by id in megaplan</h4>-->
+    <!--  <h5>1 output - in case of error, data from <code>meta</code> will be here</h5>-->
+    <!--  <h5>2 output - in case of success, data from <code>data</code> will be here</h5>-->
+    <!--  <h5><b>Entity</b></h5>-->
+    <!--  <ul>-->
+    <!--    <li><code>deal</code> - Megaplan deal</li>-->
+    <!--    <li><code>contractorHuman</code> - Megaplan human client</li>-->
+    <!--    <li><code>offer</code> - Item in megaplan catalog</li>-->
+    <!--    <li><code>deal.linkedDeals</code> - Get linked deals</li>-->
+    <!--  </ul>-->
+    <!--  <h5><b>Entity ID/URL</b></h5>-->
+    <!--  May be id of entity or its URL e.g.-->
+    <!--  <ul>-->
+    <!--    <li><code>ID</code> - 31228</li>-->
+    <!--    <li><code>URL</code> - https://mp39851918.megaplan.ua/deals/31228/card/</li>-->
+    <!--  </ul>-->
 </script>

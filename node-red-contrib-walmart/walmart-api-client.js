@@ -24,7 +24,9 @@ class MarketplaceAPI {
   }
 
   async getOrders(params) {
-    const query = Object.entries(params).map(([key, val]) => `${key}=${encodeURIComponent(val)}`).join('&');
+    const query = params.nextCursor
+      ? params.nextCursor
+      : Object.entries(params).map(([key, val]) => `${key}=${encodeURIComponent(val)}`).join('&');
     return this.baseRequest(`/v3/orders?${query}`, 'get');
   }
 
@@ -33,7 +35,9 @@ class MarketplaceAPI {
   }
 
   async getReturns(params) {
-    const query = Object.entries(params).map(([key, val]) => `${key}=${encodeURIComponent(val)}`).join('&')
+    const query = params.nextCursor
+      ? params.nextCursor
+      : Object.entries(params).map(([key, val]) => `${key}=${encodeURIComponent(val)}`).join('&');
     return this.baseRequest(`/v3/orders?${query}`, 'get');
   }
 }
