@@ -23,11 +23,15 @@ class MarketplaceAPI {
     return data;
   }
 
-  async getOrders(params) {
+  async filterRequest(baseUrl, params) {
     const query = params.nextCursor
       ? params.nextCursor
       : Object.entries(params).map(([key, val]) => `${key}=${encodeURIComponent(val)}`).join('&');
-    return this.baseRequest(`/v3/orders?${query}`, 'get');
+    return this.baseRequest(`${baseUrl}?${query}`, 'get');
+  }
+
+  async getOrders(params) {
+    return this.filterRequest('/v3/orders', params);
   }
 
   async getOrder(orderId) {
@@ -35,10 +39,7 @@ class MarketplaceAPI {
   }
 
   async getReturns(params) {
-    const query = params.nextCursor
-      ? params.nextCursor
-      : Object.entries(params).map(([key, val]) => `${key}=${encodeURIComponent(val)}`).join('&');
-    return this.baseRequest(`/v3/orders?${query}`, 'get');
+    return this.filterRequest('/v3/returns', params);
   }
 }
 

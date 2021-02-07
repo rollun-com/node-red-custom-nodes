@@ -26,7 +26,7 @@ module.exports = function (RED) {
                   acc[item[0]] = item[1];
                   return acc;
                 }, {})
-            }
+            };
             acc[tablePart] = resolveFields(msg);
             return acc;
           }, {});
