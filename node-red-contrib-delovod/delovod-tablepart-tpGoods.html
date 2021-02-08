@@ -31,6 +31,15 @@
       unit: {
         value: 'const|1103600000000001',
       },
+      analytics1: {
+        value: '',
+      },
+      analytics2: {
+        value: '',
+      },
+      analytics3: {
+        value: '',
+      },
       name: {
         value: ""
       }
@@ -61,6 +70,11 @@
       appendToRequiredWithDef('goodType', 'Good type (default - Товар)', node.goodType);
       appendToRequiredWithDef('accGood', 'accGood (good type for new DB)', node.accGood);
       appendToRequiredWithDef('unit', 'Unit (default - ШТ)', node.unit);
+      const optionalFields = $('#optional-fields');
+      const appendToOptionalFields = (...args) => appendInput(optionalFields, ...args);
+      appendToOptionalFields('analytics1', 'Analytics1', node.analytics1);
+      appendToOptionalFields('analytics2', 'Analytics2', node.analytics2);
+      appendToOptionalFields('analytics3', 'Analytics3', node.analytics3);
     }
   });
 </script>
@@ -75,6 +89,9 @@
   </div>
   <h3>Required fields with default values:</h3>
   <div id="required-with-default">
+  </div>
+  <h3>Optional fields:</h3>
+  <div id="optional-fields">
   </div>
 </script>
 
