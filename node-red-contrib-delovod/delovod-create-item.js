@@ -9,7 +9,7 @@ module.exports = function (RED) {
     this.config = RED.nodes.getNode(config.config);
     const node = this;
 
-    node.on('input', function (msg) {
+    node.on('input', async function (msg) {
 
       const docType = config.docType;
       const docData = JSON.parse(config.docData);
@@ -43,24 +43,32 @@ module.exports = function (RED) {
         ...(msg.header || {}),
         // use doc it to update doc, if passed, and doc type, to create new document
         id: docId || docType,
-        number: crypto.randomBytes(7).toString('base64').slice(0, 7),
       }
 
       const client = new global.delovod.DelovodAPIClient(node.config);
-      client
-        .saveObject(resultHeader, documentTableParts)
-        .then(result => {
-          msg.payload = result;
-          node.send([null, msg]);
-        })
-        .catch(err => {
-          msg.payload = {error: err.message};
-          msg.sentPayload = {
-            header: resultHeader,
-            tableParts: documentTableParts
+
+      try {
+        let saveType = 'SAVE';
+        if (docId) {
+          const doc = await client.getObject(docId);
+          // set save type to REGISTER to update posted document, and post it automatically.
+          if (doc.header.posted === '1') {
+            saveType = 'REGISTER';
           }
-          node.send([msg, null])
-        })
+        } else {
+          // generate random 'number' for new documents only
+          resultHeader.number = crypto.randomBytes(7).toString('base64').slice(0, 7);
+        }
+        msg.payload = await client.saveObject(resultHeader, documentTableParts, saveType);
+        node.send([null, msg]);
+      } catch (e) {
+        msg.payload = {error: e.message};
+        msg.sentPayload = {
+          header: resultHeader,
+          tableParts: documentTableParts
+        }
+        node.send([msg, null])
+      }
     })
   }
 
