@@ -64,7 +64,12 @@ module.exports = function (RED) {
   const formatSheet = sheet => {
     const cells = sheet._cells;
     if (cells.length === 0) return [];
-    const header = cells[0].map(cell => cell._rawData.userEnteredValue.stringValue);
+    const header = cells[0].map((cell, idx) => {
+      if (!cell._rawData.userEnteredValue) {
+        throw new Error(`Header row at column #${idx + 1} does not have value!`);
+      }
+      return cell._rawData.userEnteredValue.stringValue
+    });
     return cells.slice(1).map(row => {
       return row.reduce((acc, {_rawData: {userEnteredValue = {}, effectiveValue = {}, formattedValue = ''}}, idx) => {
         acc[header[idx]] = {
