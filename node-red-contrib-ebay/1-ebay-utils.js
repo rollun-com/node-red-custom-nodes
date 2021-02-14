@@ -107,7 +107,7 @@ module.exports = function () {
             const file = fs.readFileSync(cacheFileName, 'utf8');
             const data = JSON.parse(file);
             if (!data.access_token || !data.expires_in || !data.created_at) {
-              throw new Error('invalid file format - ' + file);
+              throw new Error('Invalid file format.');
             }
             if ((Date.now() / 1000 - data.created_at) > data.expires_in) {
               throw new Error(`Token expired - now(${Date.now()}) - created at(${data.created_at}) = ${Date.now() / 1000 - data.created_at} > expires in(${data.expires_in})`)

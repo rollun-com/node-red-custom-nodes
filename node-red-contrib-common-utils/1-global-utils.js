@@ -1,3 +1,5 @@
+const _ = require('lodash');
+
 /**
  *
  * @return {*}
@@ -52,8 +54,49 @@ function getTypedFieldValue(msg, val = '') {
   return value;
 }
 
+/**
+ * Function expects object with values from typed input, example:
+ *  obj = {
+ *         field: "msg|payload"
+ *      }
+ *  And returns resolved object against msg. For example with given msg -
+ *  msg = {
+ *    payload: 'value'
+ *  }
+ *
+ *  call resolvePayload({obj}) will return
+ *  {
+ *      field: 'value'
+ *  }
+ *
+ *
+ */
+
+function resolvePayload(msg, requestPayload) {
+  try {
+    const parsedPayload = JSON.parse(requestPayload);
+    const resolve = (acc, [key, value]) => {
+      if (typeof value === 'string') {
+        const resolvedValue = getTypedFieldValue(msg, value);
+        resolvedValue && acc.push([key, resolvedValue]);
+        return acc;
+      }
+      const result = _.toPairs(value).reduce(resolve, []);
+      _.size(result) > 0 && acc.push([key, _.fromPairs(result)])
+      return acc;
+    }
+    return _.fromPairs(
+      _.toPairs(parsedPayload)
+        .reduce(resolve, [])
+    )
+  } catch (e) {
+    return getTypedFieldValue(msg, requestPayload)
+  }
+}
+
 module.exports = {
   resolvePath,
   parseTypedInput,
-  getTypedFieldValue
+  getTypedFieldValue,
+  resolvePayload,
 }

@@ -1,4 +1,4 @@
-const {getTypedFieldValue} = require('../node-red-contrib-common-utils/1-global-utils')
+const {resolvePayload} = require('../node-red-contrib-common-utils/1-global-utils')
 
 module.exports = function (RED) {
   const _ = require('lodash');
@@ -24,28 +24,6 @@ module.exports = function (RED) {
       if (!ebayAPI[apiName][methodName]) {
         msg.payload = {error: `Unknown method [${methodName}] in [${apiName}] API`};
         return node.send([msg, null]);
-      }
-
-      const resolvePayload = (requestPayload) => {
-        try {
-          const parsedPayload = JSON.parse(requestPayload);
-          const resolve = (acc, [key, value]) => {
-            if (typeof value === 'string') {
-              const resolvedValue = getTypedFieldValue(msg, value);
-              resolvedValue && acc.push([key, resolvedValue]);
-              return acc;
-            }
-            const result = _.toPairs(value).reduce(resolve, []);
-            _.size(result) > 0 && acc.push([key, _.fromPairs(result)])
-            return acc;
-          }
-          return _.fromPairs(
-            _.toPairs(parsedPayload)
-              .reduce(resolve, [])
-          )
-        } catch (e) {
-          return getTypedFieldValue(msg, requestPayload)
-        }
       }
 
       ebayAPI[apiName][methodName](resolvePayload(config.requestPayload))
