@@ -1,4 +1,5 @@
 const {getTypedFieldValue} = require('../node-red-contrib-common-utils/1-global-utils')
+const {Datastore} = require('./1-rollun-tables-utils');
 
 module.exports = function (RED) {
   function DatastoreCRUD(config) {
@@ -18,7 +19,7 @@ module.exports = function (RED) {
 
       const {url, action, idField} = config;
 
-      const datastore = new global.tables.Datastore({URL: url, idField, msg});
+      const datastore = new Datastore({URL: url, idField, msg});
 
       datastore[action]('', getTypedFieldValue(msg, config.payload))
         .then(result => {

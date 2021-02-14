@@ -35,12 +35,13 @@
     oneditprepare() {
       const node = this;
       window.utils.makeTypedInput('payload', undefined, 'Action payload', node.payload);
+      const errorMSgField = $('#error-msg');
 
+      errorMSgField.on('click', () => errorMSgField.html(''));
       $('#node-input-tableURL')
         .on('change', window.utils.debounce((e) => {
           (async value => {
             if (value.length === 0) return;
-            const errorMSgField = $('#error-msg');
             try {
               errorMSgField.text('');
               const dataStore = new window.utils.datastore('https://rollun.net');
@@ -53,7 +54,7 @@
               const pages = await dataStore.get('/api/datastore/UserFrontConfig');
 
               const pageConfig = pages.find(page => page.config.appPath === ('/' + pagePath));
-              if (!pageConfig) throw new Error('Couldn`t find config for this page is not found!');
+              if (!pageConfig) throw new Error('Cannot find config for this datastore in rollun.net!');
 
               const pageDatastore = pageConfig.config?.appParams?.gridParams?.datastoreUrl;
               if (!pageDatastore) throw new Error('No datastore found for this page!');
