@@ -209,6 +209,9 @@
         <label for="node-input-methodName">Method name</label>
         <select id="node-input-methodName"></select>
     </div>
+    <div>IMPORTANT: when using getAllOrders method, number of orders in result may be bigger that your limit,
+        because this method will do 1 request to getOpenOrders, getSubmittedOrders and getBackorderedOrders with specified limit,
+        and result will be an array, that is sorted by createdAt</div>
     <div id="request-payload">
     </div>
 </script>
