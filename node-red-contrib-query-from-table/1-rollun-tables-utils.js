@@ -201,7 +201,6 @@ class Datastore {
 
   async update(_uri, body, fullResponse = false) {
     const id = body[this.idField];
-    console.log(body, id);
     if (!id) {
       throw new Error(`Id field with name [${this.idField}] is empty or does not exist in body!`);
     }
