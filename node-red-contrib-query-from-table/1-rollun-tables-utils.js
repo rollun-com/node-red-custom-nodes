@@ -200,8 +200,15 @@ class Datastore {
    */
 
   async update(_uri, body, fullResponse = false) {
+    const id = body[this.idField];
+    if (!id) {
+      throw new Error(`id field [${this.idField}] is empty or not exists in body!`);
+    }
     return Datastore._withResponseFormatter(this.axios
-        .put(`${this.pathname}${Datastore._getUri(_uri)}`, body),
+        .put(`${this.pathname}${Datastore._getUri(_uri)}`, {
+          [this.idField]: id,
+          ...body
+        }),
       fullResponse
     );
   }
