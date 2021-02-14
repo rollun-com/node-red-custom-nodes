@@ -61,7 +61,7 @@ class Datastore {
       // resolve path
       .replace(/msg\.[a-zA-Z0-9.]+/g, match => {
         const path = match.replace(/^msg\./, '');
-        return global.tables.Datastore.encodeRQLValue(resolvePath(msg, path));
+        return Datastore.encodeRQLValue(resolvePath(msg, path));
       })
   }
 
@@ -136,10 +136,10 @@ class Datastore {
    */
 
   async query(_uri, _rql = '', fullResponse = false) {
-    const rql = global.tables.Datastore.resolveRQLWithREDMsg(_rql, this.msg);
+    const rql = Datastore.resolveRQLWithREDMsg(_rql, this.msg);
 
-    return global.tables.Datastore._withResponseFormatter(this.axios
-        .get(`${this.pathname}${tables.Datastore._getUri(_uri)}?${rql}`),
+    return Datastore._withResponseFormatter(this.axios
+        .get(`${this.pathname}${Datastore._getUri(_uri)}?${rql}`),
       fullResponse
     );
   }
@@ -153,9 +153,9 @@ class Datastore {
    */
 
   async getFirst(_uri, _rql = '', fullResponse = false) {
-    const rql = global.tables.Datastore.resolveRQLWithREDMsg(_rql, this.msg);
-    return global.tables.Datastore._withResponseFormatter(this.axios
-        .get(`${this.pathname}${tables.Datastore._getUri(_uri)}?${rql}`)
+    const rql = Datastore.resolveRQLWithREDMsg(_rql, this.msg);
+    return Datastore._withResponseFormatter(this.axios
+        .get(`${this.pathname}${Datastore._getUri(_uri)}?${rql}`)
         .then(result => {
           if (result.data && result.data.length > 0) {
             result.data = result.data[0];
@@ -169,8 +169,8 @@ class Datastore {
   }
 
   async read(_uri, id, fullResponse = false) {
-    return global.tables.Datastore._withResponseFormatter(this.axios
-        .get(`${this.pathname}${tables.Datastore._getUri(_uri)}/${encodeURI(id)}`),
+    return Datastore._withResponseFormatter(this.axios
+        .get(`${this.pathname}${Datastore._getUri(_uri)}/${encodeURI(id)}`),
       fullResponse
     );
   }
@@ -185,8 +185,8 @@ class Datastore {
    */
 
   async create(_uri, body, fullResponse = false) {
-    return global.tables.Datastore._withResponseFormatter(this.axios
-        .post(`${this.pathname}${tables.Datastore._getUri(_uri)}`, body),
+    return Datastore._withResponseFormatter(this.axios
+        .post(`${this.pathname}${Datastore._getUri(_uri)}`, body),
       fullResponse
     );
   }
@@ -200,8 +200,8 @@ class Datastore {
    */
 
   async update(_uri, body, fullResponse = false) {
-    return global.tables.Datastore._withResponseFormatter(this.axios
-        .put(`${this.pathname}${tables.Datastore._getUri(_uri)}`, body),
+    return Datastore._withResponseFormatter(this.axios
+        .put(`${this.pathname}${Datastore._getUri(_uri)}`, body),
       fullResponse
     );
   }
@@ -215,8 +215,8 @@ class Datastore {
    */
 
   async delete(_uri, id, fullResponse = false) {
-    return global.tables.Datastore._withResponseFormatter(this.axios
-        .delete(`${this.pathname}${tables.Datastore._getUri(_uri)}/${id}`),
+    return Datastore._withResponseFormatter(this.axios
+        .delete(`${this.pathname}${Datastore._getUri(_uri)}/${id}`),
       fullResponse
     );
   }

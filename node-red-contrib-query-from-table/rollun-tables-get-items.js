@@ -1,3 +1,4 @@
+const {Datastore} = require("./1-rollun-tables-utils");
 module.exports = function (RED) {
   function Test(config) {
     RED.nodes.createNode(this, config);
@@ -14,8 +15,8 @@ module.exports = function (RED) {
 
       const {rql = 'limit(20,0)', url} = config;
 
-      const datastore = new global.tables.Datastore({URL: url});
-      const processedRql = global.tables.Datastore.resolveRQLWithREDMsg(rql, msg);
+      const datastore = new Datastore({URL: url});
+      const processedRql = Datastore.resolveRQLWithREDMsg(rql, msg);
 
       datastore
         .query('', processedRql)
