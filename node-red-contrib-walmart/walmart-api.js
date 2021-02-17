@@ -1,4 +1,4 @@
-const {getTypedFieldValue} = require('../node-red-contrib-common-utils/1-global-utils')
+const {resolvePayload} = require('../node-red-contrib-common-utils/1-global-utils')
 const WalmartAPIClient = require('./walmart-api-client');
 const _ = require('lodash');
 
@@ -26,29 +26,7 @@ module.exports = function (RED) {
       if (!client[config.apiName]) return makeError(`invalid API name: ${config.apiName}`);
       if (!client[config.apiName][config.methodName]) return makeError(`invalid method name ${config.methodName} in API ${config.apiName} `);
 
-      const resolvePayload = (requestPayload) => {
-        try {
-          const parsedPayload = JSON.parse(requestPayload);
-          const resolve = (acc, [key, value]) => {
-            if (typeof value === 'string') {
-              const resolvedValue = getTypedFieldValue(msg, value);
-              resolvedValue && acc.push([key, resolvedValue]);
-              return acc;
-            }
-            const result = _.toPairs(value).reduce(resolve, []);
-            _.size(result) > 0 && acc.push([key, _.fromPairs(result)]);
-            return acc;
-          };
-          return _.fromPairs(
-            _.toPairs(parsedPayload)
-              .reduce(resolve, [])
-          )
-        } catch (e) {
-          return getTypedFieldValue(msg, requestPayload)
-        }
-      };
-
-      client[config.apiName][config.methodName](resolvePayload(config.requestPayload))
+      client[config.apiName][config.methodName](resolvePayload(msg, config.requestPayload))
         .then(result => {
           msg.payload = result;
           node.send([null, msg]);

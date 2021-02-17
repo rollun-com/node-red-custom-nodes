@@ -26,7 +26,7 @@ module.exports = function (RED) {
         return node.send([msg, null]);
       }
 
-      ebayAPI[apiName][methodName](resolvePayload(config.requestPayload))
+      ebayAPI[apiName][methodName](resolvePayload(msg, config.requestPayload))
         .then(({data, config: {url}}) => {
           msg.payload = data;
           msg.url = url;

@@ -55,6 +55,7 @@ function getTypedFieldValue(msg, val = '') {
 }
 
 /**
+ *
  * Function expects object with values from typed input, example:
  *  obj = {
  *         field: "msg|payload"
@@ -69,12 +70,15 @@ function getTypedFieldValue(msg, val = '') {
  *      field: 'value'
  *  }
  *
- *
+ * @param msg {object}
+ * @param requestPayload {object|string}
  */
 
 function resolvePayload(msg, requestPayload) {
   try {
-    const parsedPayload = JSON.parse(requestPayload);
+    const parsedPayload = typeof requestPayload === "string"
+      ? JSON.parse(requestPayload)
+      : requestPayload;
     const resolve = (acc, [key, value]) => {
       if (typeof value === 'string') {
         const resolvedValue = getTypedFieldValue(msg, value);
