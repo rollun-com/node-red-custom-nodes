@@ -98,9 +98,17 @@ function resolvePayload(msg, requestPayload) {
   }
 }
 
+function wait(duration = 1000) {
+  if (duration < 0) {
+    throw new TypeError(`duration cannot be below 0, got ${duration}`)
+  }
+  return new Promise(resolve => setTimeout(resolve, 1000));
+}
+
 module.exports = {
   resolvePath,
   parseTypedInput,
   getTypedFieldValue,
   resolvePayload,
+  wait,
 }

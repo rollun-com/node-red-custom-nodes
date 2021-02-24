@@ -1,6 +1,7 @@
 const fs = require('fs');
 const {promisify} = require('util');
 const _ = require('lodash');
+const {wait} = require('../node-red-contrib-common-utils/1-global-utils');
 
 class PartsUnlimitedAPI {
   constructor({login, dealerNumber, password}) {
@@ -82,16 +83,28 @@ class PartsUnlimitedAPI {
         ...(config.params && config.params),
         t: Date.now(),
       }
-      console.log(config.params);
+      console.log(config.url, config.params);
       return config;
     })
 
     return axios;
   }
 
+  _getDateString(date, isEnd = false) {
+    const d = new Date(date);
+    if (d.toString() === 'Invalid Date') {
+      throw new Error('Date is invalid, should be yyyy-mm-dd or ISO.');
+    }
+
+    const [dateStr] = d.toISOString().split('T');
+
+    return `${dateStr}T${isEnd ? '23:59.00' : '00:00:00'}.000Z`;
+  }
+
   /**
    *
    * @param type {'open'|'submitted'|'backordered'}
+   * @param invoiceNumber
    * @param poNumber
    * @param startDate
    * @param endDate
@@ -100,9 +113,16 @@ class PartsUnlimitedAPI {
    * @return {Promise<any>}
    */
 
-  async getOpenOrdersOfType(type, {poNumber, startDate, endDate, limit, offset}) {
+  async getOpenOrdersOfType(type, {invoiceNumber, poNumber, startDate, endDate, limit, offset}) {
     const {data: {orders}} = await this.api.get(`/api/orders/${type}`, {
-      params: {poNumber, startDate, endDate, limit, offset}
+      params: {
+        poNumber,
+        startDate: startDate ? this._getDateString(startDate) : undefined,
+        endDate: endDate ? this._getDateString(endDate, true) : undefined,
+        limit,
+        offset,
+        invoiceNumber,
+      }
     });
 
     return orders || [];
@@ -121,13 +141,20 @@ class PartsUnlimitedAPI {
   }
 
   async getAllOrders(data) {
-    const result = await Promise.all(this.ORDER_TYPES.map(async (type) => {
-      return this.getOpenOrdersOfType(type, data);
-    }));
+    let result = [];
 
-    return _.flatten(result).sort((a, b) =>
-      a.createdAt > b.createdAt
-    );
+    for (const type of this.ORDER_TYPES) {
+      result = result.concat(await this.getOpenOrdersOfType(type, data));
+      await wait(2000);
+    }
+
+    return result.sort((a, b) => a.createdAt > b.createdAt ? 1 : -1);
+  }
+
+  async getOrderById({id}) {
+    const {data} = await this.api.get('/api/orders/' + id);
+
+    return data;
   }
 }
 

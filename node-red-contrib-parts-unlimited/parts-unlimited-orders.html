@@ -4,20 +4,29 @@
     config: [{
       type: 'string',
       name: 'limit',
+      alias: 'Limit',
       default: 20
     }, {
       type: 'string',
       name: 'offset',
+      alias: 'Offset',
       default: 0
     }, {
-      type: 'string',
-      name: 'startDate'
+      type: 'datetime',
+      name: 'startDate',
+      alias: 'Start Date',
+    }, {
+      type: 'datetime',
+      name: 'endDate',
+      alias: 'End Date',
     }, {
       type: 'string',
-      name: 'endDate'
+      name: 'poNumber',
+      alias: 'Purchase Order Number',
     }, {
       type: 'string',
-      name: 'poNumber'
+      name: 'invoiceNumber',
+      alias: 'Invoice Number',
     }]
   }
   const puConfig = Object.freeze({
@@ -25,6 +34,13 @@
     getSubmittedOrders: getOrderConfig,
     getBackorderedOrders: getOrderConfig,
     getAllOrders: getOrderConfig,
+    getOrderById: {
+      config: [{
+        name: 'id',
+        type: 'string',
+        alias: 'Internal PU Order id, looks like - 4e98bfb1-4625-40c1-ab62-a3556c63ff85',
+      }]
+    }
   })
 
   RED.nodes.registerType('parts-unlimited-orders', {
@@ -109,21 +125,31 @@
           container
             .append(
               config
-                .map(({name, type, default: defaultValue, fields}) => {
+                .map(({name, type, default: defaultValue, fields, alias}) => {
                   if (type === 'string') {
-                    return $('<div>')
-                      .append($(`<label>${name} ${defaultValue === undefined ? '' : `(
+                    return $('<div style="margin-top: 20px">')
+                      .append($(`<label>${alias || name} ${defaultValue === undefined ? '' : `(
                       default: ${defaultValue}
 
                       )`}</label>`))
                       .append($(`<input type="text"
                                         data-path="${name}"
                                         class="pu-options-typed-input">`));
+                  } else if (type === 'datetime') {
+                    return $('<div style="margin-top: 20px">')
+                      .append($(`<label>${alias || name} ${defaultValue === undefined ? '' : `(
+                      default: ${defaultValue}
+
+                      )`}</label>`))
+                      .append('<label>date-time is expected to be in yyyy-mm-dd or ISO formats</label>')
+                      .append($(`<input type="text"
+                                        data-path="${name}"
+                                        class="pu-options-typed-input">`));
                   } else if (type === 'datetime-range') {
                     const {from = '', to = ''} = filter[name] || {};
-                    return $('<div>')
+                    return $('<div style="margin-top: 20px">>')
                       .append([
-                        $(`<h5>${name}</h5>`),
+                        $(`<h5>${alias || name}</h5>`),
                         $(`<input value="${from}"
                                       data-path="filter.${name}.from"
                                       class="pu-options-typed-input"
@@ -138,9 +164,9 @@
                     const currentRequestPayload = getRequestPayload() || {}
                     const currentFilter = currentRequestPayload.filter || {};
                     const [_, currValue = ''] = (currentFilter[name] || '').split('|');
-                    $('<div>')
+                    $('<div style="margin-top: 20px">>')
                       .append([
-                        $(`<h5>${name}</h5>`),
+                        $(`<h5>${alias || name}</h5>`),
                         $(`<select style="margin-left: 15px">
                             <option ${currValue === '' ? 'selected' : ''} value="">-</option>
                                ${values.map(value => `<option ${currValue === value ? 'selected' : ''} value="${value}">${value}</option>`)}
@@ -210,8 +236,10 @@
         <select id="node-input-methodName"></select>
     </div>
     <div>IMPORTANT: when using getAllOrders method, number of orders in result may be bigger that your limit,
-        because this method will do 1 request to getOpenOrders, getSubmittedOrders and getBackorderedOrders with specified limit,
-        and result will be an array, that is sorted by createdAt</div>
+        because this method will do 1 request to getOpenOrders, getSubmittedOrders and getBackorderedOrders with
+        specified limit,
+        and result will be an array, that is sorted by createdAt
+    </div>
     <div id="request-payload">
     </div>
 </script>
