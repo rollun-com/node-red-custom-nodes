@@ -98,7 +98,18 @@ class PartsUnlimitedAPI {
 
     const [dateStr] = d.toISOString().split('T');
 
-    return `${dateStr}T${isEnd ? '23:59.00' : '00:00:00'}.000Z`;
+    // just copy host PU dealer page does filter by date.
+    return `${dateStr}T${isEnd ? '23:59:00' : '00:01:01'}.000Z`;
+  }
+
+  // example for sortString - updated_at ASC
+  _getSort(sortString) {
+    if (sortString === '-- none --') {
+      return {};
+    }
+    const [field, direction] = sortString.split(' ');
+
+    return {sortValue: field.toUpperCase(), sortOrder: direction};
   }
 
   /**
@@ -113,7 +124,7 @@ class PartsUnlimitedAPI {
    * @return {Promise<any>}
    */
 
-  async getOpenOrdersOfType(type, {invoiceNumber, poNumber, startDate, endDate, limit, offset}) {
+  async getOpenOrdersOfType(type, {sortBy, invoiceNumber, poNumber, startDate, endDate, limit, offset}) {
     const {data: {orders}} = await this.api.get(`/api/orders/${type}`, {
       params: {
         poNumber,
@@ -122,6 +133,7 @@ class PartsUnlimitedAPI {
         limit,
         offset,
         invoiceNumber,
+        ...this._getSort(sortBy)
       }
     });
 
@@ -148,7 +160,17 @@ class PartsUnlimitedAPI {
       await wait(2000);
     }
 
-    return result.sort((a, b) => a.createdAt > b.createdAt ? 1 : -1);
+    const {sortOrder, sortValue} = this._getSort(data.sortBy);
+    if (!sortValue) {
+      return result;
+    }
+    const sortCb = (a, b) => {
+      const field = _.camelCase(sortValue);
+      return sortOrder === 'ASC'
+        ? (a[field] > b[field] ? 1 : -1)
+        : (a[field] > b[field] ? -1 : 1);
+    }
+    return result.sort(sortCb);
   }
 
   async getOrderById({id}) {

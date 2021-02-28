@@ -27,6 +27,17 @@
       type: 'string',
       name: 'invoiceNumber',
       alias: 'Invoice Number',
+    }, {
+      type: 'select',
+      name: 'sortBy',
+      alias: 'Sort By',
+      options: [
+        '-- none --',
+        'created_at ASC',
+        'created_at DESC',
+        'updated_at ASC',
+        'updated_at DESC',
+      ]
     }]
   }
   const puConfig = Object.freeze({
@@ -125,7 +136,7 @@
           container
             .append(
               config
-                .map(({name, type, default: defaultValue, fields, alias}) => {
+                .map(({name, type, default: defaultValue, alias, options}) => {
                   if (type === 'string') {
                     return $('<div style="margin-top: 20px">')
                       .append($(`<label>${alias || name} ${defaultValue === undefined ? '' : `(
@@ -135,6 +146,27 @@
                       .append($(`<input type="text"
                                         data-path="${name}"
                                         class="pu-options-typed-input">`));
+
+                  } else if (type === 'select') {
+                    const {sortBy = 'const|-- none --'} = getRequestPayload() || {}
+
+                    const [_, val] = sortBy.split('|');
+                    return $('<div style="margin-top: 20px">')
+                      .append($(`<label>${alias || name}</label>`))
+                      .append($(`<select>`)
+                        .html(options.map(option => {
+                            console.log('option', option, val);
+                            return `<option ${option === val ? 'selected' : ''} value="${option}">${option}</option>`
+                          }
+                        ))
+                        .on('change', e => {
+                          const newData = e.target.value === '-- none --'
+                            ? window._.unset(getRequestPayload() || {}, name)
+                            : window._.set(getRequestPayload() || {}, name, `const|${e.target.value}`);
+                          setRequestPayload(newData);
+                        })
+                      );
+
                   } else if (type === 'datetime') {
                     return $('<div style="margin-top: 20px">')
                       .append($(`<label>${alias || name} ${defaultValue === undefined ? '' : `(

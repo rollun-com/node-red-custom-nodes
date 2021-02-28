@@ -19,7 +19,9 @@ module.exports = function (RED) {
           return node.send([msg, null]);
         }
 
-        msg.payload = await api[config.methodName](resolvePayload(msg, config.requestPayload));
+        const payload = resolvePayload(msg, config.requestPayload);
+        console.log('payload', payload);
+        msg.payload = await api[config.methodName](payload);
         return node.send([null, msg]);
       } catch (err) {
         if (!err.response) {
