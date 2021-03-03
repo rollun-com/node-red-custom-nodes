@@ -55,8 +55,8 @@ module.exports = function (RED) {
 
       let iterable = getTypedFieldValue(msg, n.inputField);
       if (!iterable) {
-        msg.__errorReason = 'no_input_iterable';
-        return RED.events.emit(event, msg);
+        msg.payload = {error: 'no_input_iterable'};
+        return node.send(msg);
       }
 
       const type = Array.isArray(iterable) ? 'array' : (typeof iterable === 'object' ? 'object' : '');
