@@ -103,28 +103,22 @@
       })
     }
 
-    console.log({
-      candidateNodes,
-      flows,
-      flowMap
-    });
-
-
-    candidateNodes.forEach(function (n) {
+    for (const n of candidateNodes) {
       if (flowMap[n.z]) {
-        const isChecked = node.link === n.id;//(node.links.indexOf(n.id) !== -1) || (n.links || []).indexOf(node.id) !== -1;
-        if (isChecked) {
-          // node.oldLinks.push(n.id);
-        }
+        const isSelected = node.link
+          // use node.link, if exists
+          ? node.link === n.id
+          // otherwise look for node with the same name
+          : n.name === node.name
         flowMap[n.z].children.push({
           id: n.id,
           node: n,
           label: n.name || n.id,
-          selected: isChecked,
+          selected: isSelected,
           checkbox: true
         })
       }
-    });
+    }
     flows = flows.filter(function (f) {
       return f.children.length > 0
     });
@@ -310,21 +304,22 @@
         })
       }
 
-      candidateNodes.forEach(function (n) {
+      for (const n of candidateNodes) {
         if (flowMap[n.z]) {
-          const isChecked = node.link === n.id;//(node.links.indexOf(n.id) !== -1) || (n.links || []).indexOf(node.id) !== -1;
-          if (isChecked) {
-            // node.oldLinks.push(n.id);
-          }
+          const isSelected = node.link
+            // use node.link, if exists
+            ? node.link === n.id
+            // otherwise look for node with the same name
+            : node.name && (n.name === node.name)
           flowMap[n.z].children.push({
             id: n.id,
             node: n,
             label: n.name || n.id,
-            selected: isChecked,
+            selected: isSelected,
             checkbox: true
           })
         }
-      });
+      }
       flows = flows.filter(function (f) {
         return f.children.length > 0
       });
@@ -401,7 +396,8 @@
 
     <b>IMPORTANT</b> - do not forget to select matching node (start-end, break-end) in nodes start and break<br>
 
-    <b>foreach-start</b> add some meta information to every msg under <code>msg.[your node name in lower case without spaces or node id]</code><br>
+    <b>foreach-start</b> add some meta information to every msg under <code>msg.[your node name in lower case without
+        spaces or node id]</code><br>
     For example, if Your node foreach-start hash name <b>TEST_NAME</b> your metainfo will be stored in <code>msg.test_name</code>
     <ol>
         <li><b>key</b> - index for <b>array</b> and key for <b>object</b></li>
@@ -431,7 +427,8 @@
 
     <b>IMPORTANT</b> - do not forget to select matching node (start-end, break-end) in nodes start and break<br>
 
-    <b>foreach-start</b> add some meta information to every msg under <code>msg.[your node name in lower case without spaces or node id]</code><br>
+    <b>foreach-start</b> add some meta information to every msg under <code>msg.[your node name in lower case without
+        spaces or node id]</code><br>
     For example, if Your node foreach-start hash name <b>TEST_NAME</b> your metainfo will be stored in <code>msg.test_name</code>
     <ol>
         <li><b>key</b> - index for <b>array</b> and key for <b>object</b></li>
@@ -461,7 +458,8 @@
 
     <b>IMPORTANT</b> - do not forget to select matching node (start-end, break-end) in nodes start and break<br>
 
-    <b>foreach-start</b> add some meta information to every msg under <code>msg.[your node name in lower case without spaces or node id]</code><br>
+    <b>foreach-start</b> add some meta information to every msg under <code>msg.[your node name in lower case without
+        spaces or node id]</code><br>
     For example, if Your node foreach-start hash name <b>TEST_NAME</b> your metainfo will be stored in <code>msg.test_name</code>
     <ol>
         <li><b>key</b> - index for <b>array</b> and key for <b>object</b></li>
