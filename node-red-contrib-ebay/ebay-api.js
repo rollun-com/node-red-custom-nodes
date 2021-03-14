@@ -1,16 +1,16 @@
 const {resolvePayload} = require('../node-red-contrib-common-utils/1-global-utils')
+const EbayAPI = require('./ebay-sdk');
 
 module.exports = function (RED) {
-  const _ = require('lodash');
 
-  function EbayAPI(config) {
+  function EbayAPINode(config) {
     RED.nodes.createNode(this, config);
     const node = this;
 
     node.config = RED.nodes.getNode(config.config);
 
     node.on('input', function (msg) {
-      const ebayAPI = new global.ebay.EbayAPI(node.config)
+      const ebayAPI = new EbayAPI(node.config)
 
       const apiName = config.apiName;
 
@@ -45,5 +45,5 @@ module.exports = function (RED) {
     });
   }
 
-  RED.nodes.registerType("ebay-api", EbayAPI);
+  RED.nodes.registerType("ebay-api", EbayAPINode);
 }
