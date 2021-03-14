@@ -80,6 +80,42 @@
         docURL: '',
         config: 'query'
       }
+    },
+    postOrder: {
+      getReturn: {
+        docURL: 'https://developer.ebay.com/Devzone/post-order/post-order_v2_return-returnid__get.html',
+        config: 'returnId'
+      },
+      getReturns: {
+        docURL: 'https://developer.ebay.com/Devzone/post-order/post-order_v2_return_search__get.html',
+        config: [{
+          type: 'string',
+          name: 'limit',
+          default: 20
+        }, {
+          type: 'string',
+          name: 'offset',
+          default: 0
+        }, {
+          type: 'string',
+          name: 'creation_date_range_from',
+        }, {
+          type: 'string',
+          name: 'creation_date_range_to',
+        }, {
+          type: 'string',
+          name: 'item_id',
+        }, {
+          type: 'string',
+          name: 'order_id',
+        }, {
+          type: 'string',
+          name: 'return_id',
+        }, {
+          type: 'string',
+          name: 'transaction_id',
+        }]
+      }
     }
   })
 
@@ -169,6 +205,7 @@
           .html(`
       <h4>Full doc for [${apiName}] API, [${methodName}] method can be found <a style="color: cornflowerblue" href="${docURL}">here</a></h4>
       <h4><b>IMPORTANT:</b> If method meant to return an array of items, and nothing has been found by filter, Ebay will return an empty string as response, so as this node in payload.</h4>
+      <div><b>All dates must be in ISO 8601 e.g. YYYY-MM-DDThh:mm:ss.mmmZ</b></div>
 `);
         if (typeof config === 'string') {
           container
@@ -189,17 +226,18 @@
               config
                 .map(({name, type, default: defaultValue, fields}) => {
                   if (type === 'string') {
-                    return $('<div>')
-                      .append($(`<label>${name} ${defaultValue === undefined ? '' : `(default: ${defaultValue})`}</label>`))
+                    return $('<div style="margin-top: 10px">')
+                      .append($(`<label>${name} ${defaultValue === undefined ? '' : `(
+                      default: ${defaultValue}
+
+                      )`}</label>`))
                       .append($(`<input type="text"
                                         data-path="${name}"
                                         class="ebay-options-typed-input">`));
                   } else if (type === 'filter') {
                     const {filter = {}} = requestPayload;
                     const div = $('<div class="form-row">');
-                    // container.append(div);
                     div.append('<h3>Filter</h3>')
-                    div.append('<h4>All dates must be in ISO 8601 e.g. YYYY-MM-DDThh:mm:ss.mmmZ</h4>')
                     for (const {name, type, values} of fields) {
                       if (type === 'datetime-range') {
                         const {from = '', to = ''} = filter[name] || {};
@@ -288,28 +326,29 @@
 </script>
 
 <script type="text/html" data-template-name="ebay-api">
-  <div class="form-row">
-    <label for="node-input-name">Name</label>
-    <input type="text" id="node-input-name">
-    <input type="hidden" id="node-input-requestPayload">
-  </div>
-  <div class="form-row">
-    <label for="node-input-config">Credentials</label>
-    <input type="text" id="node-input-config">
-  </div>
-  <div class="form-row">
-    <label for="node-input-apiName">API Name</label>
-    <select id="node-input-apiName">
-      <option value="sell">Sell</option>
-      <option value="taxonomy">Taxonomy</option>
-    </select>
-  </div>
-  <div class="form-row">
-    <label for="node-input-methodName">Method name</label>
-    <select id="node-input-methodName"></select>
-  </div>
-  <div id="request-payload">
-  </div>
+    <div class="form-row">
+        <label for="node-input-name">Name</label>
+        <input type="text" id="node-input-name">
+        <input type="hidden" id="node-input-requestPayload">
+    </div>
+    <div class="form-row">
+        <label for="node-input-config">Credentials</label>
+        <input type="text" id="node-input-config">
+    </div>
+    <div class="form-row">
+        <label for="node-input-apiName">API Name</label>
+        <select id="node-input-apiName">
+            <option value="sell">Sell</option>
+          <option value="taxonomy">Taxonomy</option>
+          <option value="postOrder">Post order (returns)</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-input-methodName">Method name</label>
+        <select id="node-input-methodName"></select>
+    </div>
+    <div id="request-payload">
+    </div>
 </script>
 
 <script type="text/html" data-help-name="ebay-api">
