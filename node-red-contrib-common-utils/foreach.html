@@ -23,6 +23,27 @@
     node.link = link;
   }
 
+  function lookUpLinks(flowMap, candidateNodes, node) {
+    for (const n of candidateNodes) {
+      if (flowMap[n.z]) {
+        const isSelected = node.link
+          // use node.link, if exists
+          ? node.link === n.id
+          // otherwise look for node with the same name
+          // do not match, if node name is empty.
+          : node.name && (n.name === node.name)
+
+        flowMap[n.z].children.push({
+          id: n.id,
+          node: n,
+          label: n.name || n.id,
+          selected: isSelected,
+          checkbox: true
+        })
+      }
+    }
+  }
+
   function forEachStartEditPrepare() {
 
     const node = this;
@@ -103,22 +124,8 @@
       })
     }
 
-    for (const n of candidateNodes) {
-      if (flowMap[n.z]) {
-        const isSelected = node.link
-          // use node.link, if exists
-          ? node.link === n.id
-          // otherwise look for node with the same name
-          : n.name === node.name
-        flowMap[n.z].children.push({
-          id: n.id,
-          node: n,
-          label: n.name || n.id,
-          selected: isSelected,
-          checkbox: true
-        })
-      }
-    }
+    lookUpLinks(flowMap, candidateNodes, node);
+
     flows = flows.filter(function (f) {
       return f.children.length > 0
     });
@@ -304,22 +311,8 @@
         })
       }
 
-      for (const n of candidateNodes) {
-        if (flowMap[n.z]) {
-          const isSelected = node.link
-            // use node.link, if exists
-            ? node.link === n.id
-            // otherwise look for node with the same name
-            : node.name && (n.name === node.name)
-          flowMap[n.z].children.push({
-            id: n.id,
-            node: n,
-            label: n.name || n.id,
-            selected: isSelected,
-            checkbox: true
-          })
-        }
-      }
+      lookUpLinks(flowMap, candidateNodes, node)
+
       flows = flows.filter(function (f) {
         return f.children.length > 0
       });

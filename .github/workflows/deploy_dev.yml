@@ -10,22 +10,21 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-    # dev
-    - name: Deploy dev manager node-red instance
-      run: curl ${{secrets.DEV_MANAGER_NR_HOOK}}
-      
-    - name: Deploy ceo node-red instance
-      run: curl ${{secrets.CEO_NR_HOOK}}
+    # deploy only dev node red servers
+#    - name: Deploy dev manager node-red instance
+#      run: curl ${{secrets.DEV_MANAGER_NR_HOOK}}
+#
+#    - name: Deploy ceo node-red instance
+#      run: curl ${{secrets.CEO_NR_HOOK}}
       
     - name: Deploy cto node-red instance
       run: curl ${{secrets.CTO_NR_HOOK}}
 
-    # prod
-    - name: Deploy accounting instance
-      run: curl ${{secrets.ACCOUNTING_NR_HOOK}}
-
-    - name: Deploy main node-red instance  
-      run: curl ${{secrets.MAIN_NR_HOOK}}
-
-    - name: Deploy megaplan prod node-red instance
-      run: curl ${{secrets.MEGAPLAN_NR_HOOK}}
+#    - name: Deploy accounting instance
+#      run: curl ${{secrets.ACCOUNTING_NR_HOOK}}
+#
+#    - name: Deploy main node-red instance
+#      run: curl ${{secrets.MAIN_NR_HOOK}}
+#
+#    - name: Deploy megaplan prod node-red instance
+#      run: curl ${{secrets.MEGAPLAN_NR_HOOK}}

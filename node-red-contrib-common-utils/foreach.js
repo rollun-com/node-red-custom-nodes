@@ -30,7 +30,7 @@ module.exports = function (RED) {
     const backChannelEvent = 'back_channel_' + event;
     const metaInfoKey = getMetaInfoKey(n);
 
-    // add timeout to let foreach-end mount
+    // add delay to let foreach-end mount
     setTimeout(() => {
       const endNode = RED.nodes.getNode(n.link);
       endNode && (endNode.link = n.id);
@@ -38,7 +38,7 @@ module.exports = function (RED) {
 
     const handler = function (msg) {
       const state = getForEachState(n.id, msg._msgid);
-      const resolve = state.getResolveFn(msg, metaInfoKey);
+      const resolve = state ? state.getResolveFn(msg, metaInfoKey) : undefined;
       resolve && resolve(msg);
     };
 
