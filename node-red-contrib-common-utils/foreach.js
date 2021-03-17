@@ -38,7 +38,7 @@ module.exports = function (RED) {
 
     const handler = function (msg) {
       const state = getForEachState(n.id, msg._msgid);
-      const resolve = state ? state.getResolveFn(msg, metaInfoKey) : undefined;
+      const resolve = state && state.getResolveFn(msg, metaInfoKey);
       resolve && resolve(msg);
     };
 
