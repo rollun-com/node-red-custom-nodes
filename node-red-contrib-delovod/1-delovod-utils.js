@@ -1,4 +1,5 @@
 module.exports = (function () {
+  // TODO refactor me to use common js modules
   global.delovod = {
     util: {
       formatDelovodRequest: (params, action, {key, version}) => `packet=${JSON.stringify({
