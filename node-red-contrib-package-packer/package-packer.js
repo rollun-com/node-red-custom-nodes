@@ -23,12 +23,12 @@ module.exports = function (RED) {
         const instanceArray = new InstanceArray();
 
         for (const container of containers) {
-          wrapperArray.push(
-            new Wrapper(container.name, container.price, container.width, container.height, container.length, container.thickness),
-          );
+          const {name, price, width, height, length, thickness} = container;
+          wrapperArray.push(new Wrapper(name, price, width, height, length, thickness));
         }
         for (const wrapper of wrappers) {
-          instanceArray.insert(instanceArray.end(), wrapper.quantity, new Product(wrapper.name, wrapper.width, wrapper.height, wrapper.length))
+          const {name, width, height, length, quantity} = wrapper;
+          instanceArray.insert(instanceArray.end(), quantity, new Product(name, width, height, length))
         }
         const packer = new Packer(wrapperArray, instanceArray);
 
