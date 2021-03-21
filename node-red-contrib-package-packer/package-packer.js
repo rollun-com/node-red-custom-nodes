@@ -43,6 +43,7 @@ module.exports = function (RED) {
         const items = result.data_.reduce((acc, wrapper) => {
           return acc.concat(wrapper.matrix_.reduce((rows, row) => {
             return rows.concat(row.map(item => ({
+              container: item.wrapper.getName(),
               name: item.instance.getName(),
               position: {
                 x: item.x,
