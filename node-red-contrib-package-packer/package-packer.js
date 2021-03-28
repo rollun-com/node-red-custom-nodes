@@ -7,6 +7,8 @@ module.exports = function (RED) {
     const node = this;
     this.config = RED.nodes.getNode(config.config);
 
+    // https://www.npmjs.com/package/3d-bin-packing
+
     node.on('input', function (msg) {
       const makeError = (node, text) => {
         msg.payload = {error: text};

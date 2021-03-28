@@ -12,9 +12,11 @@ module.exports = function (RED) {
       const first = getTypedFieldValue(msg, config.first);
       const second = getTypedFieldValue(msg, config.second);
 
-      const [, resultField] = (config.result);
+      console.log(config.result);
+      const [, resultField] = (config.result || 'msg|result').split('|');
+      console.log(resultField);
 
-      msg[resultField] = _.merge(first, second);
+      _.set(msg, resultField, _.merge(first, second));
       node.send(msg);
     });
   }
