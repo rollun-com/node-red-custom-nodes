@@ -55,11 +55,11 @@
   })
 
   RED.nodes.registerType('parts-unlimited-orders', {
-    category: 'Parts Unlimited API',
+    category: 'Parts Unlimited',
     inputs: 1,
     outputs: 2,
     color: "#85C1E9",
-    paletteLabel: "Parts Unlimited API",
+    paletteLabel: "Parts Unlimited Orders UI",
     defaults: {
       name: {
         value: ''
@@ -83,7 +83,7 @@
       ][index]
     },
     label: function () {
-      return this.name || "Parts Unlimited Orders API";
+      return this.name || "Parts Unlimited Orders UI";
     },
     oneditprepare() {
       const setRequestPayload = (newPayload) => {
