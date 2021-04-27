@@ -1,4 +1,4 @@
-const {getTypedFieldValue} = require('../node-red-contrib-common-utils/1-global-utils');
+const {getTypedFieldValue, parseTypedInput} = require('../node-red-contrib-common-utils/1-global-utils');
 
 const log_levels = {
   debug: {value: 0, name: 'debug', description: ''},
@@ -86,6 +86,14 @@ class ElasticLogger {
   }
 }
 
+function cleanUpMessage(msg) {
+  const propsToFilter = ['req', 'res'];
+  propsToFilter.forEach(prop => {
+    msg[prop] && (delete msg[prop]);
+  });
+  return msg;
+}
+
 module.exports = function (RED) {
   function ElasticLoggerNode(config) {
     RED.nodes.createNode(this, config);
@@ -109,15 +117,16 @@ module.exports = function (RED) {
         // in passed level is not standard, log anyway
         if (!level || level.value >= minLogLevelValue) {
           const message = getTypedFieldValue(msg, config.messageField);
-          const context = getTypedFieldValue(msg, config.contextField);
+          const [, value] = parseTypedInput(config.contextField);
+          const context = value
+            // if context field specified, get object from it
+            ? getTypedFieldValue(msg, config.contextField)
+            // if no, use msg as context
+            : cleanUpMessage(msg);
 
           try {
             if (typeof message !== 'string') throw new Error(`message must be of type string - ${typeof message} given!`);
             await logger.log(logLevel, message || 'default message', context || {}, msg._msgid);
-            // node.warn({
-            //   topic: `Message logged to elasticsearch.`,
-            //   message, context
-            // })
           } catch (err) {
             node.warn({
               topic: `Could not log message: ${err.message}.`,
