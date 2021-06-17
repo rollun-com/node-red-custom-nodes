@@ -114,7 +114,7 @@ ${val}`).join('\n');
     } catch (e) {
       console.error('MegaplanSdk: Unable to write megaplan request metric', {
         error: e.stack,
-        response: e.response?.data,
+        response: e.response && e.response.data,
       });
     }
   }
