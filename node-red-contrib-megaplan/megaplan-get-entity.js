@@ -1,3 +1,4 @@
+const { MegaplanAPIV3Client } = require('./1-megaplan-utils');
 const {resolvePath, parseTypedInput} = require('../node-red-contrib-common-utils/1-global-utils')
 
 module.exports = function (RED) {
@@ -24,7 +25,7 @@ module.exports = function (RED) {
 
       if (!entityId) return makeError('Field Entity ID cannot be empty!');
 
-      const client = new global.megaplan.apiv3({host: node.config.host, email: node.config.email, password: node.config.password});
+      const client = new MegaplanAPIV3Client({host: node.config.host, email: node.config.email, password: node.config.password});
 
       client
           .getEntity(config.entity, entityId)

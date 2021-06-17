@@ -1,4 +1,5 @@
 const {resolvePath, parseTypedInput} = require('../node-red-contrib-common-utils/1-global-utils')
+const { MegaplanAPIV3Client } = require('./1-megaplan-utils');
 
 module.exports = function (RED) {
   function MegaplanUpdateEntity(config) {
@@ -32,7 +33,7 @@ module.exports = function (RED) {
         : bodyValue;
 
 
-      const client = new global.megaplan.apiv3({host: node.config.host, email: node.config.email, password: node.config.password});
+      const client = new MegaplanAPIV3Client({host: node.config.host, email: node.config.email, password: node.config.password});
       client
         .updateEntity(config.entity, entityId, body)
         .then(({data}) => {
