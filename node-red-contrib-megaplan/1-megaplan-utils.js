@@ -105,11 +105,24 @@ ${val}`).join('\n');
    */
 
   async sendRequestMetric(method, url) {
+    /**
+     *
+     * @param method {string}
+     * @param url {string}
+     * @return {string}
+     */
+
+    const formatUrl = (method, url) => {
+      const [baseUrl] = url.split('?');
+      const cleanBaseUrl = baseUrl.replace(/^\//, '').replace(/\/[0-9]+/g, '/{id}');
+      return `${method.toLowerCase()} /${cleanBaseUrl}`;
+    };
+
     try {
       await Axios.post('http://megaplan-union/api/webhook/MetricCounter', {
         count: 1,
         service: process.env.SERVICE_NAME,
-        action: `${method} ${url.replace(/\/[0-9]+\/?/g, '{id}')}`,
+        action: formatUrl(method, url),
       });
     } catch (e) {
       console.error('MegaplanSdk: Unable to write megaplan request metric', {
