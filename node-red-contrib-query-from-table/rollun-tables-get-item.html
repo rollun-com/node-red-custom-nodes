@@ -15,6 +15,9 @@
       url: {
         value: '',
       },
+      timeout: {
+        value: 10000,
+      },
       rql: {
         value: "limit(1,0)"
       },
@@ -83,6 +86,10 @@
     <div class="form-row">
         <label for="node-input-url"><i class="fa fa-random"></i> Datastore URL</label>
         <input type="text" id="node-input-url">
+    </div>
+    <div class="form-row">
+        <label for="node-input-timeout">Timeout (in ms)</label>
+        <input type="number" id="node-input-timeout">
     </div>
     <div class="form-row">
         <label for="node-input-rql"><i class="fa fa-key"></i> RQL</label>

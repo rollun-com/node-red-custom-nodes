@@ -1,16 +1,16 @@
 const url = require('url');
-const {resolvePath} = require('../node-red-contrib-common-utils/1-global-utils');
+const { resolvePath } = require('../node-red-contrib-common-utils/1-global-utils');
 
-class Datastore {
+class HttpDatastore {
 
   /**
    *
    * @param opts {{URL: string, timeout?: number}}
    * @param timeout {number?}
    */
-  constructor({URL, idField = 'id', timeout = 10000, msg = {}}) {
+  constructor({ URL, idField = 'id', timeout = 10000, msg = {} }) {
     if (!URL) throw new Error('Url is required.');
-    const {protocol, host, pathname} = url.parse(URL);
+    const { protocol, host, pathname } = url.parse(URL);
     if (!host) throw new Error(`url is not in valid format! [${URL}]`);
 
     /**
@@ -61,7 +61,7 @@ class Datastore {
       // resolve path
       .replace(/msg\.[a-zA-Z0-9.]+/g, match => {
         const path = match.replace(/^msg\./, '');
-        return Datastore.encodeRQLValue(resolvePath(msg, path));
+        return HttpDatastore.encodeRQLValue(resolvePath(msg, path));
       })
   }
 
@@ -136,10 +136,10 @@ class Datastore {
    */
 
   async query(_uri, _rql = '', fullResponse = false) {
-    const rql = Datastore.resolveRQLWithREDMsg(_rql, this.msg);
+    const rql = HttpDatastore.resolveRQLWithREDMsg(_rql, this.msg);
 
-    return Datastore._withResponseFormatter(this.axios
-        .get(`${this.pathname}${Datastore._getUri(_uri)}?${rql}`),
+    return HttpDatastore._withResponseFormatter(this.axios
+        .get(`${this.pathname}${HttpDatastore._getUri(_uri)}?${rql}`),
       fullResponse
     );
   }
@@ -153,9 +153,9 @@ class Datastore {
    */
 
   async getFirst(_uri, _rql = '', fullResponse = false) {
-    const rql = Datastore.resolveRQLWithREDMsg(_rql, this.msg);
-    return Datastore._withResponseFormatter(this.axios
-        .get(`${this.pathname}${Datastore._getUri(_uri)}?${rql}`)
+    const rql = HttpDatastore.resolveRQLWithREDMsg(_rql, this.msg);
+    return HttpDatastore._withResponseFormatter(this.axios
+        .get(`${this.pathname}${HttpDatastore._getUri(_uri)}?${rql}`)
         .then(result => {
           if (result.data && result.data.length > 0) {
             result.data = result.data[0];
@@ -169,8 +169,8 @@ class Datastore {
   }
 
   async read(_uri, id, fullResponse = false) {
-    return Datastore._withResponseFormatter(this.axios
-        .get(`${this.pathname}${Datastore._getUri(_uri)}/${encodeURI(id)}`),
+    return HttpDatastore._withResponseFormatter(this.axios
+        .get(`${this.pathname}${HttpDatastore._getUri(_uri)}/${encodeURI(id)}`),
       fullResponse
     );
   }
@@ -185,8 +185,8 @@ class Datastore {
    */
 
   async create(_uri, body, fullResponse = false) {
-    return Datastore._withResponseFormatter(this.axios
-        .post(`${this.pathname}${Datastore._getUri(_uri)}`, body),
+    return HttpDatastore._withResponseFormatter(this.axios
+        .post(`${this.pathname}${HttpDatastore._getUri(_uri)}`, body),
       fullResponse
     );
   }
@@ -204,8 +204,8 @@ class Datastore {
     if (!id) {
       throw new Error(`Id field with name [${this.idField}] is empty or does not exist in body!`);
     }
-    return Datastore._withResponseFormatter(this.axios
-        .put(`${this.pathname}${Datastore._getUri(_uri)}`, body),
+    return HttpDatastore._withResponseFormatter(this.axios
+        .put(`${this.pathname}${HttpDatastore._getUri(_uri)}`, body),
       fullResponse
     );
   }
@@ -219,13 +219,13 @@ class Datastore {
    */
 
   async delete(_uri, id, fullResponse = false) {
-    return Datastore._withResponseFormatter(this.axios
-        .delete(`${this.pathname}${Datastore._getUri(_uri)}/${id}`),
+    return HttpDatastore._withResponseFormatter(this.axios
+        .delete(`${this.pathname}${HttpDatastore._getUri(_uri)}/${id}`),
       fullResponse
     );
   }
 }
 
 module.exports = {
-  Datastore,
+  HttpDatastore,
 };

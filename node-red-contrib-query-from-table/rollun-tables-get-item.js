@@ -1,4 +1,4 @@
-const {Datastore} = require('./1-rollun-tables-utils');
+const { HttpDatastore } = require('./1-rollun-tables-utils');
 module.exports = function (RED) {
   function Test(config) {
     RED.nodes.createNode(this, config);
@@ -13,17 +13,14 @@ module.exports = function (RED) {
 
       if (!config.url) return makeError(node, `url is required!`);
 
-      const {rql = 'limit(20,0)', url} = config;
+      const { rql = 'limit(20,0)', url, timeout } = config;
 
-      const datastore = new Datastore({URL: url});
-      const processedRql = Datastore.resolveRQLWithREDMsg(rql, msg);
-
-      datastore
-        .getFirst('', processedRql)
+      (new HttpDatastore({ URL: url, timeout, msg }))
+        .getFirst('', rql)
         .then(result => {
 
           if (result === null) {
-            msg.payload = {error: 'No records found, or found 2 or more by this filter -' + processedRql};
+            msg.payload = { error: 'No records found, or found 2 or more by this filter -' + processedRql };
             node.send([msg, null]);
           } else {
             msg.payload = result;
@@ -31,7 +28,7 @@ module.exports = function (RED) {
           }
         })
         .catch(err => {
-          msg.payload = {error: err.message};
+          msg.payload = { error: err.message };
           node.send([msg, null]);
         })
     });

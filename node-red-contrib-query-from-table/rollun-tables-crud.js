@@ -1,5 +1,5 @@
-const {getTypedFieldValue} = require('../node-red-contrib-common-utils/1-global-utils')
-const {Datastore} = require('./1-rollun-tables-utils');
+const { getTypedFieldValue } = require('../node-red-contrib-common-utils/1-global-utils')
+const { HttpDatastore } = require('./1-rollun-tables-utils');
 
 module.exports = function (RED) {
   function DatastoreCRUD(config) {
@@ -8,7 +8,7 @@ module.exports = function (RED) {
 
     node.on('input', function (msg) {
       const makeError = (node, text) => {
-        msg.payload = {error: text};
+        msg.payload = { error: text };
         node.send([msg, null])
       };
 
@@ -17,9 +17,10 @@ module.exports = function (RED) {
       if (!config.payload) return makeError(node, `payload is required!`);
       if (!config.idField) return makeError(node, `idField is required!`);
 
-      const {url, action, idField} = config;
+      const { url, action, idField, timeout } = config;
 
-      const datastore = new Datastore({URL: url, idField, msg});
+      console.log(timeout)
+      const datastore = new HttpDatastore({ URL: url, timeout, idField, msg });
 
       datastore[action]('', getTypedFieldValue(msg, config.payload))
         .then(result => {
@@ -31,7 +32,7 @@ module.exports = function (RED) {
           }
         })
         .catch(err => {
-          msg.payload = {error: err.message};
+          msg.payload = { error: err.message };
           node.send([msg, null]);
         })
     });

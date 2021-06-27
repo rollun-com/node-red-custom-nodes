@@ -1,4 +1,4 @@
-const {Datastore} = require("./1-rollun-tables-utils");
+const { HttpDatastore } = require("./1-rollun-tables-utils");
 module.exports = function (RED) {
   function Test(config) {
     RED.nodes.createNode(this, config);
@@ -13,19 +13,16 @@ module.exports = function (RED) {
 
       if (!config.url) return makeError(node, `url is required!`);
 
-      const {rql = 'limit(20,0)', url} = config;
+      const { rql = 'limit(20,0)', url, timeout } = config;
 
-      const datastore = new Datastore({URL: url});
-      const processedRql = Datastore.resolveRQLWithREDMsg(rql, msg);
-
-      datastore
-        .query('', processedRql)
+      (new HttpDatastore({ URL: url, timeout, msg }))
+        .query('', rql)
         .then(result => {
           msg.payload = result;
           node.send([null, msg]);
         })
         .catch(err => {
-          msg.payload = {error: err.message};
+          msg.payload = { error: err.message };
           node.send([msg, null]);
         })
     });
