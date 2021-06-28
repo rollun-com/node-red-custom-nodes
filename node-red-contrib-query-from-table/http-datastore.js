@@ -14,9 +14,6 @@ class HttpDatastore {
     const { protocol, host, pathname } = url.parse(URL);
     if (!host) throw new Error(`url is not in valid format! [${URL}]`);
 
-    /** @type {import('rollun-ts-rql').RqlParser} */
-    this.rqlParser = new RqlParser();
-
     /**
      * MSG object, used to resolve variables in RQL string using Datastore.resolveRQLWithREDMsg
      * @type {object}
@@ -52,7 +49,7 @@ class HttpDatastore {
   /**
    *
    * @param rql {string}
-   * @returns {import('rollun-ts-rql').Query | string}
+   * @returns {string}
    */
 
   parseRql(rql) {
