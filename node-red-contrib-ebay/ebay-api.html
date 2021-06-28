@@ -51,7 +51,7 @@
           }, {
             type: 'enum',
             name: 'transactionType',
-            values: ['SALE', 'REFUND', 'CREDIT', 'DISPUTE', 'SHIPPING_LABEL', 'TRANSFER']
+            values: ['SALE', 'REFUND', 'CREDIT', 'DISPUTE', 'NON_SALE_CHARGE', 'SHIPPING_LABEL', 'TRANSFER']
           }, {
             type: 'enum',
             name: 'transactionStatus',
@@ -203,7 +203,7 @@
         // reset container
         container
           .html(`
-      <h4>Full doc for [${apiName}] API, [${methodName}] method can be found <a style="color: cornflowerblue" href="${docURL}">here</a></h4>
+      <h4>Full doc for [${apiName}] API, [${methodName}] method can be found <a style="color: cornflowerblue" target="_blank" href="${docURL}">here</a></h4>
       <h4><b>IMPORTANT:</b> If method meant to return an array of items, and nothing has been found by filter, Ebay will return an empty string as response, so as this node in payload.</h4>
       <div><b>All dates must be in ISO 8601 e.g. YYYY-MM-DDThh:mm:ss.mmmZ</b></div>
 `);
