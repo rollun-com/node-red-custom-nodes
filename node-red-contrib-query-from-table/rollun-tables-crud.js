@@ -1,5 +1,5 @@
 const { getTypedFieldValue } = require('../node-red-contrib-common-utils/1-global-utils')
-const { HttpDatastore } = require('./1-rollun-tables-utils');
+const { HttpDatastore } = require('./http-datastore');
 
 module.exports = function (RED) {
   function DatastoreCRUD(config) {
@@ -19,7 +19,6 @@ module.exports = function (RED) {
 
       const { url, action, idField, timeout } = config;
 
-      console.log(timeout)
       const datastore = new HttpDatastore({ URL: url, timeout, idField, msg });
 
       datastore[action]('', getTypedFieldValue(msg, config.payload))

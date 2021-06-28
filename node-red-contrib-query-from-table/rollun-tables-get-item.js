@@ -1,4 +1,4 @@
-const { HttpDatastore } = require('./1-rollun-tables-utils');
+const { HttpDatastore } = require('./http-datastore');
 module.exports = function (RED) {
   function Test(config) {
     RED.nodes.createNode(this, config);
@@ -18,9 +18,8 @@ module.exports = function (RED) {
       (new HttpDatastore({ URL: url, timeout, msg }))
         .getFirst('', rql)
         .then(result => {
-
           if (result === null) {
-            msg.payload = { error: 'No records found, or found 2 or more by this filter -' + processedRql };
+            msg.payload = { error: 'No records found, or found 2 or more by this filter - ' + rql };
             node.send([msg, null]);
           } else {
             msg.payload = result;

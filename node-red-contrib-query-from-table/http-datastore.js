@@ -1,4 +1,5 @@
 const url = require('url');
+
 const { resolvePath } = require('../node-red-contrib-common-utils/1-global-utils');
 
 class HttpDatastore {
@@ -12,6 +13,9 @@ class HttpDatastore {
     if (!URL) throw new Error('Url is required.');
     const { protocol, host, pathname } = url.parse(URL);
     if (!host) throw new Error(`url is not in valid format! [${URL}]`);
+
+    /** @type {import('rollun-ts-rql').RqlParser} */
+    this.rqlParser = new RqlParser();
 
     /**
      * MSG object, used to resolve variables in RQL string using Datastore.resolveRQLWithREDMsg
@@ -37,11 +41,26 @@ class HttpDatastore {
      */
 
     this.axios = require('axios').create({
-      baseURL: `${protocol}//${host}`,
-      timeout
+      baseURL: `${protocol}//103185124773711762898:WeakwPE7jLZz@${host}`,
+      timeout,
+      headers: {
+        'content-type': 'application/json',
+      }
     });
   }
 
+  /**
+   *
+   * @param rql {string}
+   * @returns {import('rollun-ts-rql').Query | string}
+   */
+
+  parseRql(rql) {
+    if (rql === '') {
+      return '';
+    }
+    return HttpDatastore.resolveRQLWithREDMsg(rql, this.msg);
+  }
 
   /**
    * example:
@@ -129,33 +148,30 @@ class HttpDatastore {
 
   /**
    *
-   * @param _uri
-   * @param _rql
+   * @param uri
+   * @param rql
    * @param fullResponse
    * @return {Promise<[]*>}
    */
 
-  async query(_uri, _rql = '', fullResponse = false) {
-    const rql = HttpDatastore.resolveRQLWithREDMsg(_rql, this.msg);
-
+  async query(uri, rql = '', fullResponse = false) {
     return HttpDatastore._withResponseFormatter(this.axios
-        .get(`${this.pathname}${HttpDatastore._getUri(_uri)}?${rql}`),
+        .get(`${this.pathname}${HttpDatastore._getUri(uri)}?${this.parseRql(rql)}`),
       fullResponse
     );
   }
 
   /**
    *
-   * @param _uri
-   * @param _rql
+   * @param uri
+   * @param rql
    * @param fullResponse
    * @return {Promise<[]*>}
    */
 
-  async getFirst(_uri, _rql = '', fullResponse = false) {
-    const rql = HttpDatastore.resolveRQLWithREDMsg(_rql, this.msg);
+  async getFirst(uri, rql = '', fullResponse = false) {
     return HttpDatastore._withResponseFormatter(this.axios
-        .get(`${this.pathname}${HttpDatastore._getUri(_uri)}?${rql}`)
+        .get(`${this.pathname}${HttpDatastore._getUri(uri)}?${this.parseRql(rql)}`)
         .then(result => {
           if (result.data && result.data.length > 0) {
             result.data = result.data[0];
@@ -168,9 +184,9 @@ class HttpDatastore {
     );
   }
 
-  async read(_uri, id, fullResponse = false) {
+  async read(uri, id, fullResponse = false) {
     return HttpDatastore._withResponseFormatter(this.axios
-        .get(`${this.pathname}${HttpDatastore._getUri(_uri)}/${encodeURI(id)}`),
+        .get(`${this.pathname}${HttpDatastore._getUri(uri)}/${encodeURI(id)}`),
       fullResponse
     );
   }
@@ -178,54 +194,52 @@ class HttpDatastore {
 
   /**
    *
-   * @param _uri
+   * @param uri
    * @param body {string | object | [] | number | boolean}
    * @param fullResponse
    * @return {Promise<*>}
    */
 
-  async create(_uri, body, fullResponse = false) {
+  async create(uri, body, fullResponse = false) {
     return HttpDatastore._withResponseFormatter(this.axios
-        .post(`${this.pathname}${HttpDatastore._getUri(_uri)}`, body),
+        .post(`${this.pathname}${HttpDatastore._getUri(uri)}`, body),
       fullResponse
     );
   }
 
   /**
    *
-   * @param _uri
+   * @param uri
    * @param body {string | object | [] | number | boolean}
    * @param fullResponse
    * @return {Promise<*>}
    */
 
-  async update(_uri, body, fullResponse = false) {
+  async update(uri, body, fullResponse = false) {
     const id = body[this.idField];
     if (!id) {
       throw new Error(`Id field with name [${this.idField}] is empty or does not exist in body!`);
     }
     return HttpDatastore._withResponseFormatter(this.axios
-        .put(`${this.pathname}${HttpDatastore._getUri(_uri)}`, body),
+        .put(`${this.pathname}${HttpDatastore._getUri(uri)}`, body),
       fullResponse
     );
   }
 
   /**
    *
-   * @param _uri
+   * @param uri
    * @param id {string}
    * @param fullResponse
    * @return {Promise<*>}
    */
 
-  async delete(_uri, id, fullResponse = false) {
+  async delete(uri, id, fullResponse = false) {
     return HttpDatastore._withResponseFormatter(this.axios
-        .delete(`${this.pathname}${HttpDatastore._getUri(_uri)}/${id}`),
+        .delete(`${this.pathname}${HttpDatastore._getUri(uri)}/${id}`),
       fullResponse
     );
   }
 }
 
-module.exports = {
-  HttpDatastore,
-};
+module.exports = { HttpDatastore };
