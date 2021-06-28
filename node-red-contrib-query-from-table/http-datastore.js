@@ -38,7 +38,7 @@ class HttpDatastore {
      */
 
     this.axios = require('axios').create({
-      baseURL: `${protocol}//103185124773711762898:WeakwPE7jLZz@${host}`,
+      baseURL: `${protocol}//${host}`,
       timeout,
       headers: {
         'content-type': 'application/json',
