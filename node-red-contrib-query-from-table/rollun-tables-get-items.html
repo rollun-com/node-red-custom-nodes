@@ -54,7 +54,10 @@
 
               const datastores = await dataStore.get('/api/webhook/HttpDataStoreList');
 
-              const datastore = datastores.find(ds => ds.name === datastoreName);
+              // defaults to /api/private endpoint on rollun.net
+              const datastore = datastores.find(ds => ds.name === datastoreName) || {
+                url: `http://rollun-net-prvt/api/private/datastore/${datastoreName}`
+              };
               if (!datastore) throw new Error('datastore is not found');
 
               const fields = await dataStore.get('/api/webhook/DataStoreFields', {name: datastoreName});
