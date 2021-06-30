@@ -23,10 +23,10 @@
 
         const datastores = await dataStore.get('/api/webhook/HttpDataStoreList');
 
-        const datastore = datastores.find(ds => ds.name === datastoreName);
-        if (!datastore) throw new Error('datastore is not found') || {
+        const datastore = datastores.find(ds => ds.name === datastoreName) || {
           url: `http://rollun-net-prvt/api/private/datastore/${datastoreName}`
         };
+        if (!datastore) throw new Error('datastore is not found')
 
         // const fields = ['id', 'field_1', 'field_2'];
         // const fields = await dataStore.get('/api/webhook/DataStoreFields', {name: datastoreName});
