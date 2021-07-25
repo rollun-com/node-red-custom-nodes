@@ -43,43 +43,7 @@
       errorMSgField.on('click', () => errorMSgField.html(''));
       $('#node-input-tableURL')
         .on('change', window.utils.debounce((e) => {
-          (async value => {
-            if (value.length === 0) return;
-            try {
-              errorMSgField.text('');
-              const dataStore = new window.utils.datastore('https://rollun.net');
-
-              const [pathname = ''] = value.split('?');
-
-              const pagePath = window.utils.last(pathname.split('/'));
-              if (!pagePath) throw new Error('pagePath is empty!');
-
-              const pages = await dataStore.get('/api/datastore/UserFrontConfig');
-
-              const pageConfig = pages.find(page => page.config.appPath === ('/' + pagePath));
-              if (!pageConfig) throw new Error('Cannot find config for this datastore in rollun.net!');
-
-              const pageDatastore = pageConfig.config?.appParams?.gridParams?.datastoreUrl;
-              if (!pageDatastore) throw new Error('No datastore found for this page!');
-
-              const datastoreName = window.utils.last(pageDatastore.split('/'));
-              if (!datastoreName) throw new Error('Datastore name if empty');
-
-              const datastores = await dataStore.get('/api/webhook/HttpDataStoreList');
-
-              // defaults to /api/private endpoint on rollun.net
-              const {url} = datastores.find(ds => ds.name === datastoreName) || {
-                url: `http://rollun-net-prvt/api/private/datastore/${datastoreName}`
-              };
-
-              // const fields = ['id', 'field_1', 'field_2'];
-              // const fields = await dataStore.get('/api/webhook/DataStoreFields', {name: datastoreName});
-
-              $('#node-input-url').val(url);
-            } catch (e) {
-              errorMSgField.text('Error: ' + (e.message || 'Unknown error'));
-            }
-          })(e.target.value.trim())
+          window.setPrivateDatastoreUrlFromInput(e.target.value.trim(), errorMSgField)
         }, 500))
     }
   });
