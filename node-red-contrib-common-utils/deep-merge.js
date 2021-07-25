@@ -1,4 +1,4 @@
-const {getTypedFieldValue, parseTypedInput} = require('../node-red-contrib-common-utils/1-global-utils')
+const {getTypedFieldValue} = require('../node-red-contrib-common-utils/1-global-utils')
 
 
 module.exports = function (RED) {
