@@ -112,7 +112,9 @@ function wait(duration = 1000) {
  * @return {{LT: string, PLT: string}}
  */
 
-function getLifecycleToken({ req, __parent_lifecycle_token, __lifecycle_token } = {}) {
+function getLifecycleToken(msg = {}) {
+  const { req, __parent_lifecycle_token, __lifecycle_token } = msg;
+  console.log('getLifecycleToken', msg);
   return {
     PLT: __parent_lifecycle_token || req.__parent_lifecycle_token || (req ? req.header('lifecycle_token') || req.header('lifecycletoken') || null : null),
     LT: __lifecycle_token || req.__lifecycle_token || randomString(30, 'QWERTYUIOPASDFGHJKLZXCVBNM0123456789'),
