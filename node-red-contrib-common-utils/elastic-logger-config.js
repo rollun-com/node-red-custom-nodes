@@ -4,7 +4,6 @@ module.exports = function (RED) {
 
     this.logstashHost = n.logstashHost;
     this.logstashPort = n.logstashPort;
-    this.indexName = n.indexName;
     this.minLevel = n.minLevel;
   }
 

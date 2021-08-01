@@ -11,8 +11,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       # deploy only dev node red servers
-      - name: Deploy dev manager node-red instance
-        run: curl ${{secrets.DEV_MANAGER_NR_HOOK}}
+#      - name: Deploy dev manager node-red instance
+#        run: curl ${{secrets.DEV_MANAGER_NR_HOOK}}
 
         #    - name: Deploy ceo node-red instance
         #      run: curl ${{secrets.CEO_NR_HOOK}}

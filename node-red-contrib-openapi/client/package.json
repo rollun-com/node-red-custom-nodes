@@ -1,0 +1,78 @@
+{
+  "_from": "openapi-red@1.0.1",
+  "_id": "openapi-red@1.0.1",
+  "_inBundle": false,
+  "_integrity": "sha512-HVs4gnTQ+NxyhdkIIZPzVLLeO8LLKEKGYk6raCV1Mkw73QPXQ9y3Rw3Nrvmh0kOSKX4GX3eBoGUKEE6zv7fO1Q==",
+  "_location": "/openapi-red",
+  "_phantomChildren": {},
+  "_requested": {
+    "type": "version",
+    "registry": true,
+    "raw": "openapi-red@1.0.1",
+    "name": "openapi-red",
+    "escapedName": "openapi-red",
+    "rawSpec": "1.0.1",
+    "saveSpec": null,
+    "fetchSpec": "1.0.1"
+  },
+  "_requiredBy": [
+    "#USER",
+    "/"
+  ],
+  "_resolved": "https://registry.npmjs.org/openapi-red/-/openapi-red-1.0.1.tgz",
+  "_shasum": "6e749ced51f74aadeeaf3730fd03e0e0b62e889e",
+  "_spec": "openapi-red@1.0.1",
+  "_where": "/data",
+  "author": {
+    "name": "Carl Lohrmann GmbH"
+  },
+  "bugs": {
+    "url": "https://gitlab.com/2WeltenChris/openApi-red/issues"
+  },
+  "bundleDependencies": false,
+  "contributors": [
+    {
+      "name": "Sebastian Meier"
+    },
+    {
+      "name": "Christian Geiger"
+    }
+  ],
+  "dependencies": {
+    "swagger-client": "^3.12.2"
+  },
+  "deprecated": false,
+  "description": "OpenAPI (Swagger) client for node-red ",
+  "devDependencies": {
+    "standard": "^16.0.3",
+    "svelte-integration-red": "^0.1.34"
+  },
+  "homepage": "https://gitlab.com/2WeltenChris/openApi-red#readme",
+  "keywords": [
+    "node-red",
+    "swagger",
+    "swagger client",
+    "openApi",
+    "openApi client",
+    "open api",
+    "open api client",
+    "open",
+    "api"
+  ],
+  "license": "MIT",
+  "main": "openApi-red.js",
+  "name": "openapi-red",
+  "node-red": {
+    "nodes": {
+      "openApi-red": "openApi-red.js"
+    }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://gitlab.com/2WeltenChris/openApi-red.git"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "version": "1.0.1"
+}

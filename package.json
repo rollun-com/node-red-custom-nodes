@@ -11,15 +11,15 @@
     "url": "git+https://github.com/rollun-com/node-red-custom-nodes.git"
   },
   "dependencies": {
+    "amazon-mws": "^0.0.27",
     "axios": "^0.19.2",
+    "file-type": "12.1.0",
     "google-spreadsheet": "^3.0.11",
     "node-red-contrib-string": "~0.2.2",
     "node-red-contrib-tgr-jsonata": "~1.0.2",
-    "amazon-mws": "^0.0.27",
-    "rollun-ts-utils": "^0",
     "q": "1.5.1",
     "request": "2.88.0",
-    "file-type": "12.1.0"
+    "rollun-ts-utils": "^0"
   },
   "author": "trickymax",
   "license": "ISC",

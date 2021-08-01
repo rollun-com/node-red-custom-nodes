@@ -1,4 +1,5 @@
 const _ = require('lodash');
+const { randomString } = require('rollun-ts-utils');
 
 /**
  *
@@ -105,10 +106,108 @@ function wait(duration = 1000) {
   return new Promise(resolve => setTimeout(resolve, 1000));
 }
 
+/**
+ * function will generate new LT and return in, also it will try to retrieve parent LT from request
+ * @param msg
+ * @return {{LT: string, PLT: string}}
+ */
+
+function getLifecycleToken({ req, __parent_lifecycle_token, __lifecycle_token } = {}) {
+  return {
+    PLT: __parent_lifecycle_token || req.__parent_lifecycle_token || (req ? req.header('lifecycle_token') || req.header('lifecycletoken') || null : null),
+    LT: __lifecycle_token || req.__lifecycle_token || randomString(30, 'QWERTYUIOPASDFGHJKLZXCVBNM0123456789'),
+  }
+}
+
+class UDPClient {
+  constructor(host, port) {
+    this._client = require('dgram').createSocket('udp4');
+    this.host = host;
+    this.port = port;
+  }
+
+  static _encodeData(data) {
+    const encodedDataString = typeof data === 'string'
+      ? data
+      : JSON.stringify(data);
+    return Buffer.from(encodedDataString);
+  }
+
+  send(data, cb = () => {
+  }) {
+    if (cb) {
+      this._client.send(
+        UDPClient._encodeData(data),
+        this.port,
+        this.host,
+        cb
+      )
+    } else {
+      return new Promise((resolve, reject) => {
+        this._client.send(
+          UDPClient._encodeData(data),
+          this.port,
+          this.host,
+          error => error ? reject(error) : resolve()
+        )
+      });
+    }
+  };
+
+  destroy() {
+    this._client.disconnect();
+  }
+}
+
+class ElasticLogger {
+  constructor(opts) {
+    this.index_name = opts.index_name;
+    this.lifecycle_token = opts.lifecycle_token;
+    this.parent_lifecycle_token = opts.parent_lifecycle_token;
+    this.udp_client = new UDPClient(opts.host, opts.port);
+  }
+
+  async _logProduction(log_level, message, context, lifecycle_token, parent_lifecycle_token) {
+
+    try {
+      const log = {
+        index_name: this.index_name,
+        level: log_level,
+        message,
+        context: context ? JSON.stringify(context) : null,
+        '@timestamp': (new Date()).toISOString(),
+        lifecycle_token: this.lifecycle_token || lifecycle_token || null,
+        parent_lifecycle_token: this.parent_lifecycle_token || parent_lifecycle_token || null
+      };
+      console.log(log);
+      await this.udp_client.send(log);
+    } catch (err) {
+      console.error(`Couldn't log [${message}] message`, err, err.meta);
+    }
+  }
+
+  async log(log_level, message, context, lifecycle_token, parent_lifecycle_token) {
+    return this._logProduction(log_level, message, context, lifecycle_token, parent_lifecycle_token);
+  }
+
+  destroy() {
+    this.udp_client.destroy();
+  }
+}
+
+const defaultLogger = new ElasticLogger({
+  index_name: process.env.SERVICE_NAME || 'default_node_red_log',
+  host: 'logstash',
+  port: '5044',
+});
+
 module.exports = {
+  defaultLogger,
+  ElasticLogger,
   resolvePath,
   parseTypedInput,
   getTypedFieldValue,
   resolvePayload,
   wait,
+  getLifecycleToken,
 }
