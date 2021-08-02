@@ -37,10 +37,8 @@
         },
         baseURL: {
           value: "/",
-          required: false,
-          validate: isString,
         },
-        'schema-url': {
+        schemaUrl: {
           value: '',
         }
       },
@@ -62,7 +60,7 @@
         const selectButton = $('#schema-file-select-button');
         const addButton = $('#schema-file-add-button');
         const fetchFromUrlButton = $('#schema-url-fetch-button');
-        const inputUrl = $('#node-config-input-schema-url');
+        const inputUrl = $('#node-config-input-schemaUrl');
         const setHistory = () => {
           if (node.history != null) {
             return;
@@ -145,6 +143,11 @@
             });
           }
 
+          // TODO: add swagger ui preview when it is ready
+          // $('#swagger-ui').html(`
+          //   <iframe src="https://swagger-editor.rollun.net?hideEditor=true&url=${inputUrl.val()}"></iframe>
+          // `)
+
           node.schema = next;
           $('#node-config-input-name')
             .val(`${next.info?.title || 'OpenAPI manifest'} v${next.info?.version || next.openapi}`);
@@ -213,42 +216,36 @@
 </script>
 
 <script type="text/x-red" data-template-name="rollun-openapi-manifest">
-    <div class="form-row">
-        <label for="schema-file-select-button"><i class="fa fa-upload"></i> Upload: </label>
-        <a class="red-ui-button" id="schema-file-select-button">
-            <i class="fa fa-upload"></i>
-            <span id="schema-file-title">select a file to import</span>
-        </a>
-        <input id="schema-file" type="file" accept=".json" style="display:none">
-        <button id="schema-file-add-button" class="red-ui-button primary">Use</button>
-    </div>
+<!--    <div class="form-row">-->
+<!--        <label for="schema-file-select-button"><i class="fa fa-upload"></i> Upload: </label>-->
+<!--        <a class="red-ui-button" id="schema-file-select-button">-->
+<!--            <i class="fa fa-upload"></i>-->
+<!--            <span id="schema-file-title">select a file to import</span>-->
+<!--        </a>-->
+<!--        <input id="schema-file" type="file" accept=".json" style="display:none">-->
+<!--        <button id="schema-file-add-button" class="red-ui-button primary">Use</button>-->
+<!--    </div>-->
     <div class="form-row">
         <label for="schema-url-fetch-button"><i class="fa fa-upload"></i> Fetch: </label>
-        <input id="node-config-input-schema-url" type="text">
+        <input id="node-config-input-schemaUrl" type="text">
         <button id="schema-url-fetch-button" class="red-ui-button primary">Fetch</button>
     </div>
     <div class="form-row">
         <label for="schema"><i class="fa fa-code"></i> Current: </label>
         <div id="schema" style="display: inline-block;"></div>
     </div>
-    <div class="form-row">
-        <label for="node-config-input-baseURL"><i class="fa fa-link"></i> Base URL: </label>
-        <input type="text" id="node-config-input-baseURL" />
-    </div>
+<!--    <div class="form-row">-->
+<!--        <label for="node-config-input-baseURL"><i class="fa fa-link"></i> Base URL: </label>-->
+<!--        <input type="text" id="node-config-input-baseURL" />-->
+<!--    </div>-->
     <div class="form-row">
         <label for="node-config-input-name"><i class="fa fa-tag"></i> Name: </label>
         <input type="text" id="node-config-input-name" />
     </div>
     <div class="form-tips"><b>Tip:</b> This is here to help.</div>
+    <div id="swagger-ui"></div>
+
 </script>
 
 <script type="text/x-red" data-help-name="rollun-openapi-manifest">
-    <p>Some useful help text to introduce the node.</p>
-    <h3>Outputs</h3>
-        <dl class="message-properties">
-        <dt>payload
-            <span class="property-type">string | buffer</span>
-        </dt>
-    <h3>Details</h3>
-    <p>Some more information about the node.</p>
 </script>

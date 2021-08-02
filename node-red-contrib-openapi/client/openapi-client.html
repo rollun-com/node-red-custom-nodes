@@ -1,0 +1,82 @@
+<script type="text/javascript">
+  function getMethodName(method, path) {
+    // console.log(method, path);
+    return `${method} ${path}`;
+  }
+
+  RED.nodes.registerType('rollun-openapi-client', {
+    category: 'network',
+    defaults: {
+      name: {
+        value: '',
+        required: false,
+      },
+      schema: {
+        value: '',
+        required: true,
+        type: 'rollun-openapi-manifest',
+      },
+      operation: {
+        value: '',
+        required: true,
+      },
+    },
+    inputs: 1,
+    outputs: 1,
+    color: '#63db2a',
+    label: function () {
+      const config = this.schema && RED.nodes.node(this.schema);
+      if (config) {
+        return `[${config.name}] ${this.operation}`;
+      }
+      return this.name || 'OpenAPI Client';
+    },
+    labelStyle: function () {
+      return this.name ? 'node_label_italic' : '';
+    },
+    icon: 'icon.png',
+    oneditprepare: function () {
+      const node = this;
+
+      function renderOperations(config) {
+        $('#node-input-operation')
+          .html(Object.entries(config.paths).map(([path, methods]) => {
+            return Object.entries(methods).map(([method, { summary, description }]) => {
+              const operation = getMethodName(method, path);
+              const isSelected = operation === node.operation;
+              return `<option value="${operation}" ${isSelected ? 'selected' : ''}>${method.toUpperCase()} ${path} ${summary || description || ''}</option>`;
+            })
+          }).join('\n'))
+      }
+
+      if (this.schema) {
+        const config = RED.nodes.node(this.schema).schema;
+        renderOperations(config)
+      }
+
+    },
+  });
+</script>
+
+<script type="text/x-red" data-template-name="rollun-openapi-client">
+    <div class="form-row">
+        <label for="node-input-schema"><i class="fa fa-book"></i> <span>Schema:</span></label>
+        <input type="text" id="node-input-schema">
+    </div>
+    <div class="form-row">
+        <label for="node-input-operation"><i class="fa fa-tasks"></i> <span>Operation:</span></label>
+        <select id="node-input-operation"></select>
+    </div>
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> <span>Name:</span></label>
+        <input type="text" id="node-input-name" />
+    </div>
+    <div class="form-tips"><b>Tip:</b> This is here to help.</div>
+
+
+
+
+</script>
+
+<script type="text/x-red" data-help-name="rollun-openapi-client">
+</script>
