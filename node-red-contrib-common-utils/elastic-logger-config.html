@@ -20,7 +20,7 @@
       name: {value: ''}
     },
     label: function () {
-      return this.name || `${this.logstashHost} ${this.indexName} min level - ${this.minLevel}`;
+      return this.name || `[${this.logstashHost}] min level - ${this.minLevel}`;
     },
     oneditprepare: function () {
       $('#node-config-input-minLevel')
@@ -39,10 +39,6 @@
   <div class="form-row">
     <label for="node-config-input-logstashPort"><i class="icon-bookmark"></i> Logstash Port</label>
     <input type="number" id="node-config-input-logstashPort">
-  </div>
-  <div class="form-row">
-    <label for="node-config-input-indexName"><i class="icon-bookmark"></i> Index Name</label>
-    <input type="text" id="node-config-input-indexName">
   </div>
   <div class="form-row">
     <label for="node-config-input-name"><i class="icon-bookmark"></i> Name</label>

@@ -49,19 +49,22 @@ module.exports = function register(RED) {
       validateRequests: true,
       validateResponses: true,
     });
-    router.use(function (req, res, next) {
-      const { LT, PLT } = getLifecycleToken({req});
-      req.__lifecycle_token = LT;
-      req.__parent_lifecycle_token = PLT;
-      defaultLogger.log(
-        'info',
-        `REQ: ${req.method} ${req.path}`,
-        { body: req.body, query: req.query, params: req.params },
-        LT,
-        PLT
-      );
-      next();
-    });
+    // TODO: logs 2 times fr 1 request, fixme
+    // router.use(function (req, res, next) {
+    //   if (req.reqLogged) return next();
+    //   const { LT, PLT } = getLifecycleToken({req});
+    //   req.__lifecycle_token = LT;
+    //   req.__parent_lifecycle_token = PLT;
+    //   defaultLogger.log(
+    //     'info',
+    //     `REQ: ${req.method} ${req.path}`,
+    //     { body: req.body, query: req.query, params: req.params },
+    //     LT,
+    //     PLT
+    //   );
+    //   res.reqLogged = true;
+    //   next();
+    // });
     validator.install(router).then(function () {
       routes.forEach(function (r) {
         return r(router);

@@ -1,5 +1,6 @@
 const _ = require('lodash');
 const { randomString } = require('rollun-ts-utils');
+const { createHash } = require('crypto');
 
 /**
  *
@@ -112,11 +113,22 @@ function wait(duration = 1000) {
  * @return {{LT: string, PLT: string}}
  */
 
-function getLifecycleToken(msg = {}) {
-  const { req, __parent_lifecycle_token, __lifecycle_token } = msg;
+function getLifecycleToken({ req, __parent_lifecycle_token, __lifecycle_token, _msgid } = {}) {
+  function getLTFromMsg(msg = {}) {
+    const { req, _msgid } = msg;
+    if (req && req.__lifecycle_token) return req.__lifecycle_token;
+    if (_msgid) return createHash('md5').update(_msgid).digest('hex').toUpperCase();
+    return null;
+  }
+
+  function getPLTFromReq(req) {
+    if (!req) return null;
+    return req.__parent_lifecycle_token || req.header('lifecycle_token') || req.header('lifecycletoken') || null;
+  }
+
   return {
-    PLT: __parent_lifecycle_token || (req && req.__parent_lifecycle_token) || (req ? req.header('lifecycle_token') || req.header('lifecycletoken') || null : null),
-    LT: __lifecycle_token || req.__lifecycle_token || randomString(30, 'QWERTYUIOPASDFGHJKLZXCVBNM0123456789'),
+    PLT: __parent_lifecycle_token || getPLTFromReq(req),
+    LT: __lifecycle_token || getLTFromMsg({ req, _msgid }) || randomString(30, 'QWERTYUIOPASDFGHJKLZXCVBNM0123456789'),
   }
 }
 
@@ -189,6 +201,11 @@ class ElasticLogger {
 
   async log(log_level, message, context, lifecycle_token, parent_lifecycle_token) {
     return this._logProduction(log_level, message, context, lifecycle_token, parent_lifecycle_token);
+  }
+
+  withMsg(msg) {
+    const { LT, PLT } = getLifecycleToken(msg);
+    return (level, msg, ctx = {}) => this.log(level, msg, ctx, LT, PLT);
   }
 
   destroy() {

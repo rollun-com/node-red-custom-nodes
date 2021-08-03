@@ -1,6 +1,6 @@
 const url = require('url');
 
-const { resolvePath } = require('../node-red-contrib-common-utils/1-global-utils');
+const { resolvePath, getLifecycleToken, defaultLogger } = require('../node-red-contrib-common-utils/1-global-utils');
 
 class HttpDatastore {
 
@@ -9,7 +9,7 @@ class HttpDatastore {
    * @param opts {{URL: string, timeout?: number}}
    * @param timeout {number?}
    */
-  constructor({ URL, idField = 'id', timeout = 10000, msg = {} }) {
+  constructor({ URL, idField = 'id', timeout = 10000, msg = {}, logRequest = false }) {
     if (!URL) throw new Error('Url is required.');
     const { protocol, host, pathname } = url.parse(URL);
     if (!host) throw new Error(`url is not in valid format! [${URL}]`);
@@ -37,13 +37,28 @@ class HttpDatastore {
      * @type {AxiosInstance}
      */
 
+    const { LT, PLT } = getLifecycleToken(msg);
     this.axios = require('axios').create({
       baseURL: `${protocol}//${host}`,
       timeout,
       headers: {
         'content-type': 'application/json',
+        lifecycle_token: LT,
+        parent_lifecycle_token: PLT,
       }
     });
+
+    if (logRequest) {
+      this.axios.interceptors.request.use((config) => {
+        defaultLogger.withMsg(msg)('info', `Request to datastore`, {
+          request: config.url,
+          method: config.method,
+          body: config.body,
+          datastore: URL,
+        });
+        return config;
+      });
+    }
   }
 
   /**

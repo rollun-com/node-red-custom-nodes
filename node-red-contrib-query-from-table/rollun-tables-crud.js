@@ -1,4 +1,4 @@
-const { getTypedFieldValue } = require('../node-red-contrib-common-utils/1-global-utils')
+const { getTypedFieldValue, defaultLogger } = require('../node-red-contrib-common-utils/1-global-utils')
 const { HttpDatastore } = require('./http-datastore');
 
 module.exports = function (RED) {
@@ -17,11 +17,13 @@ module.exports = function (RED) {
       if (!config.payload) return makeError(node, `payload is required!`);
       if (!config.idField) return makeError(node, `idField is required!`);
 
-      const { url, action, idField, timeout } = config;
+      const { url, action, idField, timeout, log } = config;
 
-      const datastore = new HttpDatastore({ URL: url, timeout, idField, msg });
+      const datastore = new HttpDatastore({ URL: url, timeout, idField, msg, logRequest: log });
 
-      datastore[action]('', getTypedFieldValue(msg, config.payload))
+      const payload = getTypedFieldValue(msg, config.payload);
+
+      datastore[action]('', payload)
         .then(result => {
           msg.payload = result;
           if (result && result.error) {
@@ -31,6 +33,7 @@ module.exports = function (RED) {
           }
         })
         .catch(err => {
+          console.log(err);
           msg.payload = { error: err.message };
           node.send([msg, null]);
         })

@@ -15,7 +15,7 @@ module.exports = function (RED) {
 
       const { rql = 'limit(20,0)', url, timeout } = config;
 
-      (new HttpDatastore({ URL: url, timeout, msg }))
+      (new HttpDatastore({ URL: url, timeout, msg, logRequest: config.log }))
         .getFirst('', rql)
         .then(result => {
           if (result === null) {

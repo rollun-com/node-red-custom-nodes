@@ -14,11 +14,11 @@ module.exports = function (RED) {
 
       if (!config.url) return makeError(node, `url is required!`);
 
-      const { rql = 'limit(20,0)', url, timeout } = config;
+      const { rql = 'limit(20,0)', url, timeout, log } = config;
 
       try {
 
-        const ds = new HttpDatastore({ URL: url, timeout, msg });
+        const ds = new HttpDatastore({ URL: url, timeout, msg, logRequest: log });
 
         msg.payload = await ds.query('', rql);
         node.send([null, msg]);

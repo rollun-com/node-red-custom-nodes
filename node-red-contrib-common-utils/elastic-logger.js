@@ -50,8 +50,7 @@ module.exports = function (RED) {
 
         try {
           if (typeof message !== 'string') throw new Error(`message must be of type string - ${typeof message} given!`);
-          const { LT, PLT } = getLifecycleToken(msg)
-          await logger.log(logLevel, message || 'default message', context || {}, LT, PLT);
+          await logger.withMsg(msg)(logLevel, message || 'default message', context || {});
         } catch (err) {
           node.warn({
             topic: `Could not log message: ${err.message}.`,
