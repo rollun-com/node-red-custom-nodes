@@ -75,7 +75,11 @@ module.exports = function (RED) {
 
       let requestConfig;
       try {
-        let url = schema.servers[0]?.url + methodName;
+        const [server] = schema.servers;
+        if (!server) {
+          throw new Error('no `server` found in servers in openapi manifest.')
+        }
+        let url = server.url + methodName;
         if (Object.keys(request.params).length > 0) {
           url = url.replace(/{.+}/g, (match) => {
             const paramName = match.slice(1, -1);
