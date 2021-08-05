@@ -13,24 +13,26 @@ module.exports = function register(RED) {
     RED.nodes.createNode(this, props);
 
     this.on('input', function (msg) {
-      const { LT, PLT } = getLifecycleToken(msg);
-      if (!LT) {
-        _this.error('Lifecycle token not found');
-        return;
-      }
-
-      const { data, messages = [] } = resolvePayload(msg, { data: props.data, messages: props.messages });
-
-      let msgs = messages;
-      if (msg.error && msg.error.source) {
-        const { message, source: { id, type } } = msg.error;
-        msgs = [{
-          level: 'error',
-          type: 'NODE_RED_NODE_EXCEPTION',
-          message: `Caught exception in node ${id} of type ${type} with message: '${message}'`,
-        }].concat(msgs);
-      }
       try {
+        const { LT, PLT } = getLifecycleToken(msg);
+        console.log('out', LT, PLT);
+
+        if (!LT) {
+          _this.error('Lifecycle token not found');
+          return;
+        }
+
+        const { data, messages = [] } = resolvePayload(msg, { data: props.data, messages: props.messages });
+
+        let msgs = messages;
+        if (msg.error && msg.error.source) {
+          const { message, source: { id, type } } = msg.error;
+          msgs = [{
+            level: 'error',
+            type: 'NODE_RED_NODE_EXCEPTION',
+            message: `Caught exception in node ${id} of type ${type} with message: '${message}'`,
+          }].concat(msgs);
+        }
         queue.dequeue(LT, function (req, res, __) {
           const statusCode = getStatusCodeFromMessages(msgs);
 
@@ -41,17 +43,16 @@ module.exports = function register(RED) {
             .send({ data: statusCode === 200 && data ? data : null, messages: msgs });
           res.on('finish', () => {
             if (!res.errorLogged) {
-              defaultLogger.log(
+              defaultLogger.withMsg(msg)(
                 'info',
-                `RES: ${req.method} ${req.path}`,
+                `OpenAPIServerRes: ${req.method} ${req.path}`,
                 { status: statusCode },
-                LT,
-                PLT
               );
             }
           });
         });
       } catch (err) {
+        console.log(err);
         _this.error(err);
       }
     });

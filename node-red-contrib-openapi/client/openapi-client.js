@@ -1,126 +1,135 @@
-const Swagger = require('swagger-client')
+const OpenAPIRequestValidator = require('openapi-request-validator').default;
+const axios = require('axios');
+const { getLifecycleToken, defaultLogger } = require('../../node-red-contrib-common-utils/1-global-utils');
 
 module.exports = function (RED) {
-  function openApiRed (config) {
+  function openApiRed(config) {
     RED.nodes.createNode(this, config)
     const node = this
 
-    node.on('input', function (msg) {
-      // let openApiUrl = config.openApiUrl
-      // if (msg.openApi && msg.openApi.url) openApiUrl = msg.openApi.url
-      // let parameters = {}
-      // let requestBody = {} // we need a separate parameter for body in OpenApi 3
-      //
-      // if (msg.openApi && msg.openApi.parameters) {
-      //   parameters = msg.openApi.parameters
-      // } else {
-      //   for (const p in config.parameters) {
-      //     const param = config.parameters[p]
-      //     let evaluatedInput = RED.util.evaluateNodeProperty(param.value, param.type, this, msg)
-      //     // query input can't be object. Therefore stringify!
-      //     if (typeof evaluatedInput === 'object' && param.in === 'query') {
-      //       evaluatedInput = JSON.stringify(evaluatedInput)
-      //     }
-      //     // can't use 'if (evaluatedInput)' due to values false and 0
-      //     if (param.required && (evaluatedInput === '' || evaluatedInput === null || evaluatedInput === undefined)) {
-      //       return node.error(`Required input for ${param.name} is missing.`, msg)
-      //     }
-      //     if (param.isActive && param.name !== 'Request body') {
-      //       // if (param.isActive) {
-      //       parameters[param.name] = evaluatedInput
-      //     }
-      //     if (param.isActive && param.name === 'Request body') {
-      //       requestBody = evaluatedInput
-      //     }
-      //   }
-      // }
-      // // preferred use operationId. If not available use pathname + method
-      // let operationId, pathName, method
-      // if (config.operationData.withoutOriginalOpId) {
-      //   pathName = config.operationData.pathName
-      //   method = config.operationData.method
-      // } else {
-      //   operationId = config.operation
-      // }
-      // // fallback if no content type can be found
-      // let requestContentType = 'application/json'
-      // if (config.contentType) {
-      //   requestContentType = config.contentType
-      // }
-      //
-      // // Start Swagger / OpenApi
-      // Swagger(openApiUrl).then((client) => {
-      //   client.execute({
-      //     operationId,
-      //     pathName,
-      //     method,
-      //     parameters,
-      //     requestBody,
-      //     requestContentType,
-      //     // if available put token for auth
-      //     requestInterceptor: (req) => {
-      //       if (msg.openApiToken) req.headers.Authorization = 'Bearer ' + msg.openApiToken
-      //       if (msg.headers) {
-      //         req.headers = Object.assign(req.headers || {}, msg.headers)
-      //       }
-      //     }
-      //   })
-      //     .then((res) => {
-      //       msg.payload = res
-      //       node.send(msg)
-      //     }).catch((e) => {
-      //     sendError(node, config, msg, e)
-      //   })
-      // }).catch(e => {
-      //   sendError(node, config, msg, e)
-      // })
+    const configNode = RED.nodes.getNode(config.schema)
+    const schema = configNode ? configNode.schema : null;
+
+    function sendError(msg, text) {
+      msg.payload = {
+        error: text,
+      }
+      return node.send([msg]);
+    }
+
+    node.on('input', async function (msg) {
+      if (!schema) {
+        return sendError(msg, 'No openapi schema selected.');
+      }
+
+      const [method, methodName] = config.operation.split(' ');
+
+      const endpointConfig = schema.paths[methodName][method];
+      if (!endpointConfig) {
+        return sendError(msg, `No method found by operation ${config.operation}`);
+      }
+
+      const validator = new OpenAPIRequestValidator({
+        ...endpointConfig,
+        schemas: schema.components.schemas,
+      });
+
+      const headers = msg.headers || {};
+      const { LT, PLT } = getLifecycleToken(msg);
+      console.log(LT, PLT);
+      const request = {
+        headers: {
+          ...headers,
+          ...(!headers['content-type'] && { 'content-type': 'application/json' }),
+          lifecycle_token: LT,
+          ...(PLT && { parent_lifecycle_token: PLT }),
+        },
+        body: msg.body || {},
+        params: msg.params || {},
+        query: msg.query || {},
+      }
+
+      if (!config.disableValidation) {
+        try {
+          const validationResult = validator.validateRequest(request);
+          if (validationResult) {
+            const { status, errors = [] } = validationResult;
+            msg.payload = {
+              status,
+              headers: {},
+              body: {
+                data: null,
+                messages: errors.map(({ location = '', path, message }) => ({
+                  level: 'error',
+                  type: 'OPENAPI_REQUEST_VALIDATION_ERROR',
+                  text: `[${location}.${path}] ${message}`,
+                })),
+              }
+            }
+            return node.send([msg]);
+          }
+        } catch (e) {
+          return sendError(msg, e.message);
+        }
+      }
+
+      let requestConfig;
+      try {
+        let url = schema.servers[0]?.url + methodName;
+        if (Object.keys(request.params).length > 0) {
+          url = url.replace(/{.+}/g, (match) => {
+            const paramName = match.slice(1, -1);
+            return request.params[paramName];
+          });
+        }
+        requestConfig = {
+          url,
+          method: method.toUpperCase(),
+          headers: request.headers,
+          data: request.body,
+          params: request.query,
+        }
+        defaultLogger.withMsg(msg)(
+          'info',
+          `OpenAPIClientReq: ${requestConfig.method} ${url}`,
+          { ...requestConfig },
+        );
+        const { status, headers, data } = await axios(requestConfig);
+        defaultLogger.withMsg(msg)(
+          'info',
+          `OpenAPIClientRes: ${requestConfig.method} ${requestConfig.url}`,
+          { status, headers, messages: data.messages },
+        );
+        msg.payload = {
+          status,
+          headers,
+          data,
+        };
+        node.send([null, msg]);
+      } catch (e) {
+        const defaultMessage = {
+          level: 'error',
+          type: 'UNKNOWN_REQUEST_ERROR',
+          message: e.message,
+        }
+        const { data = null, messages = [defaultMessage] } = (e.response || {}).data || {};
+        msg.payload = {
+          status: e.status || 'UNKNOWN',
+          headers: {},
+          body: {
+            data,
+            messages,
+          }
+        }
+        defaultLogger.withMsg(msg)(
+          'error',
+          `OpenAPIClientRes: ${requestConfig?.method} ${requestConfig?.url}`,
+          { status: e.status || 'UNKNOWN', ...(requestConfig || {}), messages },
+        );
+        return node.send([msg]);
+      }
     })
   }
-  RED.nodes.registerType('rollun-openapi-client', openApiRed)
 
-  // create API List
-  RED.httpAdmin.get('/getNewOpenApiInfo', (request, response) => {
-    // const openApiUrl = request.query.openApiUrl
-    // if (!openApiUrl) {
-    //   response.send("Missing or invalid openApiUrl parameter 'openApiUrl': " + openApiUrl)
-    //   return
-    // }
-    // const decodedUrl = decodeURIComponent(openApiUrl)
-    // const newApiList = {}
-    // Swagger(decodedUrl).then((client) => {
-    //   const paths = client.spec.paths
-    //   Object.keys(paths).forEach((pathKey) => {
-    //     const path = paths[pathKey]
-    //     Object.keys(path).forEach((operationKey) => {
-    //       const operation = path[operationKey]
-    //       let opId = operation.operationId
-    //
-    //       if (typeof operation === 'object') {
-    //
-    //         // fallback if no operation id exists
-    //         if (!opId) {
-    //           opId = operationKey + pathKey
-    //           operation.operationId = opId
-    //           operation.withoutOriginalOpId = true
-    //           operation.pathName = pathKey
-    //           operation.method = operationKey
-    //         }
-    //
-    //         // default if no array tag exists
-    //         if ((!operation.tags) || operation.tags.constructor !== Array || operation.tags.length === 0) operation.tags = ['default']
-    //         for (const tag of operation.tags) {
-    //           if (!newApiList[tag]) newApiList[tag] = {}
-    //           operation.path = pathKey
-    //           newApiList[tag][opId] = operation
-    //         }
-    //
-    //       }
-    //     })
-    //   })
-    //   response.send(newApiList)
-    // }).catch((e) => {
-    //   if (e.message) response.send(e.message.toString())
-    //   else response.send('Error: ' + e)
-    // })
-  })
+  RED.nodes.registerType('rollun-openapi-client', openApiRed)
 }

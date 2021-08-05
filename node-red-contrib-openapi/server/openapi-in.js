@@ -35,8 +35,8 @@ module.exports = function register(RED) {
         handler: function (req, res, next) {
           const { LT, PLT } = queue.enqueue(req, res, next);
           const msg = {
-            __lifecycle_token: LT,
-            __parent_lifecycle_token: PLT,
+            LT,
+            PLT,
             cookies: req.cookies,
             headers: req.headers,
             params: req.params,

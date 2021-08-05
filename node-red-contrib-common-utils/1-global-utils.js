@@ -113,22 +113,22 @@ function wait(duration = 1000) {
  * @return {{LT: string, PLT: string}}
  */
 
-function getLifecycleToken({ req, __parent_lifecycle_token, __lifecycle_token, _msgid } = {}) {
+function getLifecycleToken({ req, LT, PLT, _msgid } = {}) {
   function getLTFromMsg(msg = {}) {
     const { req, _msgid } = msg;
-    if (req && req.__lifecycle_token) return req.__lifecycle_token;
+    if (req && req.LT) return req.LT;
     if (_msgid) return createHash('md5').update(_msgid).digest('hex').toUpperCase();
     return null;
   }
 
   function getPLTFromReq(req) {
     if (!req) return null;
-    return req.__parent_lifecycle_token || req.header('lifecycle_token') || req.header('lifecycletoken') || null;
+    return req.PLT || req.header('lifecycle_token') || req.header('lifecycletoken') || null;
   }
 
   return {
-    PLT: __parent_lifecycle_token || getPLTFromReq(req),
-    LT: __lifecycle_token || getLTFromMsg({ req, _msgid }) || randomString(30, 'QWERTYUIOPASDFGHJKLZXCVBNM0123456789'),
+    PLT: PLT || getPLTFromReq(req),
+    LT: LT || getLTFromMsg({ req, _msgid }) || randomString(30, 'QWERTYUIOPASDFGHJKLZXCVBNM0123456789'),
   }
 }
 

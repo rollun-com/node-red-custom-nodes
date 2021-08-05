@@ -17,6 +17,21 @@ module.exports = function register(RED) {
   if (RED.httpNode) {
     RED.httpNode.use(mainRouter);
   }
+
+  mainRouter.use(function (req, res, next) {
+    const { LT, PLT } = getLifecycleToken({ req });
+    req.LT = LT;
+    req.PLT = PLT;
+    defaultLogger.log(
+      'info',
+      `OpenAPIServerReq: ${req.method} ${req.path}`,
+      { body: req.body, query: req.query, params: req.params, headers: req.headers },
+      LT,
+      PLT
+    );
+    next();
+  });
+
   RED.nodes.registerType('rollun-openapi-manifest', function openapiSchemaNode(props) {
     const _this = this;
     RED.nodes.createNode(this, props);
@@ -49,22 +64,7 @@ module.exports = function register(RED) {
       validateRequests: true,
       validateResponses: true,
     });
-    // TODO: logs 2 times fr 1 request, fixme
-    // router.use(function (req, res, next) {
-    //   if (req.reqLogged) return next();
-    //   const { LT, PLT } = getLifecycleToken({req});
-    //   req.__lifecycle_token = LT;
-    //   req.__parent_lifecycle_token = PLT;
-    //   defaultLogger.log(
-    //     'info',
-    //     `REQ: ${req.method} ${req.path}`,
-    //     { body: req.body, query: req.query, params: req.params },
-    //     LT,
-    //     PLT
-    //   );
-    //   res.reqLogged = true;
-    //   next();
-    // });
+
     validator.install(router).then(function () {
       routes.forEach(function (r) {
         return r(router);
@@ -76,9 +76,13 @@ module.exports = function register(RED) {
           return next();
         }
         const errors = err.errors || [];
-        const formatted = errors.map(({path, message}) => ({
+        const formatted = errors.map(({ path, message }) => ({
           level: 'error',
-          type: path.includes('response') ? 'OPENAPI_RESPONSE_VALIDATION_ERROR' : 'OPENAPI_REQUEST_VALIDATION_ERROR',
+          type: path.includes('response')
+            ? 'OPENAPI_RESPONSE_VALIDATION_ERROR'
+            : path.includes('request')
+              ? 'OPENAPI_REQUEST_VALIDATION_ERROR'
+              : 'OPENAPI_VALIDATION_ERROR',
           text: `[${path}] ${message}`,
         }));
         const { LT, PLT } = getLifecycleToken({ req });
@@ -89,7 +93,7 @@ module.exports = function register(RED) {
         res.errorLogged = true;
         defaultLogger.log(
           'error',
-          `RES: ${req.method} ${req.path}`,
+          `OpenAPIServerRes: ${req.method} ${req.path}`,
           { status: 500, messages: formatted },
           LT,
           PLT
@@ -160,7 +164,7 @@ module.exports = function register(RED) {
         }
         return res.send(schema);
       } catch (e) {
-        return res.status(500).send({error: e.message});
+        return res.status(500).send({ error: e.message });
       }
     });
   }
