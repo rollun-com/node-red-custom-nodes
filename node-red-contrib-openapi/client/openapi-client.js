@@ -123,7 +123,7 @@ module.exports = function (RED) {
         }
         defaultLogger.withMsg(msg)(
           'error',
-          `OpenAPIClientRes: ${requestConfig?.method} ${requestConfig?.url}`,
+          `OpenAPIClientRes: ${requestConfig && requestConfig.method} ${requestConfig && requestConfig.url}`,
           { status: e.status || 'UNKNOWN', ...(requestConfig || {}), messages },
         );
         return node.send([msg]);
