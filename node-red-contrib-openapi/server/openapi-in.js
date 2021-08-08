@@ -2,6 +2,7 @@
 const helpers = require("./helpers");
 const queue = require("./queue");
 const route = require("./route");
+const { defaultLogger } = require('../../node-red-contrib-common-utils/1-global-utils');
 
 module.exports = function register(RED) {
   RED.nodes.registerType('rollun-openapi-in', function openapiNode(props) {
@@ -33,17 +34,29 @@ module.exports = function register(RED) {
         router: r,
         operation: _this.operation,
         handler: function (req, res, next) {
-          const { LT, PLT } = queue.enqueue(req, res, next);
+          const msgid = RED.util.generateId();
+          const { lToken, plToken } = queue.enqueue(msgid, req, res, next);
+          req.plToken = plToken;
+          req.lToken = lToken;
+          defaultLogger.withMsg({ req })(
+            'info',
+            `OpenAPIServerReq: ${req.method} ${req.path}`,
+            { body: req.body, query: req.query, params: req.params, headers: req.headers },
+          );
           const msg = {
-            LT,
-            PLT,
-            cookies: req.cookies,
-            headers: req.headers,
-            params: req.params,
-            path: req.path,
-            payload: req.body,
-            query: req.query,
-            url: req.url,
+            _msgid: msgid,
+            openapiRequest: {
+              lToken,
+              plToken,
+              remoteAddress: req.socket.remoteAddress,
+              cookies: req.cookies,
+              headers: req.headers,
+              params: req.params,
+              path: req.path,
+              url: req.url,
+              payload: req.body,
+              query: req.query,
+            },
           };
           _this.send(msg);
         },

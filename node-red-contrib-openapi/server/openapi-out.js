@@ -14,10 +14,9 @@ module.exports = function register(RED) {
 
     this.on('input', function (msg) {
       try {
-        const { LT, PLT } = getLifecycleToken(msg);
-        console.log('out', LT, PLT);
+        const { lToken, plToken } = getLifecycleToken(msg);
 
-        if (!LT) {
+        if (!lToken) {
           _this.error('Lifecycle token not found');
           return;
         }
@@ -25,19 +24,20 @@ module.exports = function register(RED) {
         const { data, messages = [] } = resolvePayload(msg, { data: props.data, messages: props.messages });
 
         let msgs = messages;
-        if (msg.error && msg.error.source) {
+        if (msg.error && msg.error.source && !msgs.some(({ type }) => type === 'NODE_RED_NODE_EXCEPTION')) {
           const { message, source: { id, type } } = msg.error;
           msgs = [{
             level: 'error',
             type: 'NODE_RED_NODE_EXCEPTION',
-            message: `Caught exception in node ${id} of type ${type} with message: '${message}'`,
+            text: `Caught exception in node ${id} of type ${type} with message: '${message}'`,
           }].concat(msgs);
         }
-        queue.dequeue(LT, function (req, res, __) {
+
+        queue.dequeue(lToken, function (req, res, __) {
           const statusCode = getStatusCodeFromMessages(msgs);
 
-          res.set('lifecycle_token', LT);
-          res.set('parent_lifecycle_token', PLT || '');
+          res.set('lifecycle_token', lToken);
+          res.set('parent_lifecycle_token', plToken || '');
           res
             .status(statusCode)
             .send({ data: statusCode === 200 && data ? data : null, messages: msgs });

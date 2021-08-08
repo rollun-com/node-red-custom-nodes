@@ -19,6 +19,9 @@
           value: 'error',
           required: true,
         },
+        fromMsg: {
+          value: 'msg|',
+        },
         text: {
           value: 'const|stub text',
         },
@@ -30,7 +33,8 @@
       outputs: 1,
       color: '#63db2a',
       label: function () {
-        return this.name || `Add ${this.level} message`;
+        const [, value] = this.fromMsg.split('|');
+        return this.name || `Add ${value ? '' : this.level} message`;
       },
       labelStyle: function () {
         return this.name ? 'node_label_italic' : '';
@@ -42,6 +46,7 @@
           label: "msg."
         }], undefined, this.oldMessages);
 
+        window.utils.makeTypedInput('fromMsg', undefined, undefined, this.fromMsg);
         window.utils.makeTypedInput('text', undefined, undefined, this.text);
         window.utils.makeTypedInput('msgType', undefined, 'Type', this.msgType);
       },
@@ -69,6 +74,8 @@
        <option value="emergency">emergency</option>
     </select>
     </div>
+    <div class="form-row" id="fromMsg"></div>
+    <div class="form-tips"><b>Tip:</b> If this value is provided, it will override 'Level'.</div>
     <div class="form-row" id="msgType"></div>
     <div class="form-row" id="text"></div>
 </script>

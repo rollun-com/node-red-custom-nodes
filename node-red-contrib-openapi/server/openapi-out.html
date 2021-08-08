@@ -4,10 +4,6 @@
       return typeof v === 'string';
     }
 
-    function isBoolean(v) {
-      return typeof v === 'boolean';
-    }
-
     RED.nodes.registerType('rollun-openapi-out', {
       category: 'network',
       defaults: {
@@ -55,16 +51,8 @@
     </div>
     <div class="form-row" id="data"></div>
     <div class="form-row" id="messages"></div>
+    <div class="form-tips"><b>Tip:</b> If you want to customise automatic handling of exceptions, you can add message with type <code>NODE_RED_NODE_EXCEPTION</code> and openapi-out node will not try to add generic error message.</div>
 </script>
 
 <script type="text/x-red" data-help-name="rollun-openapi-out">
-    <p>Some useful help text to introduce the node.</p>
-    <h3>Outputs</h3>
-        <dl class="message-properties">
-        <dt>payload
-            <span class="property-type">string | buffer</span>
-        </dt>
-    <h3>Details</h3>
-    <p>OpenAPI schema based HTTP client.</p>
-
 </script>

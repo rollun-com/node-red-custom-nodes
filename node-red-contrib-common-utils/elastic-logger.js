@@ -1,4 +1,4 @@
-const { ElasticLogger, getLifecycleToken, getTypedFieldValue, parseTypedInput } = require('./1-global-utils');
+const { ElasticLogger, getTypedFieldValue, parseTypedInput } = require('./1-global-utils');
 
 const log_levels = {
   debug: { value: 0, name: 'debug', description: '' },

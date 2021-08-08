@@ -18,20 +18,6 @@ module.exports = function register(RED) {
     RED.httpNode.use(mainRouter);
   }
 
-  mainRouter.use(function (req, res, next) {
-    const { LT, PLT } = getLifecycleToken({ req });
-    req.LT = LT;
-    req.PLT = PLT;
-    defaultLogger.log(
-      'info',
-      `OpenAPIServerReq: ${req.method} ${req.path}`,
-      { body: req.body, query: req.query, params: req.params, headers: req.headers },
-      LT,
-      PLT
-    );
-    next();
-  });
-
   RED.nodes.registerType('rollun-openapi-manifest', function openapiSchemaNode(props) {
     const _this = this;
     RED.nodes.createNode(this, props);
@@ -85,18 +71,16 @@ module.exports = function register(RED) {
               : 'OPENAPI_VALIDATION_ERROR',
           text: `[${path}] ${message}`,
         }));
-        const { LT, PLT } = getLifecycleToken({ req });
+        const { lToken, plToken = '' } = getLifecycleToken({ req });
 
-        res.set('lifecycle_token', LT);
-        res.set('parent_lifecycle_token', PLT || '');
+        res.set('lifecycle_token', lToken);
+        res.set('parent_lifecycle_token', plToken);
         res.status(500).json({ data: null, messages: formatted });
         res.errorLogged = true;
-        defaultLogger.log(
+        defaultLogger.withMsg({ req })(
           'error',
           `OpenAPIServerRes: ${req.method} ${req.path}`,
-          { status: 500, messages: formatted },
-          LT,
-          PLT
+          { status: 500, messages: formatted, err: err.stack },
         );
       });
     });

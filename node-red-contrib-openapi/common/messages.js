@@ -8,14 +8,15 @@ module.exports = function register(RED) {
     RED.nodes.createNode(this, props);
 
     this.on('input', function (msg) {
-      const { oldMessages = [], text, type } = resolvePayload(msg, {
+      const { oldMessages = [], text, type, fromMsg } = resolvePayload(msg, {
         oldMessages: props.oldMessages,
         text: props.text,
         type: props.msgType,
+        fromMsg: props.fromMsg,
       });
 
       const message = {
-        level: props.level,
+        level: fromMsg || props.level,
         text,
         type,
       };

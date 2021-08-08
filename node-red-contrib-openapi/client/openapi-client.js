@@ -1,6 +1,10 @@
 const OpenAPIRequestValidator = require('openapi-request-validator').default;
 const axios = require('axios');
-const { getLifecycleToken, defaultLogger } = require('../../node-red-contrib-common-utils/1-global-utils');
+const {
+  getLifecycleToken,
+  defaultLogger,
+  getTypedFieldValue
+} = require('../../node-red-contrib-common-utils/1-global-utils');
 
 module.exports = function (RED) {
   function openApiRed(config) {
@@ -34,19 +38,18 @@ module.exports = function (RED) {
         schemas: schema.components.schemas,
       });
 
-      const headers = msg.headers || {};
-      const { LT, PLT } = getLifecycleToken(msg);
-      console.log(LT, PLT);
+      const headers = getTypedFieldValue(msg, config.headers);
+      const { lToken, plToken } = getLifecycleToken(msg);
       const request = {
         headers: {
+          'content-type': 'application/json',
+          lifecycle_token: lToken,
+          ...(plToken && { parent_lifecycle_token: plToken }),
           ...headers,
-          ...(!headers['content-type'] && { 'content-type': 'application/json' }),
-          lifecycle_token: LT,
-          ...(PLT && { parent_lifecycle_token: PLT }),
         },
-        body: msg.body || {},
-        params: msg.params || {},
-        query: msg.query || {},
+        body: getTypedFieldValue(msg, config.body) || {},
+        params: getTypedFieldValue(msg, config.params) || {},
+        query: getTypedFieldValue(msg, config.query) || {},
       }
 
       if (!config.disableValidation) {
@@ -75,17 +78,19 @@ module.exports = function (RED) {
 
       let requestConfig;
       try {
-        const [server] = schema.servers;
+        const server = schema.servers[+config.server];
         if (!server) {
-          throw new Error('no `server` found in servers in openapi manifest.')
+          throw new Error(`no 'server' found in servers by index ${config.server} in openapi manifest.`)
         }
         let url = server.url + methodName;
-        if (Object.keys(request.params).length > 0) {
-          url = url.replace(/{.+}/g, (match) => {
-            const paramName = match.slice(1, -1);
-            return request.params[paramName];
-          });
-        }
+        url = url.replace(/{.+}/g, (match) => {
+          const paramName = match.slice(1, -1);
+          const value = request.params[paramName];
+          if (!value) {
+            throw new Error(`value for param ${match} not found in params.`);
+          }
+          return value;
+        });
         requestConfig = {
           url,
           method: method.toUpperCase(),
@@ -116,9 +121,10 @@ module.exports = function (RED) {
           type: 'UNKNOWN_REQUEST_ERROR',
           message: e.message,
         }
-        const { data = null, messages = [defaultMessage] } = (e.response || {}).data || {};
+        const { response = {} } = e;
+        const { data = null, messages = [defaultMessage] } = response.data || {};
         msg.payload = {
-          status: e.status || 'UNKNOWN',
+          status: response.status || 'UNKNOWN',
           headers: {},
           body: {
             data,

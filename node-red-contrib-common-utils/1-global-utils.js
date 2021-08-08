@@ -110,25 +110,25 @@ function wait(duration = 1000) {
 /**
  * function will generate new LT and return in, also it will try to retrieve parent LT from request
  * @param msg
- * @return {{LT: string, PLT: string}}
+ * @return {{lToken: string, plToken: string}}
  */
 
-function getLifecycleToken({ req, LT, PLT, _msgid } = {}) {
+function getLifecycleToken({ req, openapiRequest = {}, _msgid } = {}) {
   function getLTFromMsg(msg = {}) {
     const { req, _msgid } = msg;
-    if (req && req.LT) return req.LT;
+    if (req && req.lToken) return req.lToken;
     if (_msgid) return createHash('md5').update(_msgid).digest('hex').toUpperCase();
     return null;
   }
 
   function getPLTFromReq(req) {
     if (!req) return null;
-    return req.PLT || req.header('lifecycle_token') || req.header('lifecycletoken') || null;
+    return req.plToken || req.header('lifecycle_token') || req.header('lifecycletoken') || null;
   }
 
   return {
-    PLT: PLT || getPLTFromReq(req),
-    LT: LT || getLTFromMsg({ req, _msgid }) || randomString(30, 'QWERTYUIOPASDFGHJKLZXCVBNM0123456789'),
+    plToken: openapiRequest.plToken || getPLTFromReq(req),
+    lToken: openapiRequest.lToken || getLTFromMsg({ req, _msgid }),
   }
 }
 
@@ -199,13 +199,13 @@ class ElasticLogger {
     }
   }
 
-  async log(log_level, message, context, lifecycle_token, parent_lifecycle_token) {
-    return this._logProduction(log_level, message, context, lifecycle_token, parent_lifecycle_token);
+  async log(logLevel, message, context, lToken, plToken) {
+    return this._logProduction(logLevel, message, context, lToken, plToken);
   }
 
   withMsg(msg) {
-    const { LT, PLT } = getLifecycleToken(msg);
-    return (level, msg, ctx = {}) => this.log(level, msg, ctx, LT, PLT);
+    const { lToken, plToken } = getLifecycleToken(msg);
+    return (level, msg, ctx = {}) => this.log(level, msg, ctx, lToken, plToken);
   }
 
   destroy() {

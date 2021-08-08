@@ -20,9 +20,24 @@
         value: '',
         required: true,
       },
+      server: {
+        value: 0,
+      },
       disableValidation: {
         value: false,
-      }
+      },
+      body: {
+        value: 'msg|',
+      },
+      params: {
+        value: 'msg|',
+      },
+      headers: {
+        value: 'msg|',
+      },
+      query: {
+        value: 'msg|',
+      },
     },
     inputs: 1,
     outputs: 2,
@@ -47,7 +62,12 @@
     oneditprepare: function () {
       const node = this;
 
-      function renderOperations(config) {
+      window.utils.makeTypedInput('body', [{ value: "msg", label: "msg." }], undefined, this.body);
+      window.utils.makeTypedInput('params', [{ value: "msg", label: "msg." }], undefined, this.params);
+      window.utils.makeTypedInput('headers', [{ value: "msg", label: "msg." }], undefined, this.headers);
+      window.utils.makeTypedInput('query', [{ value: "msg", label: "msg." }], undefined, this.query);
+
+      function render(config) {
         $('#node-input-operation')
           .html(Object.entries(config.paths).map(([path, methods]) => {
             return Object.entries(methods).map(([method, { summary, description }]) => {
@@ -55,12 +75,18 @@
               const isSelected = operation === node.operation;
               return `<option value="${operation}" ${isSelected ? 'selected' : ''}>${method.toUpperCase()} ${path} ${summary || description || ''}</option>`;
             })
-          }).join('\n'))
+          }).join('\n'));
+
+        $('#node-input-server')
+          .html(config.servers.map(({ url }, idx) => {
+            const isSelected = idx === +node.server;
+            return `<option value="${idx}" ${isSelected ? 'selected' : ''}>#${idx + 1} ${url}</option>`;
+          }).join('\n'));
       }
 
       if (this.schema) {
         const config = RED.nodes.node(this.schema).schema;
-        renderOperations(config)
+        render(config)
       }
 
     },
@@ -76,14 +102,24 @@
         <label for="node-input-operation"><i class="fa fa-tasks"></i> <span>Operation:</span></label>
         <select id="node-input-operation"></select>
     </div>
+        <div class="form-row">
+        <label for="node-input-server"><i class="fa fa-tasks"></i> <span>Server:</span></label>
+        <select id="node-input-server"></select>
+    </div>
     <div class="form-row">
         <label for="node-input-name"><i class="fa fa-tag"></i> <span>Name:</span></label>
         <input type="text" id="node-input-name" />
     </div>
     <div class="">
-        <span> Disable validation</span>
+        <span> Disable client side request validation</span>
         <input style="margin-left: 5px; margin-bottom: 6px" type="checkbox" id="node-input-disableValidation">
     </div>
+    <h3>Inputs:</h3>
+    <div class="form-row" id="body"></div>
+    <div class="form-row" id="params"></div>
+    <div class="form-row" id="headers"></div>
+    <div class="form-row" id="query"></div>
+    <div class="form-tips"><b>Tip:</b> If you do not have some of the inputs, leave them empty.</div>
 </script>
 
 <script type="text/x-red" data-help-name="rollun-openapi-client">

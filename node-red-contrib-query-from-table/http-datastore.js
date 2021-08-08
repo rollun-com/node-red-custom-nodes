@@ -37,14 +37,14 @@ class HttpDatastore {
      * @type {AxiosInstance}
      */
 
-    const { LT, PLT } = getLifecycleToken(msg);
+    const { lToken, plToken } = getLifecycleToken(msg);
     this.axios = require('axios').create({
       baseURL: `${protocol}//${host}`,
       timeout,
       headers: {
         'content-type': 'application/json',
-        lifecycle_token: LT,
-        parent_lifecycle_token: PLT,
+        lifecycle_token: lToken,
+        parent_lifecycle_token: plToken,
       }
     });
 
