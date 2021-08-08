@@ -77,8 +77,8 @@ module.exports = function (RED) {
       }
 
       let requestConfig;
+      const server = schema.servers[+config.server];
       try {
-        const server = schema.servers[+config.server];
         if (!server) {
           throw new Error(`no 'server' found in servers by index ${config.server} in openapi manifest.`)
         }
@@ -112,6 +112,7 @@ module.exports = function (RED) {
         msg.payload = {
           status,
           headers,
+          requestConfig,
           data,
         };
         node.send([null, msg]);
@@ -125,6 +126,14 @@ module.exports = function (RED) {
         const { data = null, messages = [defaultMessage] } = response.data || {};
         msg.payload = {
           status: response.status || 'UNKNOWN',
+          requestConfig: {
+            method,
+            url: (requestConfig && requestConfig.url) || server.url + methodName,
+            body: (requestConfig && requestConfig.data) || request.body,
+            query: request.query,
+            params: request.params,
+            headers: request.headers,
+          },
           headers: {},
           body: {
             data,
