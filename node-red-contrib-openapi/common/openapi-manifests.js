@@ -64,11 +64,12 @@ module.exports = function register(RED) {
         const errors = err.errors || [];
         const formatted = errors.map(({ path, message }) => ({
           level: 'error',
-          type: path.includes('response')
-            ? 'OPENAPI_RESPONSE_VALIDATION_ERROR'
-            : path.includes('request')
-              ? 'OPENAPI_REQUEST_VALIDATION_ERROR'
-              : 'OPENAPI_VALIDATION_ERROR',
+          // type: path.includes('response')
+          //   ? 'OPENAPI_RESPONSE_VALIDATION_ERROR'
+          //   : path.includes('request')
+          //     ? 'OPENAPI_REQUEST_VALIDATION_ERROR'
+          //     : 'OPENAPI_VALIDATION_ERROR',
+          type: 'UNDEFINED',
           text: `[${path}] ${message}`,
         }));
         const { lToken, plToken = '' } = getLifecycleToken({ req });

@@ -112,14 +112,22 @@ module.exports = function (RED) {
         msg.payload = {
           status,
           headers,
-          requestConfig,
+          requestConfig: {
+            method,
+            url: requestConfig.url,
+            body: requestConfig.data,
+            query: request.query,
+            params: request.params,
+            headers: request.headers,
+          },
           data,
         };
         node.send([null, msg]);
       } catch (e) {
         const defaultMessage = {
           level: 'error',
-          type: 'UNKNOWN_REQUEST_ERROR',
+          // type: 'UNKNOWN_REQUEST_ERROR',
+          type: 'UNDEFINED',
           message: e.message,
         }
         const { response = {} } = e;

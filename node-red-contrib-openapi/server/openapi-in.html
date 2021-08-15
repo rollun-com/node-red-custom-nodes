@@ -53,6 +53,17 @@
         let paths;
         const $schema = $('#node-input-schema');
         const $operation = $('#node-input-operation');
+        const renderSwaggerUi = (link) => {
+          const theLink = `https://swagger-editor.rollun.net/?hideEditor=true&url=${link}`;
+          $('#swagger-ui').html(`
+            <div style="width: 100%">
+              <a href="${theLink}" style="margin-bottom: 10px; color: cornflowerblue; text-decoration: underline;" target="_blank">Open Swaager UI in new tab</a>
+              <div style="width: 100%">
+                <iframe height="700px" width="100%" src="${theLink}"></iframe>
+              </div>
+            </div>
+          `);
+        }
         const toggle = ($element, disable) => {
           if (disable) {
             $element.addClass('disabled');
@@ -140,7 +151,17 @@
 
         $schema.change(function () {
           initPaths();
+
+          if (this.schema) {
+            const node = RED.nodes.node(this.schema);
+            renderSwaggerUi(node.schemaUrl);
+          }
         });
+
+        if (this.schema) {
+          const node = RED.nodes.node(this.schema);
+          renderSwaggerUi(node.schemaUrl);
+        }
       },
     });
   })();
@@ -159,20 +180,12 @@
         <label for="node-input-name"><i class="fa fa-tag"></i> <span>Name:</span></label>
         <input type="text" id="node-input-name" />
     </div>
-    <div class="form-tips"><b>Tip:</b> This is here to help.</div>
-
+    <div id="swagger-ui"></div>
 
 </script>
 
 <script type="text/x-red" data-help-name="rollun-openapi-in">
-    <p>Some useful help text to introduce the node.</p>
-    <h3>Outputs</h3>
-        <dl class="message-properties">
-        <dt>payload
-            <span class="property-type">string | buffer</span>
-        </dt>
-    <h3>Details</h3>
-    <p>OpenAPI schema based HTTP endpoint.</p>
+    OpenAPI In node
 
-
+    Select an operation and node will listen http requests on this path
 </script>

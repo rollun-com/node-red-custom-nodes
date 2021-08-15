@@ -67,7 +67,19 @@
       window.utils.makeTypedInput('headers', [{ value: "msg", label: "msg." }], undefined, this.headers);
       window.utils.makeTypedInput('query', [{ value: "msg", label: "msg." }], undefined, this.query);
 
-      function render(config) {
+      const renderSwaggerUi = (link) => {
+        const theLink = `https://swagger-editor.rollun.net/?hideEditor=true&url=${link}`;
+        $('#swagger-ui').html(`
+            <div style="width: 100%">
+              <a href="${theLink}" style="margin-bottom: 10px; color: cornflowerblue; text-decoration: underline;" target="_blank">Open Swaager UI in new tab</a>
+              <div style="width: 100%">
+                <iframe height="700px" width="100%" src="${theLink}"></iframe>
+              </div>
+            </div>
+          `);
+      }
+
+      function render(config, url) {
         $('#node-input-operation')
           .html(Object.entries(config.paths).map(([path, methods]) => {
             return Object.entries(methods).map(([method, { summary, description }]) => {
@@ -82,13 +94,13 @@
             const isSelected = idx === +node.server;
             return `<option value="${idx}" ${isSelected ? 'selected' : ''}>#${idx + 1} ${url}</option>`;
           }).join('\n'));
+        renderSwaggerUi(url);
       }
 
       if (this.schema) {
-        const config = RED.nodes.node(this.schema).schema;
-        render(config)
+        const node = RED.nodes.node(this.schema);
+        render(node.schema, node.schemaUrl);
       }
-
     },
   });
 </script>
@@ -120,7 +132,16 @@
     <div class="form-row" id="headers"></div>
     <div class="form-row" id="query"></div>
     <div class="form-tips"><b>Tip:</b> If you do not have some of the inputs, leave them empty.</div>
+    <div id="swagger-ui"></div>
 </script>
 
 <script type="text/x-red" data-help-name="rollun-openapi-client">
+    <h3>Open API client node</h3>
+    Inputs:
+    <ol>
+        <li><code>body</code> - POST/PUT body for request, leave empty if not needed </li>
+        <li><code>params</code> - variables in url before ? symbol. For example for url /User/{id} - id is a param </li>
+        <li><code>header</code> - headers for request</li>
+        <li><code>query</code> - query for request in url after ? symbol. for example in this url https://some.site/api?id=1 id is a query</li>
+    </ol>
 </script>

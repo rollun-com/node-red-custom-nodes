@@ -24,11 +24,12 @@ module.exports = function register(RED) {
         const { data, messages = [] } = resolvePayload(msg, { data: props.data, messages: props.messages });
 
         let msgs = messages;
-        if (msg.error && msg.error.source && !msgs.some(({ type }) => type === 'NODE_RED_NODE_EXCEPTION')) {
+        if (!props.disableGenerationOfExceptionMessage) {
           const { message, source: { id, type } } = msg.error;
           msgs = [{
             level: 'error',
-            type: 'NODE_RED_NODE_EXCEPTION',
+            // type: 'NODE_RED_NODE_EXCEPTION',
+            type: 'UNDEFINED',
             text: `Caught exception in node ${id} of type ${type} with message: '${message}'`,
           }].concat(msgs);
         }

@@ -61,6 +61,18 @@
         const addButton = $('#schema-file-add-button');
         const fetchFromUrlButton = $('#schema-url-fetch-button');
         const inputUrl = $('#node-config-input-schemaUrl');
+        const renderSwaggerUi = (link) => {
+          const theLink = `https://swagger-editor.rollun.net/?hideEditor=true&url=${link}`;
+          $('#swagger-ui').html(`
+            <div style="width: 100%">
+              <a href="${theLink}" style="margin-bottom: 10px; color: cornflowerblue; text-decoration: underline;" target="_blank">Open Swaager UI in new tab</a>
+              <div style="width: 100%">
+                <iframe height="700px" width="100%" src="${theLink}"></iframe>
+              </div>
+            </div>
+          `);
+        }
+
         const setHistory = () => {
           if (node.history != null) {
             return;
@@ -109,6 +121,8 @@
                         <span>${title}</span>
                         <button class="red-ui-button openapi-remove-btn">Remove</button>
                     `);
+
+          renderSwaggerUi(inputUrl.val());
         };
 
         toggle(addButton, true);
@@ -143,10 +157,7 @@
             });
           }
 
-          // TODO: add swagger ui preview when it is ready
-          // $('#swagger-ui').html(`
-          //   <iframe src="https://swagger-editor.rollun.net?hideEditor=true&url=${inputUrl.val()}"></iframe>
-          // `)
+          renderSwaggerUi(inputUrl.val());
 
           node.schema = next;
           $('#node-config-input-name')
@@ -248,4 +259,8 @@
 </script>
 
 <script type="text/x-red" data-help-name="rollun-openapi-manifest">
+    OpenAPI manifest.
+
+    Enter a link and press fetch to save manifest. Manifest is not updated automatically if it is changed.
+    You will need to fetch it again.
 </script>
