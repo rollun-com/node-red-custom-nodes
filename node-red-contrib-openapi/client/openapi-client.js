@@ -124,7 +124,6 @@ module.exports = function (RED) {
         };
         node.send([null, msg]);
       } catch (e) {
-        console.log(e);
         const defaultMessage = {
           level: 'error',
           // type: 'UNKNOWN_REQUEST_ERROR',
@@ -133,6 +132,7 @@ module.exports = function (RED) {
         }
         const { response = {} } = e;
         const { data = null, messages = [defaultMessage] } = response.data || {};
+        console.log(response.data, response.status, response.headers);
         msg.payload = {
           status: response.status || 'UNKNOWN',
           requestConfig: {
