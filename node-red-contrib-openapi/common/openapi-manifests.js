@@ -61,6 +61,7 @@ module.exports = function register(RED) {
         if (err.status === 404 && req.openapi != null) {
           return next();
         }
+        console.log('error midlw', err, err.errors);
         const errors = err.errors || [];
         const formatted = errors.map(({ path, message }) => ({
           level: 'error',

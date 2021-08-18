@@ -24,7 +24,7 @@ module.exports = function register(RED) {
         const { data, messages = [] } = resolvePayload(msg, { data: props.data, messages: props.messages });
 
         let msgs = messages;
-        if (!props.disableGenerationOfExceptionMessage && msg.error && msg.error.source) {
+        if (!props.disableGenerationOfExceptionMessage && msg.error) {
           const { message = 'Unknown Error', source: { id, type } = { id: 'unknown', type: 'unknown' } } = msg.error;
           msgs = [{
             level: 'error',
