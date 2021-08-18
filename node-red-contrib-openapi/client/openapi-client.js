@@ -124,6 +124,7 @@ module.exports = function (RED) {
         };
         node.send([null, msg]);
       } catch (e) {
+        console.log(e);
         const defaultMessage = {
           level: 'error',
           // type: 'UNKNOWN_REQUEST_ERROR',
@@ -151,7 +152,7 @@ module.exports = function (RED) {
         defaultLogger.withMsg(msg)(
           'error',
           `OpenAPIClientRes: ${requestConfig && requestConfig.method} ${requestConfig && requestConfig.url}`,
-          { status: e.status || 'UNKNOWN', ...(requestConfig || {}), messages },
+          { status: e.status || 'UNKNOWN', ...(requestConfig || {}), messages, stack: e.stack},
         );
         return node.send([msg]);
       }
