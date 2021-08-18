@@ -47,7 +47,7 @@ module.exports = function register(RED) {
               defaultLogger.withMsg(msg)(
                 'info',
                 `OpenAPIServerRes: ${req.method} ${req.path}`,
-                { status: statusCode },
+                { status: statusCode, messages: msgs },
               );
             }
           });
