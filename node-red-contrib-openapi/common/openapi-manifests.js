@@ -45,6 +45,7 @@ module.exports = function register(RED) {
     } else {
       mainRouter.use(router);
     }
+    console.log(ExpressOpenapiValidator);
     const validator = new ExpressOpenapiValidator.OpenApiValidator({
       apiSpec: schema,
       validateRequests: true,

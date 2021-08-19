@@ -33,6 +33,7 @@ module.exports = function (RED) {
         return sendError(msg, `No method found by operation ${config.operation}`);
       }
 
+      console.log(endpointConfig, schema.components.schemas);
       const validator = new OpenAPIRequestValidator({
         ...endpointConfig,
         schemas: schema.components.schemas,
@@ -152,7 +153,7 @@ module.exports = function (RED) {
         defaultLogger.withMsg(msg)(
           'error',
           `OpenAPIClientRes: ${requestConfig && requestConfig.method} ${requestConfig && requestConfig.url}`,
-          { status: e.status || 'UNKNOWN', ...(requestConfig || {}), messages, stack: e.stack},
+          { status: e.status || 'UNKNOWN', ...(requestConfig || {}), messages, response: response.data, stack: e.stack},
         );
         return node.send([msg]);
       }
