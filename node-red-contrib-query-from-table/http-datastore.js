@@ -2,6 +2,14 @@ const url = require('url');
 
 const { resolvePath, getLifecycleToken, defaultLogger } = require('../node-red-contrib-common-utils/1-global-utils');
 
+class HttpDatastoreError extends Error {
+  constructor(message, request) {
+    super(message);
+    this.request = request;
+    Error.captureStackTrace(HttpDatastoreError);
+  }
+}
+
 class HttpDatastore {
 
   /**
@@ -71,7 +79,10 @@ class HttpDatastore {
     if (rql === '') {
       return '';
     }
-    return HttpDatastore.resolveRQLWithREDMsg(rql, this.msg);
+
+    const resolved = HttpDatastore.resolveRQLWithREDMsg(rql, this.msg);
+
+    return fixRqlEncoding(resolved);
   }
 
   /**
@@ -129,18 +140,18 @@ class HttpDatastore {
   static _withResponseFormatter(promise, fullResponse = false) {
     return promise
       .then(res => {
-        if (res.error) throw new Error(res.error);
+        if (res.error) throw new HttpDatastoreError(res.error, res.config);
         return fullResponse ? res : res.data
       })
       // rethrow error, with different message, if key error exists in response
       .catch(err => {
         if (err.response && err.response.data) {
           if (err.response.data.error) {
-            throw new Error(err.response.data.error);
+            throw new HttpDatastoreError(err.response.data.error, err.config);
           }
-          throw new Error(JSON.stringify(err.response.data));
+          throw new HttpDatastoreError(JSON.stringify(err.response.data), err.config);
         }
-        throw err;
+        throw new HttpDatastoreError(err.message, err.config);
       });
   }
 
@@ -252,6 +263,22 @@ class HttpDatastore {
       fullResponse
     );
   }
+}
+
+function fixRqlEncoding(rql) {
+  const searchParams = new URLSearchParams(rql);
+  return [...searchParams.keys()]
+    .map((node) => {
+      if (node.startsWith('sort(')) {
+        return node;
+      }
+      return node
+        .replace(/-/g, '%2D')
+        .replace(/_/g, '%5F')
+        .replace(/\./g, '%2E')
+        .replace(/~/g, '%7E');
+    })
+    .join('&');
 }
 
 module.exports = { HttpDatastore };

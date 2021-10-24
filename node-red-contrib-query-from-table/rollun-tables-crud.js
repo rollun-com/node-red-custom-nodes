@@ -19,7 +19,13 @@ module.exports = function (RED) {
 
       const { url, action, idField, timeout, log } = config;
 
-      const datastore = new HttpDatastore({ URL: url, timeout, idField, msg, logRequest: log });
+      const datastore = new HttpDatastore({
+        URL: url,
+        timeout,
+        idField,
+        msg,
+        logRequest: log
+      });
 
       const payload = getTypedFieldValue(msg, config.payload);
 
@@ -34,7 +40,7 @@ module.exports = function (RED) {
         })
         .catch(err => {
           console.log(err);
-          msg.payload = { error: err.message };
+          msg.payload = { error: err.message, request: err.request };
           node.send([msg, null]);
         })
     });
