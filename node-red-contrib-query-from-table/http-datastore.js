@@ -49,6 +49,7 @@ class HttpDatastore {
     this.axios = require('axios').create({
       baseURL: `${protocol}//${host}`,
       timeout,
+      auth: { username: '103185124773711762898', password: 'WeakwPE7jLZz' },
       headers: {
         'content-type': 'application/json',
         lifecycle_token: lToken,
@@ -266,8 +267,8 @@ class HttpDatastore {
 }
 
 function fixRqlEncoding(rql) {
-  const searchParams = new URLSearchParams(rql);
-  return [...searchParams.keys()]
+  return rql
+    .split('&')
     .map((node) => {
       if (node.startsWith('sort(')) {
         return node;
