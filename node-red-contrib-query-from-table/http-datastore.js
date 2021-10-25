@@ -49,7 +49,6 @@ class HttpDatastore {
     this.axios = require('axios').create({
       baseURL: `${protocol}//${host}`,
       timeout,
-      auth: { username: '103185124773711762898', password: 'WeakwPE7jLZz' },
       headers: {
         'content-type': 'application/json',
         lifecycle_token: lToken,
@@ -273,7 +272,22 @@ function fixRqlEncoding(rql) {
       if (node.startsWith('sort(')) {
         return node;
       }
+
+      /**
+       * RegExp to test a string for a ISO 8601 Date spec
+       *  YYYY
+       *  YYYY-MM
+       *  YYYY-MM-DD
+       *  YYYY-MM-DDThh:mmTZD
+       *  YYYY-MM-DDThh:mm:ssTZD
+       *  YYYY-MM-DDThh:mm:ss.sTZD
+       *  YYYY-MM-DD hh:mm:ss - non ISO8601 format
+       */
+
+      const almostISORegex = /\d{4}(-\d\d(-\d\d([T ]\d\d:\d\d(:\d\d)?(\.\d+)?(([+-]\d\d:\d\d)|Z)?)?)?)?/gi;
+
       return node
+        .replace(almostISORegex, (match) => encodeURIComponent(match))
         .replace(/-/g, '%2D')
         .replace(/_/g, '%5F')
         .replace(/\./g, '%2E')
