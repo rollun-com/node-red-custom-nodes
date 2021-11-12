@@ -1,5 +1,5 @@
-const {getTypedFieldValue} = require('../node-red-contrib-common-utils/1-global-utils')
-const {GoogleSpreadsheet} = require('google-spreadsheet');
+const { getGSheet, parseGSheetUrl } = require('./utils');
+const { getTypedFieldValue } = require('../node-red-contrib-common-utils/1-global-utils')
 
 module.exports = function (RED) {
   function GSheetGetCells(sheetResponseFormatter = data => data) {
@@ -8,15 +8,12 @@ module.exports = function (RED) {
       const node = this;
       this.config = RED.nodes.getNode(config.config);
 
-      const URL = require('url');
-
-      node.on('input', function (msg) {
+      node.on('input', async function (msg) {
 
         const makeError = (text) => {
-          msg.payload = {error: text};
+          msg.payload = { error: text };
           node.send([msg, null])
         };
-
 
         if (!node.config) return makeError(`node.config is required!`);
         if (!config.sheetURL) return makeError(`sheetURL is required!`);
@@ -25,39 +22,17 @@ module.exports = function (RED) {
         const sheetURL = getTypedFieldValue(msg, config.sheetURL);
         const cells = getTypedFieldValue(msg, config.cells);
 
-        const parsedURL = URL.parse(sheetURL);
-
-        const sheetIdMatch = parsedURL.path.match(/spreadsheets\/d\/(?<sheetId>.+)\//i);
-        const tableIdMatch = parsedURL.hash.match(/gid=(?<tableId>[0-9]+)/i);
-        if (!sheetIdMatch) return makeError(`Could not get sheetId from sheetURL.`);
-        if (!tableIdMatch) return makeError(`Could not get tableId from sheetURL.`);
-
-        const {sheetId} = sheetIdMatch.groups;
-        const {tableId} = tableIdMatch.groups;
-
-
-        (async () => {
-
-          const doc = new GoogleSpreadsheet(sheetId);
-
-          await doc.useServiceAccountAuth(node.config.creds);
-
-          await doc.loadInfo();
-          const sheet = doc.sheetsById[tableId];
-          if (!sheet) {
-            throw new Error(`Google sheet with id ${tableId} not found!`);
-          }
-          await sheet.loadCells(cells);
+        try {
+          const { tableId, sheetId } = parseGSheetUrl(sheetURL);
+          const sheet = await getGSheet(tableId, sheetId, node.config.creds, { loadCells: cells });
 
           msg.payload = sheetResponseFormatter(sheet);
           node.send([null, msg]);
-        })()
-          .catch(err => {
-            msg.payload = {error: err.message};
-            node.send([msg, null]);
-          });
+        } catch (e) {
+          msg.payload = { error: e.message };
+          node.send([msg, null]);
+        }
       });
-
     }
   }
 
@@ -70,18 +45,23 @@ module.exports = function (RED) {
       }
       return cell._rawData.userEnteredValue.stringValue
     });
-    return cells.slice(1).map(row => {
-      return row.reduce((acc, {_rawData: {userEnteredValue = {}, effectiveValue = {}, formattedValue = ''}}, idx) => {
-        acc[header[idx]] = {
-          userEnteredValueString: userEnteredValue.stringValue,
-          userEnteredValueNumber: userEnteredValue.numberValue,
-          effectiveValueString: effectiveValue.stringValue,
-          effectiveValueNumber: effectiveValue.numberValue,
-          formattedValue: formattedValue
-        }
-        return acc;
-      }, {});
-    });
+    return cells
+      .slice(1)
+      .map(row =>
+        row.reduce((acc, { _rawData }, idx) => {
+          const { userEnteredValue = {}, effectiveValue = {}, formattedValue = '' } = _rawData;
+          return {
+            ...acc,
+            [header[idx]]: {
+              userEnteredValueString: userEnteredValue.stringValue,
+              userEnteredValueNumber: userEnteredValue.numberValue,
+              effectiveValueString: effectiveValue.stringValue,
+              effectiveValueNumber: effectiveValue.numberValue,
+              formattedValue: formattedValue
+            }
+          };
+        }, {})
+      );
   };
 
   RED.nodes.registerType("gsheets-get-cells-raw", GSheetGetCells());
