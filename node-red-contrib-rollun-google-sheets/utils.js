@@ -34,7 +34,19 @@ async function getGSheet(sheetId, tableId, creds, { loadCells } = {}) {
   return sheet;
 }
 
+function columnToLetter(column) {
+  let temp, letter = '';
+  while (column > 0)
+  {
+    temp = (column - 1) % 26;
+    letter = String.fromCharCode(temp + 65) + letter;
+    column = (column - temp - 1) / 26;
+  }
+  return letter;
+}
+
 module.exports = {
   parseGSheetUrl,
   getGSheet,
+  columnToLetter,
 }
