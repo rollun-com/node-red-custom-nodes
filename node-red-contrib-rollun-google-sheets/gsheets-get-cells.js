@@ -24,7 +24,7 @@ module.exports = function (RED) {
 
         try {
           const { tableId, sheetId } = parseGSheetUrl(sheetURL);
-          const sheet = await getGSheet(tableId, sheetId, node.config.creds, { loadCells: cells });
+          const sheet = await getGSheet(sheetId, tableId, node.config.creds, { loadCells: cells });
 
           msg.payload = sheetResponseFormatter(sheet);
           node.send([null, msg]);
