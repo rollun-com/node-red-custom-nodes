@@ -15,8 +15,11 @@
     "axios": "^0.19.2",
     "file-type": "12.1.0",
     "google-spreadsheet": "^3.0.11",
+    "joi": "^17.4.3",
+    "lodash": "^4.17.21",
     "node-red-contrib-string": "~0.2.2",
     "node-red-contrib-tgr-jsonata": "~1.0.2",
+    "object-hash": "^2.2.0",
     "q": "1.5.1",
     "request": "2.88.0",
     "rollun-ts-utils": "^0"

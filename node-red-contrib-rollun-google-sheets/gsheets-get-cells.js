@@ -1,4 +1,5 @@
-const { getGSheet, parseGSheetUrl } = require('./utils');
+const { parseGSheetUrl, formatGSheetToArray } = require('./utils');
+const { getGSheet } = require('./sdk');
 const { getTypedFieldValue } = require('../node-red-contrib-common-utils/1-global-utils')
 
 module.exports = function (RED) {
@@ -36,34 +37,6 @@ module.exports = function (RED) {
     }
   }
 
-  const formatSheet = sheet => {
-    const cells = sheet._cells;
-    if (cells.length === 0) return [];
-    const header = cells[0].map((cell, idx) => {
-      if (!cell._rawData.userEnteredValue) {
-        throw new Error(`Header row at column #${idx + 1} does not have value!`);
-      }
-      return cell._rawData.userEnteredValue.stringValue
-    });
-    return cells
-      .slice(1)
-      .map(row =>
-        row.reduce((acc, { _rawData }, idx) => {
-          const { userEnteredValue = {}, effectiveValue = {}, formattedValue = '' } = _rawData;
-          return {
-            ...acc,
-            [header[idx]]: {
-              userEnteredValueString: userEnteredValue.stringValue,
-              userEnteredValueNumber: userEnteredValue.numberValue,
-              effectiveValueString: effectiveValue.stringValue,
-              effectiveValueNumber: effectiveValue.numberValue,
-              formattedValue: formattedValue
-            }
-          };
-        }, {})
-      );
-  };
-
   RED.nodes.registerType("gsheets-get-cells-raw", GSheetGetCells());
-  RED.nodes.registerType("gsheets-get-cells-formatted", GSheetGetCells(formatSheet));
+  RED.nodes.registerType("gsheets-get-cells-formatted", GSheetGetCells(formatGSheetToArray));
 }

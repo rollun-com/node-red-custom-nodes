@@ -1,0 +1,158 @@
+<script type="text/javascript">
+  "use strict";
+
+  const config = {
+    category: 'Rollun',
+    inputs: 1,
+    outputs: 2,
+    color: "#bce4d0",
+    icon: "google-logo.png",
+    paletteLabel: 'GSheets SDK',
+    defaults: {
+      config: {
+        value: "",
+        type: "gsheets-config",
+        required: true
+      },
+      sheetURL: {
+        value: 'str|https://docs.google.com/spreadsheets/d/example'
+      },
+      action: {
+        value: 'getCells',
+      },
+      payload: {
+        value: '{}',
+      },
+      name: {
+        value: ""
+      }
+    },
+    outputLabels: function (index) {
+      return [
+        'error',
+        'success'
+      ][index]
+    },
+    label: function () {
+      return this.name || 'GSheets SDK'
+    },
+    oneditprepare: function () {
+      const node = this;
+      window.utils.makeTypedInput('sheetURL', ['msg', 'str', 'num'], 'Sheet URL', node.sheetURL);
+      const payloadEl = $('#node-input-payload');
+
+      const setPayloadProp = (path, value) => {
+        const payload = JSON.parse(payloadEl.val());
+        _.set(payload, path, value);
+        payloadEl.val(JSON.stringify(payload));
+        return value;
+      };
+
+      const unsetPayloadValue = (path) => {
+        const payload = JSON.parse(payloadEl.val());
+        _.unset(payload, path);
+        payloadEl.val(JSON.stringify(payload));
+      };
+
+      const getPayloadProp = (path) => {
+        const payload = JSON.parse(payloadEl.val());
+        return _.get(payload, path);
+      }
+
+      const resetPayload = () => {
+        payloadEl.val('{}');
+      }
+
+      const actionsConfigs = {
+        getCells: { fields: [{ name: 'cells' }, { name: 'formatResult', type: 'checkbox' }] },
+        updateRow: { fields: [{ name: 'rowIndex' }, { name: 'rowData' }] },
+        appendRow: { fields: [{ name: 'rowData' }] }
+      }
+
+      function getLabelEl(name) {
+        const formatted = name
+          .replace(/([a-z])([A-Z])/g, (full, last, first) => `${last} ${first.toLowerCase()}`)
+          .replace(/^(.)/, (full, match) => match.toUpperCase());
+        return $(`<label style="margin-top: 10px">${formatted}</label>`)
+      }
+
+      function renderTypedInput(container, name) {
+        const typedValue = getPayloadProp(name) || setPayloadProp(name, 'msg|example');
+        container.append(getLabelEl(name));
+
+        const input = $(`<input style="width: 100%" id="payload-${name}">`);
+        container.append(input);
+
+        const types = [ 'msg', 'str', 'num' ];
+        const [type, value = ''] = typedValue.split('|');
+
+        $(input)
+          .typedInput({ types: types, width: 400 })
+          .typedInput('value', value)
+          .typedInput('type', type)
+          .on('change', (e, type) => {
+            if (type === true) return;
+            setPayloadProp(name, `${type}|${e.target.value}`)
+          })
+      }
+
+      function renderCheckBox(container, name) {
+        const initValue = getPayloadProp(name) || setPayloadProp(name, false);
+
+        const input = $(`<input
+                        style="width: 20px; margin-top: -5px; transform: scale(1.5);"
+                        type="checkbox"
+                        ${initValue ? 'checked' : ''}>
+                        `);
+        input.change(e => e.target.checked ? setPayloadProp(name, e.target.checked) : unsetPayloadValue(name));
+
+        container.append($(`<div class="form-row">`).append(getLabelEl(name), input));
+      }
+
+      function renderPayloadForm(action) {
+        const container = $('#payload');
+        // reset container
+        container.html('');
+        const { fields } = actionsConfigs[action];
+
+        for (const { name, type } of fields) {
+          if (!type || type === 'typed') {
+            renderTypedInput(container, name);
+          } else if (type === 'checkbox') {
+            renderCheckBox(container, name);
+          }
+        }
+      }
+
+      renderPayloadForm(node.action);
+
+      $('#node-input-action')
+        .change(e => {
+          if (e.target.value !== node.action) {
+            resetPayload();
+          }
+          renderPayloadForm(e.target.value);
+        })
+    }
+  };
+
+  RED.nodes.registerType('gsheets-sdk', config);
+</script>
+
+<script type="text/html" data-template-name="gsheets-sdk">
+    <div class="form-row">
+        <label for="node-input-config"><i class="fa fa-server"></i> GSheet config</label>
+        <input type="text" id="node-input-config">
+    </div>
+    <div class="form-row" id="sheetURL"></div>
+    <div class="form-row">
+        <label for="node-input-action">Action</label>
+        <select id="node-input-action">
+            <option value="getCells">Get Cells</option>
+            <option value="updateRow">Update row</option>
+            <option value="appendRow">Append row</option>
+        </select>
+    </div>
+    <div id="node-input-payload"></div>
+    <div id="payload"></div>
+</script>

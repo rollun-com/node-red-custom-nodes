@@ -1,5 +1,4 @@
 const _ = require('lodash');
-const { randomString } = require('rollun-ts-utils');
 const { createHash } = require('crypto');
 
 /**
@@ -50,6 +49,12 @@ function getTypedFieldValue(msg, val = '') {
   if (type === 'msg') {
     return resolvePath(msg, value);
   }
+  if (type === 'str') {
+    return value;
+  }
+  if (type === 'num') {
+    return +value;
+  }
   // if (type === 'json') {
   //   return JSON.parse(val);
   // }
@@ -82,9 +87,15 @@ function resolvePayload(msg, requestPayload) {
       ? JSON.parse(requestPayload)
       : requestPayload;
     const resolve = (acc, [key, value]) => {
+      // resolve typed inputs
       if (typeof value === 'string') {
         const resolvedValue = getTypedFieldValue(msg, value);
         resolvedValue && acc.push([key, resolvedValue]);
+        return acc;
+      }
+      // ignore already resolved values
+      if (Object(value) !== value) {
+        acc.push([key, value]);
         return acc;
       }
       const result = _.toPairs(value).reduce(resolve, []);
@@ -219,6 +230,28 @@ const defaultLogger = new ElasticLogger({
   port: '5044',
 });
 
+/**
+ * Returns errors as a string, or undefined if schema is fine.
+ * @param node
+ * @param msg
+ * @param schema
+ * @param data
+ * @param errorField
+ */
+
+function validateObjectSchema(schema, data) {
+  try {
+
+    const { error } = schema.validate(data, { abortEarly: false });
+    if (error) {
+      return error.details.map(({ message }) => message).join(', ');
+    }
+  } catch (e) {
+    console.log(e)
+  }
+
+}
+
 module.exports = {
   defaultLogger,
   ElasticLogger,
@@ -228,4 +261,5 @@ module.exports = {
   resolvePayload,
   wait,
   getLifecycleToken,
+  validateObjectSchema,
 }
