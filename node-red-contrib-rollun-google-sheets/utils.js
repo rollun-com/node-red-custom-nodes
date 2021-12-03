@@ -18,13 +18,24 @@ function parseGSheetUrl(url) {
 }
 
 function columnToLetter(column) {
-  let temp, letter = '';
-  while (column > 0) {
-    temp = (column - 1) % 26;
+  let temp;
+  let letter = '';
+  let col = column;
+  while (col > 0) {
+    temp = (col - 1) % 26;
     letter = String.fromCharCode(temp + 65) + letter;
-    column = (column - temp - 1) / 26;
+    col = (col - temp - 1) / 26;
   }
   return letter;
+}
+
+function letterToColumn(letter) {
+  let column = 0;
+  const { length } = letter;
+  for (let i = 0; i < length; i++) {
+    column += (letter.charCodeAt(i) - 64) * 26 ** (length - i - 1);
+  }
+  return column;
 }
 
 function formatGSheetToArray(sheet) {
@@ -56,26 +67,28 @@ function formatGSheetToArray(sheet) {
 }
 
 /**
- * @param worksheet
+ * @param rows
+ * @param headers
  */
-async function gSheetToRows(worksheet) {
-  const rows = await worksheet.getRows();
-  const cells = rows.map(row => row._rawData);
-  const headers = worksheet.headerValues;
+async function rowsToArray(rows, headers) {
+  const cells = rows.map(row => ({ data: row._rawData, rowNumber: row._rowNumber}));
 
-  return cells.reduce((acc, row) => {
+  return cells.reduce((acc, { data, rowNumber }) => {
     const formattedRow = {};
     headers.forEach((header, idx) => {
-      formattedRow[header] = row[idx];
+      if (data[idx]) {
+        formattedRow[header] = data[idx];
+      }
     })
 
-    return acc.concat(formattedRow);
+    return acc.concat({ row: formattedRow, rowNumber });
   }, []);
 }
 
 module.exports = {
-  gSheetToRows,
+  rowsToArray,
   parseGSheetUrl,
   formatGSheetToArray,
   columnToLetter,
+  letterToColumn,
 }

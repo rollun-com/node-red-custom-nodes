@@ -232,24 +232,16 @@ const defaultLogger = new ElasticLogger({
 
 /**
  * Returns errors as a string, or undefined if schema is fine.
- * @param node
- * @param msg
  * @param schema
  * @param data
- * @param errorField
  */
 
 function validateObjectSchema(schema, data) {
-  try {
-
-    const { error } = schema.validate(data, { abortEarly: false });
-    if (error) {
-      return error.details.map(({ message }) => message).join(', ');
-    }
-  } catch (e) {
-    console.log(e)
+  const { error, value } = schema.validate(data, { abortEarly: false });
+  if (error) {
+    return { error: error.details.map(({ message }) => message).join(', ') };
   }
-
+  return { value };
 }
 
 module.exports = {

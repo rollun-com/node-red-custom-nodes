@@ -1,5 +1,6 @@
 const joi = require('joi');
-const { gSheetToRows } = require('./utils');
+const { formatGSheetToArray } = require('./utils');
+const { rowsToArray } = require('./utils');
 const { getGSheet } = require('./sdk');
 const { parseGSheetUrl, columnToLetter } = require('./utils');
 const {
@@ -9,9 +10,14 @@ const {
 } = require('../node-red-contrib-common-utils/1-global-utils');
 
 const actionsPayloadSchema = {
+  getRows: joi.object({
+    from: joi.number().min(2).required(),
+    to: joi.number().min(2).required(),
+    returnRaw: joi.boolean().default(false),
+  }),
   getCells: joi.object({
-    cells: joi.string().required(),
-    formatResult: joi.boolean().default(false),
+    cells: joi.string().regex(/^[0-9a-z]+:[0-9a-z]+$/i).required(),
+    returnRaw: joi.boolean().default(false),
   }),
   updateRow: joi.object({
     rowIndex: joi.number().min(2).required(),
@@ -30,7 +36,19 @@ function validateHeadersInData(headers, data) {
 }
 
 const handlers = {
-  getCells: async function (creds, { sheetId, tableId }, { cells, formatResult }) {
+  getRows: async function (creds, { sheetId, tableId }, { from, to, returnRaw }) {
+    const sheet = await getGSheet(
+      sheetId,
+      tableId,
+      creds,
+    );
+    await sheet.loadHeaderRow()
+
+    const rows = await sheet.getRows({ offset: from - 2, limit: to - from + 1 });
+
+    return returnRaw ? rows : rowsToArray(rows, sheet.headerValues);
+  },
+  getCells: async function (creds, { sheetId, tableId }, { cells, returnRaw }) {
     const sheet = await getGSheet(
       sheetId,
       tableId,
@@ -39,7 +57,7 @@ const handlers = {
     );
     await sheet.loadHeaderRow()
 
-    return formatResult ? gSheetToRows(sheet) : sheet;
+    return returnRaw ? sheet : formatGSheetToArray(sheet);
   },
   updateRow: async function (creds, { sheetId, tableId }, { rowIndex, rowData }) {
     const sheet = await getGSheet(sheetId, tableId, creds);
@@ -83,7 +101,7 @@ module.exports = function (RED) {
 
     node.on('input', async function (msg) {
       const resolved = resolvePayload(msg, config.payload);
-      const error = validateObjectSchema(actionsPayloadSchema[config.action], resolved)
+      const { error, value } = validateObjectSchema(actionsPayloadSchema[config.action], resolved)
       if (error) {
         msg.payload = { error };
         node.send([msg, null]);
@@ -95,7 +113,7 @@ module.exports = function (RED) {
         const result = await handlers[config.action](
           node.config.creds,
           parseGSheetUrl(sheetURL),
-          resolved,
+          value,
         );
         if (result) {
           msg.payload = result;
