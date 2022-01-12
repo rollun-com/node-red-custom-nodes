@@ -1,6 +1,7 @@
 const fs = require('fs');
 const URL = require('url');
 const Axios = require('axios');
+const crypto = require('crypto');
 
 class MegaplanAPIV3Client {
   /**
@@ -12,8 +13,12 @@ class MegaplanAPIV3Client {
     this.password = config.password;
 
     this.axios = Axios.create({ baseURL: config.host });
-    const hash = Buffer.from(this.email + this.password).toString('base64');
-    this.cacheFileName = `/data/${hash}-megaplan-auth-token.json`;
+    const hash = crypto
+      .createHash('sha256')
+      .update(this.email + this.password)
+      .digest()
+      .toString('hex');
+    this.cacheFileName = `./${hash}-megaplan-auth-token.json`;
     this.axios.interceptors.request.use(async config => {
       if (config.url === 'api/v3/auth/access_token') return config;
       const token = await this._getAuthToken();
@@ -43,7 +48,6 @@ class MegaplanAPIV3Client {
         return data.access_token;
       }
     } catch (err) {
-      console.log('getting cached token error ', err);
       return null;
     }
   }
@@ -144,8 +148,17 @@ ${val}`).join('\n');
       const { data } = await this.axios[method](url, body);
       return data;
     } catch (err) {
-      console.log(err.response);
-      throw err.response;
+      const { response } = err || {};
+
+      if (err.isAxiosError && response) {
+        const { meta } = response.data || {};
+        if (!meta || !meta.errors || meta.errors.length === 0) return err.message;
+
+        const [error] = meta.errors;
+
+        throw new Error(`MP error - ${meta.status}, ${error.field ? error.field : 'Message'}: ${error.message}`);
+      }
+      throw err;
     }
   }
 

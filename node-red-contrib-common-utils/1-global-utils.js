@@ -203,7 +203,7 @@ class ElasticLogger {
         lifecycle_token: this.lifecycle_token || lifecycle_token || null,
         parent_lifecycle_token: this.parent_lifecycle_token || parent_lifecycle_token || null
       };
-      console.log(log);
+      console.log('log', message);
       await this.udp_client.send(log);
     } catch (err) {
       console.error(`Couldn't log [${message}] message`, err, err.meta);
