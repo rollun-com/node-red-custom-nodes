@@ -118,6 +118,21 @@
             },
           ]
         },
+        updateRows: {
+          info: 'Update rows starting at index',
+          fields: [
+            {
+              name: 'startRowIndex',
+              info: 'Row index as a number, can be found on the left side of sheet. Minimal value is 2',
+              example: 2
+            },
+            {
+              name: 'rowsData',
+              info: 'Array of objects, that represents which fields you want to update in a rows',
+              example: [{ field1: 'test' }]
+            },
+          ]
+        },
         appendRow: {
           info: 'Add row to the end of sheet',
           fields: [
@@ -276,6 +291,7 @@
             <option value="getRows">Get rows</option>
             <option value="getCells">Get cells</option>
             <option value="updateRow">Update row</option>
+            <option value="updateRows">Update rows</option>
             <option value="appendRow">Append row</option>
         </select>
     </div>

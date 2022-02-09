@@ -8,6 +8,7 @@ const {
   validateObjectSchema,
   getTypedFieldValue
 } = require('../node-red-contrib-common-utils/1-global-utils');
+const _ = require('lodash');
 
 const actionsPayloadSchema = {
   getRows: joi.object({
@@ -23,16 +24,34 @@ const actionsPayloadSchema = {
     rowIndex: joi.number().min(2).required(),
     rowData: joi.object(),
   }),
+  updateRows: joi.object({
+    startRowIndex: joi.number().min(2).required(),
+    rowsData: joi.array().required().items(joi.object()),
+  }),
   appendRow: joi.object({
     rowData: joi.object(),
   }),
 };
 
-function validateHeadersInData(headers, data) {
-  const notFoundKeys = Object.keys(data).filter(key => !headers.includes(key));
-  if (notFoundKeys.length > 0) {
-    throw new Error(`fields [${notFoundKeys}]are not valid. Available field values: ${headers}`);
+class ValidationError extends Error {
+  constructor(msgs) {
+    super('Validation error');
+    this.messages = msgs;
   }
+}
+
+function validateHeadersInData(headers, data) {
+  let errors = [];
+
+  for (let idx = 0; idx < data.length; idx += 1) {
+    const item = data[idx];
+    const notFoundKeys = Object.keys(item).filter(key => !headers.includes(key));
+    if (notFoundKeys.length > 0) {
+      errors.push(`at row [${idx}] fields [${notFoundKeys}] are not valid. Available field names: ${headers}`);
+    }
+  }
+
+  return { errors: errors.length ? errors : null };
 }
 
 const handlers = {
@@ -65,7 +84,11 @@ const handlers = {
     await sheet.loadHeaderRow()
     const headers = sheet.headerValues;
 
-    validateHeadersInData(headers, rowData);
+    const { errors } = validateHeadersInData(headers, [rowData]);
+
+    if (errors) {
+      throw new ValidationError(errors);
+    }
 
     const newRowAddress = `A${rowIndex}:${columnToLetter(headers.length)}${rowIndex}`;
     await sheet.loadCells(newRowAddress);
@@ -78,6 +101,37 @@ const handlers = {
     });
 
     await sheet.saveUpdatedCells();
+  },
+  updateRows: async function (creds, { sheetId, tableId }, { startRowIndex, rowsData }) {
+    const sheet = await getGSheet(sheetId, tableId, creds);
+
+    await sheet.loadHeaderRow()
+    const headers = sheet.headerValues;
+
+    const { errors } = validateHeadersInData(headers, rowsData);
+
+    if (errors) {
+      throw new ValidationError(errors);
+    }
+
+    const CHUNK_SIZE = 500;
+    const chunks = _.chunk(rowsData, CHUNK_SIZE);
+
+    for (let chunkNum = 0; chunkNum < chunks.length; chunkNum += 1) {
+      const chunk = chunks[chunkNum];
+      const rowsAddress = `A${startRowIndex + chunk.length * chunkNum}:${columnToLetter(headers.length)}${startRowIndex + chunk.length * (chunkNum + 1)}`;
+      await sheet.loadCells(rowsAddress);
+
+      chunk.forEach((row, itemNum) => {
+        // generate new row
+        headers.forEach((header, colNum) => {
+          if (row[header]) {
+            sheet.getCell(startRowIndex + (chunkNum * CHUNK_SIZE) + itemNum - 1, colNum).value = row[header]
+          }
+        });
+      });
+      await sheet.saveUpdatedCells();
+    }
   },
   appendRow: async function (creds, { sheetId, tableId }, { rowData }) {
     const sheet = await getGSheet(sheetId, tableId, creds);
