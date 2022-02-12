@@ -95,9 +95,7 @@ const handlers = {
 
     // generate new row
     headers.forEach((header, idx) => {
-      if (rowData[header]) {
-        sheet.getCell(rowIndex - 1, idx).value = rowData[header]
-      }
+      sheet.getCell(rowIndex - 1, idx).value = rowData[header];
     });
 
     await sheet.saveUpdatedCells();
@@ -119,15 +117,16 @@ const handlers = {
 
     for (let chunkNum = 0; chunkNum < chunks.length; chunkNum += 1) {
       const chunk = chunks[chunkNum];
-      const rowsAddress = `A${startRowIndex + chunk.length * chunkNum}:${columnToLetter(headers.length)}${startRowIndex + chunk.length * (chunkNum + 1)}`;
-      await sheet.loadCells(rowsAddress);
+      const addressFrom = `A${startRowIndex + chunk.length * chunkNum}`;
+      const addressTo = `${columnToLetter(headers.length)}${startRowIndex + chunk.length * (chunkNum + 1)}`;
+      await sheet.loadCells(`${addressFrom}:${addressTo}`);
 
       chunk.forEach((row, itemNum) => {
         // generate new row
         headers.forEach((header, colNum) => {
-          if (row[header]) {
-            sheet.getCell(startRowIndex + (chunkNum * CHUNK_SIZE) + itemNum - 1, colNum).value = row[header]
-          }
+          const value = row[header];
+          const rowIndex = startRowIndex + (chunkNum * CHUNK_SIZE) + itemNum - 1;
+          sheet.getCell(rowIndex, colNum).value = value;
         });
       });
       await sheet.saveUpdatedCells();
