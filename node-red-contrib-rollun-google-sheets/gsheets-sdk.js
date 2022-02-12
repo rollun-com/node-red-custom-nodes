@@ -95,6 +95,10 @@ const handlers = {
 
     // generate new row
     headers.forEach((header, idx) => {
+      // do not override cell, if value is not in row
+      if (!(header in rowData)) {
+        return;
+      }
       sheet.getCell(rowIndex - 1, idx).value = rowData[header];
     });
 
@@ -124,6 +128,10 @@ const handlers = {
       chunk.forEach((row, itemNum) => {
         // generate new row
         headers.forEach((header, colNum) => {
+          // do not override cell, if value is not in row
+          if (!(header in row)) {
+            return;
+          }
           const value = row[header];
           const rowIndex = startRowIndex + (chunkNum * CHUNK_SIZE) + itemNum - 1;
           sheet.getCell(rowIndex, colNum).value = value;
