@@ -21,7 +21,7 @@ module.exports = function (RED) {
 
       const datastore = new HttpDatastore({
         URL: url,
-        timeout,
+        timeout: +timeout,
         idField,
         msg,
         logRequest: log
