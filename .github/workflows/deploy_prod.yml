@@ -10,23 +10,32 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       # deploy only prod node red servers
-      - name: Deploy dev manager node-red instance
-        run: curl ${{secrets.DEV_MANAGER_NR_HOOK}}
-
-      - name: Deploy ceo node-red instance
-        run: curl ${{secrets.CEO_NR_HOOK}}
-
 #      - name: Deploy accounting-v2 node-red instance
 #        run: curl ${{ secrets.ACCOUNTING_V2_NR_HOOK }}
 
       #      - name: Deploy cto node-red instance
       #        run: curl ${{secrets.CTO_NR_HOOK}}
-
-      - name: Deploy accounting instance
-        run: curl ${{secrets.ACCOUNTING_NR_HOOK}}
-
-      - name: Deploy main node-red instance
-        run: curl ${{secrets.MAIN_NR_HOOK}}
-
-      - name: Deploy megaplan prod node-red instance
-        run: curl ${{secrets.MEGAPLAN_NR_HOOK}}
+        
+      - uses: rollun-com/actions/update-d2c-service@master
+        with:
+          service-name: node-red
+          d2c-email: ${{ secrets.D2C_USER }}
+          d2c-password: ${{ secrets.D2C_PASSWORD }}
+          
+      - uses: rollun-com/actions/update-d2c-service@master
+        with:
+          service-name: dev-nr
+          d2c-email: ${{ secrets.D2C_USER }}
+          d2c-password: ${{ secrets.D2C_PASSWORD }}
+        
+      - uses: rollun-com/actions/update-d2c-service@master
+        with:
+          service-name: NR-megaplan
+          d2c-email: ${{ secrets.D2C_USER }}
+          d2c-password: ${{ secrets.D2C_PASSWORD }}
+          
+      - uses: rollun-com/actions/update-d2c-service@master
+        with:
+          service-name: ceo-node-red
+          d2c-email: ${{ secrets.D2C_USER }}
+          d2c-password: ${{ secrets.D2C_PASSWORD }}
