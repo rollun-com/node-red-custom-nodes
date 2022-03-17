@@ -17,11 +17,17 @@ jobs:
         #    - name: Deploy ceo node-red instance
         #      run: curl ${{secrets.CEO_NR_HOOK}}
 
-      - name: Deploy accounting-v2 node-red instance
-        run: curl ${{ secrets.ACCOUNTING_V2_NR_HOOK }}
-
-      - name: Deploy cto node-red instance
-        run: curl ${{secrets.CTO_NR_HOOK}}
+      - uses: rollun-com/actions/update-d2c-service@master
+        with:
+          service-name: nr-accounting
+          d2c-email: ${{ secrets.D2C_USER }}
+          d2c-password: ${{ secrets.D2C_PASSWORD }}
+          
+      - uses: rollun-com/actions/update-d2c-service@master
+        with:
+          service-name: cto-nred
+          d2c-email: ${{ secrets.D2C_USER }}
+          d2c-password: ${{ secrets.D2C_PASSWORD }}
 
 #    - name: Deploy accounting instance
 #      run: curl ${{secrets.ACCOUNTING_NR_HOOK}}
