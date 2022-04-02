@@ -10,7 +10,8 @@
     paletteLabel: "delovod-api-request-v2",
     defaults: {
       config: {
-        value: "", type: "delovod-config",
+        value: "",
+        type: "delovod-config",
         required: true
       },
       'action': {
@@ -19,6 +20,9 @@
       },
       'name': {
         value: ""
+      },
+      'debug': {
+        value: false,
       }
     },
     label: function () {
@@ -44,6 +48,10 @@
       <option value="setDelMark">setDelMark</option>
       <option value="request">request</option>
     </select>
+  </div>
+  <div class="">
+    <span>Debug Mode (if enabled, node will add additional `msg.delovod-api-request-v2` property with debug output)</span>
+    <input style="margin-left: 5px; margin-bottom: 6px" type="checkbox" id="node-input-debug">
   </div>
 </script>
 

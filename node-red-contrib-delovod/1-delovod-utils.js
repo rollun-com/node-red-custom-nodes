@@ -1,4 +1,12 @@
 // TODO refactor me to use common js modules
+
+const noop = () => 0;
+
+const safeExec = async (fn, ...args) => {
+  if (!fn) return;
+  try { await fn(...args); } catch (e) {}
+}
+
 global.delovod = {
   util: {
     formatDelovodRequest: (params, action, { key, version }) => `packet=${JSON.stringify({
@@ -15,7 +23,10 @@ global.delovod = {
     REQUEST: 'request'
   },
   DelovodAPIClient: class DelovodAPIClient {
-    constructor({ key, version, host }) {
+    constructor({ key, version, host, hooks = {} }) {
+
+      this.onRequestHook = (...args) => safeExec(hooks.onRequest, ...args);
+      this.onResponseHook = (...args) => safeExec(hooks.onResponse, ...args);
 
       /**
        * @type key {string} delovod API key
@@ -64,8 +75,43 @@ global.delovod = {
         data.version = this.version;
         config.data = `packet=${JSON.stringify(data)}`
 
+        const {common, delete: d, get, head, post, put, patch, ...restHeaders} = config.headers;
+        const requestHeaders = {
+          ...config.headers.common,
+          ...config.headers[config.method],
+          ...restHeaders,
+        };
+
+        this.onRequestHook({
+          url: config.baseURL + config.url,
+          method: config.method,
+          headers: requestHeaders,
+          query: config.params,
+          body: config.data,
+        });
+
         return config;
-      })
+      });
+
+      this.axios.interceptors.response.use(
+        (response) => {
+            this.onResponseHook({
+              body: response.data,
+              headers: response.headers,
+              status: response.status,
+            });
+            return response;
+        },
+        (err) => {
+          const response = err.response || {};
+          this.onResponseHook({
+            message: err.message,
+            body: response.data,
+            headers: response.headers,
+            status: response.status,
+          });
+          throw err;
+        });
     }
 
     /**

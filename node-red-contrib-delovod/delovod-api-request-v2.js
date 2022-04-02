@@ -13,19 +13,33 @@ module.exports = function (RED) {
       if (!node.config) return makeError(node, `node.config is required!`);
       if (!config['action']) return makeError(node, `action is required!`);
 
-      new global.delovod.DelovodAPIClient(node.config)
-        .baseRequest(config['action'], msg.payload)
+      let debug = {};
+      const client = new global.delovod.DelovodAPIClient({
+        ...node.config,
+        hooks: {
+          onRequest: (data) => { debug.request = data },
+          onResponse: (data) => { debug.response = data },
+        }
+      });
+
+      client.baseRequest(config['action'], msg.payload)
         .then(res => {
-          msg.payload = res || null
+          msg.payload = res || null;
+
+          if (config.debug === true) {
+            msg['delovod-api-request-v2'] = { debug }
+          }
+
           node.send([null, msg]);
         })
         .catch(err => {
-          msg.payload = {error: err.message}
-          if (err.response) {
-            // cannot serialise response with request property due to circular properties
-            err.response.request = null;
-            msg.raw_response = err.response;
+          console.log(err.stack);
+          msg.payload = { error: err.message }
+
+          if (config.debug === true) {
+            msg['delovod-api-request-v2'] = { debug }
           }
+
           node.send([msg, null]);
         })
     });
