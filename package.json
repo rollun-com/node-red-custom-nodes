@@ -13,7 +13,7 @@
   "dependencies": {
     "amazon-mws": "^0.0.27",
     "axios": "^0.19.2",
-    "file-type": "12.1.0",
+    "file-type": "16.5.4",
     "google-spreadsheet": "^3.0.11",
     "joi": "^17.4.3",
     "lodash": "^4.17.21",
