@@ -17,7 +17,7 @@
   "dependencies": {
     "q": "1.5.1",
     "request": "2.88.0",
-    "file-type": "12.1.0"
+    "file-type": "16.5.4"
   },
   "devDependencies": {
     "mocha": "6.2.0",
