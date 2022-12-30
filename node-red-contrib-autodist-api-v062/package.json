@@ -20,7 +20,7 @@
     "file-type": "12.1.0"
   },
   "devDependencies": {
-    "mocha": "6.2.0",
+    "mocha": "10.2.0",
     "node-red": "1.0.3",
     "node-red-node-test-helper": "0.2.3"
   },
